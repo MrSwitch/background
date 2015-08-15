@@ -16,37 +16,33 @@ class Brush extends Shape{
 
 		// A collection of x, y points
 		this.points = [];
+
+		this.push(...args);
 	}
 
 	// Add
 	// Add a new point to the brushes path
-	add(x,y) {
+	push(x, y) {
 
 		this.dirty = true;
-		this.points.push([x,y]);
-
-		if(!this.x&&!this.y){
-			this.x = x;
-			this.y = y;
-			this.w = 0;
-			this.h = 0;
-		}
+		this.points.push([x, y]);
 
 		// width
-		if( x < this.x ){
-			this.w = this.w + (this.x-x);
+		if (x < this.x) {
+			this.w = this.w + (this.x - x);
 			this.x = x;
 		}
-		if( x > (this.x+this.w) ){
-			this.w = x-this.x;
+		else if (x > (this.x + this.w)) {
+			this.w = x - this.x;
+			console.log(this.w);
 		}
 		// height
-		if( y < this.y ){
-			this.h = this.h + (this.y-y);
+		if (y < this.y) {
+			this.h = this.h + (this.y - y);
 			this.y = y;
 		}
-		if( y > (this.y+this.h) ){
-			this.h = y-this.y;
+		else if (y > (this.y + this.h)) {
+			this.h = y - this.y;
 		}
 	}
 
@@ -54,11 +50,10 @@ class Brush extends Shape{
 	draw(canvas) {
 		// Loop through all the points and draw the line
 		var ctx = canvas.ctx;
-		ctx.fillStyle = 'red';
 		ctx.beginPath();
 		var point = this.points[0];
-		ctx.moveTo(point[0],point[1]);
-		this.points.forEach((point) => ctx.lineTo(point[0],point[1]));
+		ctx.moveTo(point[0], point[1]);
+		this.points.forEach((point) => ctx.lineTo(point[0], point[1]));
 		ctx.stroke();
 	}
 }
@@ -75,14 +70,13 @@ var brush = null,
 
 function pointStart(e) {
 
-	brush = new Brush();
-	brush.add(e.clientX, e.clientY);
+	brush = new Brush(e.clientX, e.clientY);
 	canvas.push(brush);
 	mousedown = true;
 
-	if(text.visible){
+	if (text.visible) {
 		text.visible = false;
-		text.dirty = false;
+		text.dirty = true;
 	}
 }
 
@@ -93,17 +87,19 @@ function pointEnd() {
 
 canvas.addEventListener('touchstart', pointStart);
 canvas.addEventListener('touchend', pointEnd);
-canvas.addEventListener('touchmove', (e) => move(e.clientX,e.clientY) );
+canvas.addEventListener('touchmove', (e) => move(e.clientX, e.clientY));
 
 canvas.addEventListener('mousedown', pointStart);
 canvas.addEventListener('mouseup', pointEnd);
-canvas.addEventListener('mousemove', (e) => move(e.clientX,e.clientY) );
+canvas.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+
+canvas.addEventListener('resize', () => canvas.clean(true) );
 
 // Move
 // Depending on the event
-function move(x,y){
+function move(x, y) {
 	// is mousedown?
-	if(brush){
-		brush.add(x,y);
+	if (brush) {
+		brush.push(x, y);
 	}
 }

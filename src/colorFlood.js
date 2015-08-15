@@ -17,8 +17,7 @@ class Tile extends Rect{
 		super(...args);
 
 		this.type = 'tile';
-		this.gridX = 0;
-		this.gridY = 0;
+		this.grid = [0, 0];
 
 		var index = Math.floor(Math.random()*palate.length);
 		if (index === palate.length) {
@@ -59,97 +58,22 @@ var ny;
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
 var	text = new Text();
-text.write("Flood It", "center center", 150, canvas);
 
 // Help
 var	info = new Text();
-info.write("Start in the top left corner\nFlood tiles by color\nIn as few moves as possible", "center center", 40, canvas);
-info.y = text.y + text.h;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
-var play = new Text();
-play.write("►", "left top", 40, canvas);
-play.addEventListener('click', function(e) {
-
-	// reset the board
-	setup();
-
-},false);
+var playBtn = new Text();
+playBtn.write("►", "left top", 40, canvas);
+playBtn.addEventListener('click', setup );
 
 
 // Setup all the tiles
-setup(true);
+setup();
 
-
-function setup() {
-
-	// Remove everything
-	canvas.collection.length = 0;
-
-	clicks = 0;
-	selectedColor = null;
-
-	tiles.length = 0;
-
-
-	// Define type size
-	// set tile default Width and height
-	w = h = 50;
-
-	// set number of tiles horizontally and vertically
-	nx = Math.floor(canvas.width/w);
-	ny = Math.floor(canvas.height/h);
-	max_tries = nx + ny;
-
-	// Do the tiles not perfectly fit the space?
-	// split the difference between the tiles, adding to the widths and heights
-	w += Math.floor((canvas.width%(nx*w))/nx);
-	h += Math.floor((canvas.height%(ny*h))/ny);
-
-	// Create tiles
-	for(var y=0;y<ny;y++) {
-		for(var x=0;x<nx;x++) {
-
-			var tile = new Tile(x*w,y*h,w-1,h-1);
-			tiles.push(tile);
-			canvas.push(tile);
-			tile.gridX = x;
-			tile.gridY = y;
-		}
-	}
-
-	// Add text items
-	canvas.push(text);
-	canvas.push(info);
-	canvas.push(play);
-
-	// Starting state
-	// Select the first tile, (top left corner)
-	// Mark as flooded
-	tiles[0].flooded = true;
-	flooded = 1;
-
-	// Flood its neighbouring tiles on start
-	tileSelected(tiles[0]);
-}
-
-
-function play(tileSelected) {
-
-	if (!tileSelected) {
-		return;
-	}
-
-	selectedColor = tileSelected.colorIndex;
-
-	// Trigger Flooding
-	tiles.forEach((tile) => {
-		if (tile.flooded) {
-			flood(tile);
-		}
-	});
-}
+// Rebuild the board on resize
+canvas.addEventListener('resize', setup);
 
 // User has clicked an item on the canvas
 // We'll use event delegation to tell us what the user has clicked.
@@ -178,12 +102,82 @@ canvas.addEventListener('click', (e) => {
 	}
 });
 
+function setup() {
+
+	// Remove everything
+	canvas.collection.length = 0;
+
+	clicks = 0;
+	selectedColor = null;
+
+	tiles.length = 0;
+
+
+	// Define type size
+	// set tile default Width and height
+	w = h = 50;
+
+	// set number of tiles horizontally and vertically
+	nx = Math.floor(canvas.width/w);
+	ny = Math.floor(canvas.height/h);
+	max_tries = nx + ny;
+
+	// Do the tiles not perfectly fit the space?
+	// split the difference between the tiles, adding to the widths and heights
+	w += Math.floor((canvas.width%(nx*w))/nx);
+	h += Math.floor((canvas.height%(ny*h))/ny);
+
+	// Create tiles
+	for (var y = 0; y < ny; y++) {
+		for (var x = 0; x < nx; x++) {
+
+			var tile = new Tile(x*w, y*h, w-1, h-1);
+			tiles.push(tile);
+			canvas.push(tile);
+			tile.grid = [x, y];
+		}
+	}
+
+	// Write message
+	text.write("Flood It", "center center", 150, canvas);
+	info.write("Start in the top left corner\nFlood tiles by color\nIn as few moves as possible", "center center", 40, canvas);
+	info.y = text.y + text.h;
+
+	// Add text items
+	canvas.push(text);
+	canvas.push(info);
+	canvas.push(playBtn);
+
+	// Starting state
+	// Select the first tile, (top left corner)
+	// Mark as flooded
+	tiles[0].flooded = true;
+	flooded = 1;
+
+	// Flood its neighbouring tiles on start
+	play(tiles[0]);
+}
+
+function play(tileSelected) {
+
+	if (!tileSelected) {
+		return;
+	}
+
+	selectedColor = tileSelected.colorIndex;
+
+	// Trigger Flooding
+	tiles.forEach((tile) => {
+		if (tile.flooded) {
+			flood(tile);
+		}
+	});
+}
 
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
 
-	var x = tile.gridX,
-		y = tile.gridY;
+	var [x, y] = tile.grid;
 
 	tile.colorIndex = selectedColor;
 	tile.fillStyle = palate[selectedColor];
@@ -201,7 +195,7 @@ function flood(tile) {
 
 	edgeTiles.forEach((edge) => {
 		var tile = tiles[edge];
-		if (edge>0&&tile) {
+		if (edge > 0 && tile) {
 			if (tile.colorIndex === selectedColor && !tile.flooded) {
 				tile.flooded = true;
 				flood(tile);

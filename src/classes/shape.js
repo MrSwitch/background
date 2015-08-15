@@ -59,9 +59,6 @@ export default class Shape{
 		if(!(e.type in this.events)){
 			return;
 		}
-		var a = this.events[e.type];
-		for(var i=0;i<a.length;i++){
-			a[i](e);
-		}
+		this.events[e.type].forEach((fn) => fn(e));
 	}
 }

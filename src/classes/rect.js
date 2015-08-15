@@ -19,7 +19,7 @@ export default class Rect extends Shape{
 			ctx.translate(this.dx, this.dy);
 		}
 		ctx.fillStyle = this.fillStyle;
-		ctx.fillRect(this.x,this.y,this.w,this.h);
+		ctx.fillRect(this.x, this.y, this.w, this.h);
 		ctx.restore();
 	}
 }

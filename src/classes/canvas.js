@@ -1,4 +1,4 @@
- // Setup
+// Setup
 // This constructs the canvas object
 
 // Includes
@@ -6,35 +6,59 @@ import '../polyfills/requestAnimationFrame';
 
 export default class Canvas{
 
-	constructor() {
+	constructor(canvas) {
+
+		var parent;
+
+		// events
+		this.events = {};
+
+		// Set the collection to be empty
+		this.collection = [];
 
 		// browser check
-		if(!("getContext" in document.createElement('canvas'))){
+		if (!("getContext" in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
 
-		// Create the canvas layer
-		var canvas = document.createElement('canvas');
-		canvas.width=window.innerWidth;
-		canvas.height=window.innerHeight;
-		canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
-		canvas.setAttribute('tabindex',0);
+		if (!(canvas && canvas instanceof HTMLCanvasElement)) {
 
-		document.body.insertBefore(canvas,document.body.firstElementChild);
+			// Set the parent
+			parent = canvas;
 
-		this.canvas = canvas;
+			// Create the canvas layer
+			canvas = document.createElement('canvas');
+
+			// Not a parent
+			if (!parent) {
+				// Append to the body
+				parent = document.body;
+				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.setAttribute('tabindex',0);
+
+				document.documentElement.style.cssText = "min-height:100%;";
+
+				// Bind window resize events
+				window.addEventListener('resize', this.resize.bind(this));
+			}
+
+			// Append this element
+			parent.insertBefore(canvas, parent.firstElementChild);
+
+			this.canvas = canvas;
+
+			this.resize();
+		}
+		else{
+			this.canvas = canvas;
+		}
+
 		this.ctx = canvas.getContext('2d');
 
 		// ensure its keeping up.
 		this.width=canvas.width;
 		this.height=canvas.height;
-
-		// Set the collection to be empty
-		this.collection = [];
-
-		// events
-		this.events = {};
 
 		// Initiate the draw
 		this.draw();
@@ -43,7 +67,29 @@ export default class Canvas{
 		CanvasListeners.call(this, ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart','touchend']);
 	}
 
-	push (item){
+	resize() {
+		var parent = (this.canvas.parentNode === document.body) ? document.documentElement : this.canvas.parentNode;
+		var height = parent.offsetHeight;
+		var width = parent.offsetWidth;
+		var changed = false;
+
+		if (this.width !== width) {
+			changed = true;
+			this.canvas.width = width;
+			this.width = width;
+		}
+		if (this.height !== height) {
+			changed = true;
+			this.canvas.height = height;
+			this.height = height;
+		}
+
+		if (changed) {
+			this.dispatchEvent({type:'resize'});
+		}
+	}
+
+	push(item) {
 		item.dirty = true;
 		item.setup(this);
 		this.collection.push(item);
@@ -51,10 +97,10 @@ export default class Canvas{
 
 	// Touch
 	// Mark items and objects in the same space to be redrawn
-	clean() {
+	clean(enforce) {
 		this.collection.forEach((item) => {
-			if (item.dirty)
-				cleanItem(item);
+			if (enforce || item.dirty)
+				this.cleanItem(item);
 		});
 	}
 

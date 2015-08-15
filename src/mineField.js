@@ -19,8 +19,7 @@ class Tile extends Rect{
 		this.mine = Math.random() < (1/8);
 		this.played = false;
 
-		this.gridX = 0;
-		this.gridY = 0;
+		this.grid = [0, 0];
 		this.type = 'tile';
 
 		this.played = false;
@@ -70,7 +69,7 @@ var tiles = [],
 	flooded = 0,
 	boom = false;
 
-var h,w;
+var h, w;
 var nx;
 var ny;
 
@@ -88,7 +87,7 @@ text.write("MineField", "center center", 150, canvas);
 
 var start = new Text();
 start.write("►", "left top", 40, canvas);
-start.addEventListener('click', (e) => setup() ,false);
+start.addEventListener('click', (e) => setup(), false);
 
 // Setup all the tiles
 setup();
@@ -104,6 +103,12 @@ canvas.addEventListener('click', (e) => {
 	}
 
 }, false);
+
+
+
+canvas.addEventListener('resize', setup);
+
+
 
 // Setup
 function setup() {
@@ -133,8 +138,7 @@ function setup() {
 		for (var x=0; x<nx; x++) {
 
 			var tile = new Tile(x*w, y*h, w-1, h-1);
-			tile.gridX = x;
-			tile.gridY = y;
+			tile.grid = [x, y];
 			tiles.push(tile);
 			canvas.push(tile);
 
@@ -178,7 +182,7 @@ function play(tile){
 
 		// Show all the mines
 		mines.forEach((mine) => mine.play());
-		text.write(boom ? "BOOM!": "Kudos!" , "center center", 150, canvas);
+		text.write(boom ? "BOOM!": "Kudos!", "center center", 150, canvas);
 	}
 	else {
 		text.write("", "right bottom", 50, canvas);
@@ -189,8 +193,7 @@ function play(tile){
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
 
-	var x = tile.gridX,
-		y = tile.gridY;
+	var [x, y] = tile.grid;
 
 	if (tile.played) {
 		return;
@@ -202,14 +205,14 @@ function flood(tile) {
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
 	var edgeTiles = unique([
-		(Math.max(y-1,0)*nx)+Math.max(x-1,0),
-		(Math.max(y-1,0)*nx)+x,
-		(Math.max(y-1,0)*nx)+Math.min(x+1,nx-1),
-		(y*nx)+Math.min(x+1,nx-1),
-		((Math.min(y+1,ny-1))*nx)+Math.min(x+1,nx-1),
-		((Math.min(y+1,ny-1))*nx)+x,
-		((Math.min(y+1,ny-1))*nx)+Math.max(x-1,0),
-		(y*nx)+Math.max(x-1,0)
+		(Math.max(y-1, 0)*nx)+Math.max(x-1, 0),
+		(Math.max(y-1, 0)*nx)+x,
+		(Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1),
+		(y*nx)+Math.min(x+1, nx-1),
+		((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1),
+		((Math.min(y+1, ny-1))*nx)+x,
+		((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0),
+		(y*nx)+Math.max(x-1, 0)
 	]);
 
 	// Any bombs nearby?
