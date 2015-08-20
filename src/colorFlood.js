@@ -57,16 +57,36 @@ var ny;
 
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
-var	text = new Text();
+var	title = new Text();
+title.text = "Flood It";
+title.fontSize = 150;
+title.align = "center center";
+title.calc(canvas);
+
+var	credits = new Text();
+credits.text = "Ended";
+credits.fontSize = 150;
+credits.align = "center center";
+credits.addEventListener('click', setup);
 
 // Help
 var	info = new Text();
+info.text = "Start in the top left corner\nFlood tiles by color\nIn as few moves as possible";
+info.align = "center center";
+info.fontSize = 40;
+info.calc(canvas);
+
+var	score = new Text();
+score.align = "right bottom";
+score.fontSize = 40;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
 var playBtn = new Text();
-playBtn.write("►", "left top", 40, canvas);
-playBtn.addEventListener('click', setup );
+playBtn.text = "►";
+playBtn.align = "left top";
+playBtn.fontSize = 40;
+playBtn.addEventListener('click', setup);
 
 
 // Setup all the tiles
@@ -84,21 +104,31 @@ canvas.addEventListener('click', (e) => {
 		play(e.target);
 	}
 
+	// hide title
+	title.visible = false;
+
 	// Has the game state changed?
 	if (flooded >= tiles.length && clicks < max_tries) {
-		text.write("Kudos! " + (clicks+1) + " moves", "center center", 150, canvas);
+		credits.text = "Kudos! " + (clicks+1) + " moves";
+		credits.visible = true;
+		credits.calc(canvas);
 		info.visible = false;
-		info.dirty = true;
+		score.visible = false;
 	}
 	else if (++clicks >= max_tries) {
-		text.write("Game over!", "center center", 150, canvas);
+		credits.text = "Game over!";
+		credits.visible = true;
+		credits.calc(canvas);
 		info.visible = true;
-		info.dirty = true;
+		score.visible = false;
 	}
 	else {
-		text.write(clicks + "/" + max_tries, "right bottom", 50, canvas);
+		score.text = clicks + "/" + max_tries;
+		score.visible = true;
+		score.calc(canvas);
+
+		credits.visible = false;
 		info.visible = false;
-		info.dirty = true;
 	}
 });
 
@@ -111,7 +141,6 @@ function setup() {
 	selectedColor = null;
 
 	tiles.length = 0;
-
 
 	// Define type size
 	// set tile default Width and height
@@ -139,14 +168,14 @@ function setup() {
 	}
 
 	// Write message
-	text.write("Flood It", "center center", 150, canvas);
-	info.write("Start in the top left corner\nFlood tiles by color\nIn as few moves as possible", "center center", 40, canvas);
-	info.y = text.y + text.h;
+	info.y = title.y + title.h;
 
 	// Add text items
-	canvas.push(text);
+	canvas.push(title);
 	canvas.push(info);
+	canvas.push(credits);
 	canvas.push(playBtn);
+	canvas.push(score);
 
 	// Starting state
 	// Select the first tile, (top left corner)
@@ -181,9 +210,6 @@ function flood(tile) {
 
 	tile.colorIndex = selectedColor;
 	tile.fillStyle = palate[selectedColor];
-
-	// Not sure how optimal this is but hey it look
-	canvas.cleanItem(tile);
 
 	// find all tiles next to this one.
 	var edgeTiles = [

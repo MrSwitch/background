@@ -46,14 +46,11 @@ class Tile extends Rect{
 			text.strokeStyle = null;
 			text.fillStyle="black";
 			text.font = "30px Arial bold";
-			text.x = this.x+(this.w/2);
-			text.y = this.y+(this.h/2);
+			text.x = this.x + (this.w / 2);
+			text.y = this.y + (this.h / 2);
 
 			canvas.push(text);
 		}
-
-		// Mark as dirty
-		this.dirty = true;
 	}
 }
 
@@ -79,15 +76,28 @@ var canvas = new Canvas();
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
 
-var	text = new Text();
-text.write("MineField", "center center", 150, canvas);
+var	title = new Text();
+title.text = "MineField";
+title.align = "center center";
+title.fontSize = 150;
+title.calc(canvas);
+
+
+var	credits = new Text();
+credits.align = "center center";
+credits.fontSize = 150;
+credits.calc(canvas);
+credits.addEventListener('click', setup);
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
 
 var start = new Text();
-start.write("►", "left top", 40, canvas);
-start.addEventListener('click', (e) => setup(), false);
+start.text = "►";
+start.align = "left top";
+start.fontSize = 40;
+start.calc(canvas);
+start.addEventListener('click', setup);
 
 // Setup all the tiles
 setup();
@@ -125,13 +135,13 @@ function setup() {
 	w = h = 50;
 
 	// set number of tiles horizontally and vertically
-	nx = Math.floor(canvas.width/w);
-	ny = Math.floor(canvas.height/h);
+	nx = Math.floor(canvas.width / w);
+	ny = Math.floor(canvas.height / h);
 
 	// Do the tiles not perfectly fit the space?
 	// split the difference between the tiles, adding to the widths and heights
-	w += Math.floor((canvas.width%(nx*w))/nx);
-	h += Math.floor((canvas.height%(ny*h))/ny);
+	w += Math.floor((canvas.width % (nx * w)) / nx);
+	h += Math.floor((canvas.height % (ny * h)) / ny);
 
 	// Create tiles
 	for (var y=0; y<ny; y++) {
@@ -150,9 +160,11 @@ function setup() {
 	}
 
 	// Flood its neighbouring tiles on start
-	text.write("MineField", "center center", 150, canvas);
-	canvas.push(text);
+	canvas.push(title);
+	canvas.push(credits);
 	canvas.push(start);
+
+	credits.visible = false;
 }
 
 function play(tile){
@@ -182,10 +194,13 @@ function play(tile){
 
 		// Show all the mines
 		mines.forEach((mine) => mine.play());
-		text.write(boom ? "BOOM!": "Kudos!", "center center", 150, canvas);
+		credits.text = boom ? "BOOM!" : "Kudos!";
+		credits.visible = true;
+		credits.calc(canvas);
 	}
 	else {
-		text.write("", "right bottom", 50, canvas);
+		title.visible = false;
+		credits.visible = false;
 	}
 
 }

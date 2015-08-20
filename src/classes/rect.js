@@ -9,6 +9,10 @@ export default class Rect extends Shape{
 	constructor(...args) {
 		super(...args);
 
+		// Set property listeners
+		['fillStyle'].forEach(this._watchProperty.bind(this));
+
+
 		this.type = 'rect';
 	}
 

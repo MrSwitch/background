@@ -6,73 +6,70 @@ import Shape from './shape';
 export default class Text extends Shape{
 
 	// Initiate a new shape object.
-	constructor (text){
+	constructor (text) {
 		// initiate inheritance
 		super();
 
 		// Watch the following properties for changes
-		['text'].forEach(this._watchProperty);
+		['text', 'shadowBlur', 'shadowColor', 'fillStyle', 'strokeStyle', 'textAlign', 'textBaseline', 'lineWidth'].forEach(this._watchProperty.bind(this));
 
 		// Define text
-		this.text = text||'';
+		this.text = text || '';
 
 		this.shadowColor = "black";
-		this.fillStyle="black";
-		this.strokeStyle="white";
+		this.fillStyle = "black";
+		this.strokeStyle = "white";
 		this.textAlign = 'left';
 		this.textBaseline = 'top';
 		this.lineWidth = 0;
-
+		this.align = 'left top';
+		this.fontSize = 30;
 	}
 
 	// Define the text and the alignment of the object
-	write (text, align, fontSize, canvas) {
+	calc (canvas) {
 
 		canvas.cleanItem(this);
 
 		// Define text
-		this.text = text;
-		this.textAlign=align.split(" ")[0];
-		this.textBaseline=align.split(" ")[1];
-		this.fontSize = fontSize;
-		this.dirty = true;
+		this.textAlign = this.align.split(" ")[0];
+		this.textBaseline = this.align.split(" ")[1];
 
 		var ctx = canvas.ctx;
-
-		// Mark that it needs to be redrawn
-		this.dirty = true;
-
 		var fontSize = this.fontSize;
 
 		// Split text by line breaks
 		this.lines = this.text.split('\n');
 
 		// Which is the longest line?
-		var _width = 0, default_text = this.lines[0];
-		for (var i=0; i < this.lines.length; i++) {
-			var _w = ctx.measureText(this.lines[i]).width;
-			if(_w>_width){
-				_width = _w;
-				default_text = this.lines[i];
-			}
-		}
+		var _width = 0;
+		var default_text = this.lines[0];
 
+		this.lines.forEach((line) => {
+			var _w = ctx.measureText(line).width;
+			if (_w > _width) {
+				_width = _w;
+				default_text = line;
+			}
+		});
 
 		// Find the width and height of the item
 		// Using the canvas context
 		ctx.save();
 
 		ctx.shadowColor = "black";
-		ctx.fillStyle="black";
-		ctx.strokeStyle="rgba(255,255,255,0.5)";
-		ctx.font= fontSize + "px Arial bold";
+		ctx.fillStyle = "black";
+		ctx.strokeStyle = "rgba(255,255,255,0.5)";
+		ctx.font = fontSize + "px Arial bold";
 
-		while(ctx.measureText(default_text).width > canvas.width) {
+		while (ctx.measureText(default_text).width > canvas.width) {
 			fontSize *= 0.9;
 			fontSize = Math.round(fontSize);
 			ctx.font = fontSize + "px Arial bold";
 		}
+
 		this.shadowBlur = ctx.shadowBlur = Math.round(fontSize/10);
+		this.fontSize = fontSize;
 		this.font = ctx.font;
 
 		this.w = ctx.measureText(default_text).width + (this.shadowBlur * 2);
@@ -89,7 +86,7 @@ export default class Text extends Shape{
 		switch(this.textAlign) {
 			case "center":
 			case "middle":
-				this.textAlign="center";
+				this.textAlign = "center";
 				this.x = (canvas.width / 2) - (this.w / 2);
 			break;
 			case "left":
@@ -116,6 +113,8 @@ export default class Text extends Shape{
 
 		this.textAlign = 'left';
 		this.textBaseline = 'top';
+
+		ctx.restore();
 	}
 
 	// Draw
@@ -124,6 +123,8 @@ export default class Text extends Shape{
 		var ctx = canvas.ctx;
 
 		ctx.save();
+
+		ctx.globalAlpha = this.opacity;
 
 		ctx.shadowColor = this.shadowColor;
 		if (this.shadowBlur) {

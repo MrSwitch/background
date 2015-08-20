@@ -8,7 +8,14 @@ export default class Shape{
 	constructor (...args) {
 
 		// Set property listeners
-		['x', 'y', 'w', 'h', 'dx', 'dy'].forEach(watchProperty.bind(this));
+		['x', 'y', 'w', 'h', 'dx', 'dy', 'visible', 'opacity'].forEach(this._watchProperty.bind(this));
+
+		// The default status is touched,
+		// This means it needs to be drawn on to canvas
+		this._dirty = true;
+
+		// initieate  events
+		this.events = [];
 
 		// Set past points
 		this.past = {};
@@ -19,13 +26,27 @@ export default class Shape{
 		// Whether or not to draw this out
 		this.visible = true;
 
-		// The default status is touched,
-		// This means it needs to be drawn on to canvas
-		this.dirty = true;
+		// Opacity
+		this.opacity = 1;
 
-		// initieate  events
-		this.events = [];
+	}
 
+	set dirty (v) {
+		// Has this just been made dirty?
+		if (!this._dirty && v) {
+			// Mark as dirty
+			this._dirty = v;
+
+			// Trigger a canvas clean
+			this.dispatchEvent(new Event('dirty'));
+		}
+		else if(!v){
+			// reset
+			this._dirty = false;
+		}
+	}
+	get dirty () {
+		return this._dirty;
 	}
 
 	// set x (v) { this._x = v; }
@@ -84,8 +105,10 @@ export default class Shape{
 				return this['_' + propName];
 			},
 			set: function(v) {
-				this.dirty = true; 
-				this['_' + propName] = v;
+				if (this['_' + propName] !== v) {
+					this.dirty = true; 
+					this['_' + propName] = v;
+				}
 			}
 		});
 	}

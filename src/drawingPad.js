@@ -58,10 +58,27 @@ class Brush extends Shape{
 }
 
 var canvas = new Canvas();
+
 var	text = new Text();
-text.write("Drawing Pad", "center center", 150, canvas);
+text.text = "Drawing Pad";
+text.align = "center center";
+text.fontSize = 150;
 text.fillStyle = 'rgba(0,0,0,0.03)';
 text.strokeStyle = 'rgba(255,255,255,0.03)';
+text.calc(canvas);
+text.frame = function(canvas) {
+
+	// Has the user started?
+	if (brush) {
+		if (this.opacity > 0.1) {
+			this.opacity *= 0.9;
+		}
+		else {
+			this.opacity = 0;
+		}
+	}
+};
+
 canvas.push(text);
 
 var brush = null,
@@ -73,10 +90,6 @@ function pointStart(e) {
 	canvas.push(brush);
 	mousedown = true;
 
-	if (text.visible) {
-		text.visible = false;
-		text.dirty = true;
-	}
 }
 
 function pointEnd() {

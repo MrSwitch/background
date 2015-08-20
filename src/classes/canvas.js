@@ -88,13 +88,14 @@ export default class Canvas{
 		}
 
 		if (changed) {
-			this.dispatchEvent({type:'resize'});
+			this.dispatchEvent(new Event('resize'));
 		}
 	}
 
 	push(item) {
 		item.dirty = true;
 		item.setup(this);
+		item.addEventListener('dirty', () => this.cleanItem(item));
 		this.collection.push(item);
 	}
 
@@ -140,6 +141,9 @@ export default class Canvas{
 	// Trigger the draw function
 	draw() {
 
+		// Clean
+		this.clean();
+
 		// Call the frame function in the context of the frame to draw
 		this.frame(this);
 
@@ -153,10 +157,13 @@ export default class Canvas{
 				if (item.visible) {
 					item.draw(this);
 				}
-				item.dirty = false;
 			}
 		});
 
+		// Mark all as undirty
+		this.collection.filter((item) => item.dirty).forEach((item) => item.dirty = false );
+
+		// Request another frame
 		requestAnimationFrame(this.draw.bind(this));
 	}
 

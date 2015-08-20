@@ -10,6 +10,7 @@ import Rect from './classes/rect';
 class Tile extends Rect{
 	
 	constructor(...args) {
+
 		super(...args);
 
 		this.n = 100;
@@ -21,8 +22,6 @@ class Tile extends Rect{
 	}
 
 	frame(canvas) {
-
-		this.dirty = true;
 
 		var [i, j] = this.grid;
 
@@ -95,12 +94,12 @@ canvas.addEventListener('mousemove', action);
 canvas.addEventListener('touchmove', action);
 canvas.addEventListener('resize', setup);
 
-
-// Canvas
-canvas.frame = function() {
+canvas.frame = () => {
 	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
+
+// Canvas
 var radius = 80;
 var mouse;
 
