@@ -5,17 +5,19 @@
 import Shape from './shape';
 
 export default class Rect extends Shape{
-	constructor (...args){
+
+	constructor(...args) {
 		super(...args);
 
 		this.type = 'rect';
 	}
-	draw (canvas){
+
+	draw(canvas) {
 
 		var ctx = canvas.ctx;
 		ctx.save();
 
-		if (this.dx||this.dy) {
+		if (this.dx || this.dy) {
 			ctx.translate(this.dx, this.dy);
 		}
 		ctx.fillStyle = this.fillStyle;

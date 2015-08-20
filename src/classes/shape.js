@@ -1,17 +1,19 @@
 // Shape
-
-
-
 // CanvasShapes
 // The parent object defining a basic shape, x,y,w,h, for starters.
 // And basic operatings you might like to include on a shape
 
 export default class Shape{
 
-	constructor (...args){
+	constructor (...args) {
 
+		// Set property listeners
+		['x', 'y', 'w', 'h', 'dx', 'dy'].forEach(watchProperty.bind(this));
+
+		// Set past points
 		this.past = {};
 
+		// Store the values
 		this.position(...args);
 
 		// Whether or not to draw this out
@@ -23,7 +25,20 @@ export default class Shape{
 
 		// initieate  events
 		this.events = [];
+
 	}
+
+	// set x (v) { this._x = v; }
+	// get x () { return this._x || 0; }
+
+	// set y (v) { this._y = v; }
+	// get y () { return this._y || 0; }
+
+	// set w (v) { this._w = v; }
+	// get w () { return this._w || 0; }
+
+	// set h (v) { this._h = v; }
+	// get h () { return this._h || 0; }
 
 	position(x = 0, y = 0, w = 0, h = 0) {
 
@@ -48,17 +63,30 @@ export default class Shape{
 	// Events
 	// Assign Events to be fired when the user clicks this object
 	// Awesome
-	addEventListener (eventName, callback){
-		if(!(eventName in this.events)){
+	addEventListener(eventName, callback) {
+		if (!(eventName in this.events)) {
 			this.events[eventName] = [];
 		}
 		this.events[eventName].push(callback);
 	}
 
-	dispatchEvent(e){
-		if(!(e.type in this.events)){
+	dispatchEvent(e) {
+		if (!(e.type in this.events)) {
 			return;
 		}
 		this.events[e.type].forEach((fn) => fn(e));
+	}
+
+	// Assign getters and setters to default properties
+	_watchProperty(propName) {
+		Object.defineProperty(this, propName, {
+			get: function() {
+				return this['_' + propName];
+			},
+			set: function(v) {
+				this.dirty = true; 
+				this['_' + propName] = v;
+			}
+		});
 	}
 }

@@ -34,7 +34,6 @@ class Brush extends Shape{
 		}
 		else if (x > (this.x + this.w)) {
 			this.w = x - this.x;
-			console.log(this.w);
 		}
 		// height
 		if (y < this.y) {

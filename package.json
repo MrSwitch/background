@@ -1,21 +1,21 @@
 {
-  "name": "escape",
+  "name": "background",
   "version": "1.0.0",
-  "description": "Games",
+  "description": "Animated website backgrounds",
   "main": "dist/colorFlood.js",
   "scripts": {
     "test": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MrSwitch/escape.git"
+    "url": "https://github.com/MrSwitch/background.git"
   },
   "author": "Andrew Dodson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MrSwitch/escape/issues"
+    "url": "https://github.com/MrSwitch/background/issues"
   },
-  "homepage": "https://github.com/MrSwitch/escape",
+  "homepage": "https://github.com/MrSwitch/background",
   "devDependencies": {
     "babel": "^5.8.20",
     "babelify": "^6.1.3",

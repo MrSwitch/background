@@ -65,6 +65,9 @@ export default class Canvas{
 
 		// Bind events
 		CanvasListeners.call(this, ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart','touchend']);
+
+		// listen to changes
+		
 	}
 
 	resize() {
@@ -241,7 +244,7 @@ function CanvasListeners(events) {
 
 			self.collection.forEach((item) => {
 
-				if (!item.visible||!item.w||!item.h) {
+				if (!item.visible || !item.w || !item.h) {
 					return;
 				}
 

@@ -10,7 +10,8 @@ export default class Text extends Shape{
 		// initiate inheritance
 		super();
 
-		this.type = 'text';
+		// Watch the following properties for changes
+		['text'].forEach(this._watchProperty);
 
 		// Define text
 		this.text = text||'';
@@ -48,7 +49,7 @@ export default class Text extends Shape{
 
 		// Which is the longest line?
 		var _width = 0, default_text = this.lines[0];
-		for(var i=0;i<this.lines.length;i++){
+		for (var i=0; i < this.lines.length; i++) {
 			var _w = ctx.measureText(this.lines[i]).width;
 			if(_w>_width){
 				_width = _w;
@@ -66,7 +67,7 @@ export default class Text extends Shape{
 		ctx.strokeStyle="rgba(255,255,255,0.5)";
 		ctx.font= fontSize + "px Arial bold";
 
-		while(ctx.measureText(default_text).width>canvas.width){
+		while(ctx.measureText(default_text).width > canvas.width) {
 			fontSize *= 0.9;
 			fontSize = Math.round(fontSize);
 			ctx.font = fontSize + "px Arial bold";
@@ -74,22 +75,22 @@ export default class Text extends Shape{
 		this.shadowBlur = ctx.shadowBlur = Math.round(fontSize/10);
 		this.font = ctx.font;
 
-		this.w = ctx.measureText(default_text).width + (this.shadowBlur*2);
-		this.h = (fontSize + (this.shadowBlur*2))*this.lines.length;
+		this.w = ctx.measureText(default_text).width + (this.shadowBlur * 2);
+		this.h = (fontSize + (this.shadowBlur * 2)) * this.lines.length;
 
 		ctx.restore();
 
 		// Store style attributes
 		// Store the new attributes of the text item
-		this.lineWidth=Math.floor(fontSize/30);
+		this.lineWidth = Math.floor(fontSize / 30);
 
 
 		// HEIGHT and WIDTH
-		switch(this.textAlign){
+		switch(this.textAlign) {
 			case "center":
 			case "middle":
 				this.textAlign="center";
-				this.x = (canvas.width/2) - (this.w/2);
+				this.x = (canvas.width / 2) - (this.w / 2);
 			break;
 			case "left":
 				this.x = 0;
@@ -99,11 +100,11 @@ export default class Text extends Shape{
 			break;
 		}
 
-		switch(this.textBaseline){
+		switch(this.textBaseline) {
 			case "center":
 			case "middle":
-				this.textBaseline="middle";
-				this.y = (canvas.height/2) - (this.h/2);
+				this.textBaseline = "middle";
+				this.y = (canvas.height / 2) - (this.h / 2);
 			break;
 			case "top":
 				this.y = 0;
@@ -128,8 +129,8 @@ export default class Text extends Shape{
 		if (this.shadowBlur) {
 			ctx.shadowBlur = this.shadowBlur;
 		}
-		ctx.fillStyle=this.fillStyle;
-		ctx.strokeStyle=this.strokeStyle;
+		ctx.fillStyle = this.fillStyle;
+		ctx.strokeStyle = this.strokeStyle;
 		ctx.font = this.font;
 
 		ctx.textAlign = this.textAlign;
@@ -144,8 +145,8 @@ export default class Text extends Shape{
 
 		var len = this.lines.length;
 
-		this.lines.forEach( (item, index) => {
-			let y = this.y + (this.h ? (index*(this.h/len)) : 0);
+		this.lines.forEach((item, index) => {
+			let y = this.y + (this.h ? (index * (this.h / len)) : 0);
 
 			ctx.fillText(item, this.x, y);
 			if (this.strokeStyle) {
