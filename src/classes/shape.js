@@ -43,7 +43,7 @@ export default class Shape{
 			// Trigger a canvas clean
 			this.dispatchEvent(new Event('dirty'));
 		}
-		else if(!v){
+		else if(!v) {
 			// reset
 			this._dirty = false;
 		}

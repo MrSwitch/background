@@ -70,28 +70,41 @@ export default class Canvas{
 		// Bind events
 		CanvasListeners.call(this, ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart','touchend']);
 
-		// Listen to changes to the background hash to bring the canvas element to the front
-		window.addEventListener('hashchange', hashchange.bind(this));
 
-		function hashchange() {
-			if (window.location.hash === '#'+BACKGROUND_HASH) {
-				// Set the zIndex to a large number
-				this.canvas.style.setProperty('z-index', 10000);
+		{
+			// HASH CHANGE DEPTH
+			// Listen to changes to the background hash to bring the canvas element to the front
+			window.addEventListener('hashchange', hashchange.bind(this));
+
+			let INITIAL_ZINDEX = this.canvas.style.getPropertyValue('z-index');
+
+			function hashchange() {
+
+				var z = INITIAL_ZINDEX;
+
+				if (window.location.hash === '#'+BACKGROUND_HASH) {
+					z = 10000;
+				}
+
+				if (z !== undefined) {
+					// Set the z-Index
+					this.canvas.style.setProperty('z-index', z);
+				}
+				else {
+					// Remove the z-Index
+					this.canvas.style.removeProperty('z-index');
+				}
 			}
-			else {
-				// Remove the custom z-Index
-				this.canvas.style.removeProperty('z-index');
-			}
+
+			hashchange.call(this);
 		}
-
-		hashchange.call(this);
 
 	}
 
 	resize() {
 		var parent = (this.canvas.parentNode === document.body) ? document.documentElement : this.canvas.parentNode;
-		var height = parent.offsetHeight;
-		var width = parent.offsetWidth;
+		var height = parent.clientHeight;
+		var width = parent.clientWidth;
 		var changed = false;
 
 		if (this.width !== width) {
