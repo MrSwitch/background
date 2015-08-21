@@ -99,19 +99,19 @@ function pointEnd() {
 
 canvas.addEventListener('touchstart', pointStart);
 canvas.addEventListener('touchend', pointEnd);
-canvas.addEventListener('touchmove', (e) => move(e.clientX, e.clientY));
+canvas.addEventListener('touchmove', move);
 
 canvas.addEventListener('mousedown', pointStart);
 canvas.addEventListener('mouseup', pointEnd);
-canvas.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+canvas.addEventListener('mousemove', move);
 
 canvas.addEventListener('resize', () => canvas.clean(true) );
 
 // Move
 // Depending on the event
-function move(x, y) {
+function move(e) {
 	// is mousedown?
 	if (brush) {
-		brush.push(x, y);
+		brush.push(e.clientX, e.clientY);
 	}
 }

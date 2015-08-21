@@ -64,7 +64,8 @@ class Tile extends Rect{
 var tiles = [],
 	mines = [],
 	flooded = 0,
-	boom = false;
+	boom = false,
+	ended = true;
 
 var h, w;
 var nx;
@@ -80,20 +81,32 @@ var	title = new Text();
 title.text = "MineField";
 title.align = "center center";
 title.fontSize = 150;
+title.zIndex = 1;
 title.calc(canvas);
+title.pointerEvents = false;
 
+var	info = new Text();
+info.text = "Tap  to  start";
+info.align = "center center";
+info.fontSize = 40;
+info.zIndex = 1;
+info.calc(canvas);
+info.pointerEvents = false;
+info.y = info.y + title.h;
 
 var	credits = new Text();
 credits.align = "center center";
+credits.zIndex = 1;
 credits.fontSize = 150;
 credits.calc(canvas);
-credits.addEventListener('click', setup);
+credits.pointerEvents = false;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
 
 var start = new Text();
 start.text = "►";
+start.zIndex = 1;
 start.align = "left top";
 start.fontSize = 40;
 start.calc(canvas);
@@ -107,6 +120,16 @@ setup();
  ******************************************/
 
 canvas.addEventListener('click', (e) => {
+
+	// Tile Clicked
+	canvas.bringToFront();
+
+	if (ended) {
+		ended = false;
+		setup();
+		return;
+	}
+
 	// Tile Clicked
 	if (e.target.type === 'tile') {
 		play(e.target);
@@ -162,8 +185,11 @@ function setup() {
 	// Flood its neighbouring tiles on start
 	canvas.push(title);
 	canvas.push(credits);
+	canvas.push(info);
 	canvas.push(start);
 
+	title.visible = true;
+	info.visible = true;
 	credits.visible = false;
 }
 
@@ -197,9 +223,14 @@ function play(tile){
 		credits.text = boom ? "BOOM!" : "Kudos!";
 		credits.visible = true;
 		credits.calc(canvas);
+		info.text = "Tap to restart";
+		info.visible = true;
+
+		ended = true;
 	}
 	else {
 		title.visible = false;
+		info.visible = false;
 		credits.visible = false;
 	}
 

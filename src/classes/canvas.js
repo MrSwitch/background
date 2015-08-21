@@ -4,6 +4,9 @@
 // Includes
 import '../polyfills/requestAnimationFrame';
 
+// Constants
+const BACKGROUND_HASH = 'background';
+
 export default class Canvas{
 
 	constructor(canvas) {
@@ -35,9 +38,10 @@ export default class Canvas{
 				// Append to the body
 				parent = document.body;
 				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
-				canvas.setAttribute('tabindex',0);
+				canvas.setAttribute('tabindex', 0);
 
 				document.documentElement.style.cssText = "min-height:100%;";
+				document.body.style.cssText = "min-height:100%;";
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -57,8 +61,8 @@ export default class Canvas{
 		this.ctx = canvas.getContext('2d');
 
 		// ensure its keeping up.
-		this.width=canvas.width;
-		this.height=canvas.height;
+		this.width = canvas.width;
+		this.height = canvas.height;
 
 		// Initiate the draw
 		this.draw();
@@ -66,8 +70,22 @@ export default class Canvas{
 		// Bind events
 		CanvasListeners.call(this, ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart','touchend']);
 
-		// listen to changes
-		
+		// Listen to changes to the background hash to bring the canvas element to the front
+		window.addEventListener('hashchange', hashchange.bind(this));
+
+		function hashchange() {
+			if (window.location.hash === '#'+BACKGROUND_HASH) {
+				// Set the zIndex to a large number
+				this.canvas.style.setProperty('z-index', 10000);
+			}
+			else {
+				// Remove the custom z-Index
+				this.canvas.style.removeProperty('z-index');
+			}
+		}
+
+		hashchange.call(this);
+
 	}
 
 	resize() {
@@ -90,6 +108,13 @@ export default class Canvas{
 		if (changed) {
 			this.dispatchEvent(new Event('resize'));
 		}
+	}
+
+	// Bring the content of the canvas to the front
+	bringToFront() {
+
+		// Update the window.location with the hash #background
+		window.location.hash = BACKGROUND_HASH;
 	}
 
 	push(item) {
@@ -146,6 +171,13 @@ export default class Canvas{
 
 		// Call the frame function in the context of the frame to draw
 		this.frame(this);
+
+		// Sort items by z-index
+		this.collection.sort((a, b) => {
+			a = a.zIndex || 0;
+			b = b.zIndex || 0;
+			return +(a > b) || -(a < b);
+		});
 
 		// Find items that have changed
 		// Remove background
@@ -251,7 +283,7 @@ function CanvasListeners(events) {
 
 			self.collection.forEach((item) => {
 
-				if (!item.visible || !item.w || !item.h) {
+				if (!item.visible || !item.w || !item.h || !item.pointerEvents) {
 					return;
 				}
 

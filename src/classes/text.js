@@ -32,8 +32,7 @@ export default class Text extends Shape{
 		canvas.cleanItem(this);
 
 		// Define text
-		this.textAlign = this.align.split(" ")[0];
-		this.textBaseline = this.align.split(" ")[1];
+		[this.textAlign, this.textBaseline] = this.align.split(" ");
 
 		var ctx = canvas.ctx;
 		var fontSize = this.fontSize;

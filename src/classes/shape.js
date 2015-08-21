@@ -17,6 +17,9 @@ export default class Shape{
 		// initieate  events
 		this.events = [];
 
+		// Let events bubble up
+		this.pointerEvents = true;
+
 		// Set past points
 		this.past = {};
 

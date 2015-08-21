@@ -49,8 +49,8 @@ class Tile extends Rect{
 				(Math.pow(dx, 2) + Math.pow(dy, 2) < Math.pow(radius, 2))) {
 
 
-				dx = 0.3 * (Math.abs(dx)/dx) * -(radius - Math.abs(dx));
-				dy = 0.3 * (Math.abs(dy)/dy) * -(radius - Math.abs(dy)); 
+				dx = 0.3 * (Math.abs(dx) / dx) * -(radius - Math.abs(dx));
+				dy = 0.3 * (Math.abs(dy) / dy) * -(radius - Math.abs(dy)); 
 
 				// sometimes we get a NaN, catch and set those
 				if (!dx) {

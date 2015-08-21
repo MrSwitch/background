@@ -65,18 +65,22 @@ title.calc(canvas);
 
 var	credits = new Text();
 credits.text = "Ended";
+credits.zIndex = 1;
 credits.fontSize = 150;
 credits.align = "center center";
+credits.visible = false;
 credits.addEventListener('click', setup);
 
 // Help
 var	info = new Text();
 info.text = "Start in the top left corner\nFlood tiles by color\nIn as few moves as possible";
+info.zIndex = 1;
 info.align = "center center";
 info.fontSize = 40;
 info.calc(canvas);
 
 var	score = new Text();
+score.zIndex = 1;
 score.align = "right bottom";
 score.fontSize = 40;
 
@@ -84,9 +88,11 @@ score.fontSize = 40;
 // We want to display a button to enable playing in full screen.
 var playBtn = new Text();
 playBtn.text = "►";
+playBtn.zIndex = 1;
 playBtn.align = "left top";
 playBtn.fontSize = 40;
 playBtn.addEventListener('click', setup);
+playBtn.calc(canvas);
 
 
 // Setup all the tiles
@@ -98,6 +104,9 @@ canvas.addEventListener('resize', setup);
 // User has clicked an item on the canvas
 // We'll use event delegation to tell us what the user has clicked.
 canvas.addEventListener('click', (e) => {
+
+	// Tile Clicked
+	canvas.bringToFront();
 
 	// Tile Clicked
 	if (e.target.type === 'tile') {

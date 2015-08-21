@@ -37,7 +37,7 @@ canvas.frame = (canvas) => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		// draw an arc
-		for (var i = 0; i < slices; i++) {
+		for (let i = 0; i < slices; i++) {
 			ctx.beginPath();
 			ctx.fillStyle = pallate[i % pallate.length];
 
