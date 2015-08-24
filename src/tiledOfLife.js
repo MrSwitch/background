@@ -3,6 +3,7 @@
 
 // Get Canvas
 import Canvas from './classes/canvas';
+import Collection from './classes/collection';
 import Rect from './classes/rect';
 
 
@@ -38,9 +39,9 @@ class Tile extends Rect{
 			}
 		}
 
-		if (mouse) {
+		if (pointer) {
 
-			var [mx, my] = [mouse.clientX, mouse.clientY];
+			var [mx, my] = [pointer.offsetX, pointer.offsetY];
 			var dx = mx - this.x;
 			var dy = my - this.y;
 
@@ -90,18 +91,27 @@ class Tile extends Rect{
 
 
 let canvas = new Canvas();
+let collection = new Collection(canvas.target);
+
 canvas.addEventListener('mousemove', action);
 canvas.addEventListener('touchmove', action);
 canvas.addEventListener('resize', setup);
 
-canvas.frame = () => {
-	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height);
-};
+canvas.addEventListener('frame', () => {
+	
+	// Clear canvas
+	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+	// Draw items
+	collection.draw();
+});
+
+
 
 
 // Canvas
 var radius = 80;
-var mouse;
+var pointer;
 
 // draw variant background
 
@@ -129,7 +139,7 @@ function setup() {
 
 			if(!tile){
 				tile = new Tile((i*w) +1, (j*h) +1, w-1, h-1);
-				canvas.push(tile);
+				collection.push(tile);
 				tiles.push(tile);
 			}
 			else {
@@ -142,12 +152,12 @@ function setup() {
 
 var timer;
 function action(e) {
-	mouse = e;
+	pointer = e;
 
 	if (timer) {
 		clearTimeout(timer);
 	}
 	timer = setTimeout(() => {
-		mouse = null;
+		pointer = null;
 	},1e2);
 }

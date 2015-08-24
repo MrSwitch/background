@@ -16,9 +16,8 @@ export default class Rect extends Shape{
 		this.type = 'rect';
 	}
 
-	draw(canvas) {
+	draw(ctx) {
 
-		var ctx = canvas.ctx;
 		ctx.save();
 
 		if (this.dx || this.dy) {

@@ -3,6 +3,7 @@
 
 // Get Canvas
 import Canvas from './classes/canvas';
+import Collection from './classes/collection';
 import Text from './classes/text';
 import Rect from './classes/rect';
 
@@ -49,7 +50,8 @@ class Tile extends Rect{
 			text.x = this.x + (this.w / 2);
 			text.y = this.y + (this.h / 2);
 
-			canvas.push(text);
+			collection.push(text);
+			collection.sort();
 		}
 	}
 }
@@ -73,6 +75,9 @@ var ny;
 
 // Iniitate canvas
 var canvas = new Canvas();
+
+// Iniitate collection
+var collection = new Collection(canvas.target);
 
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
@@ -131,8 +136,10 @@ canvas.addEventListener('click', (e) => {
 	}
 
 	// Tile Clicked
-	if (e.target.type === 'tile') {
-		play(e.target);
+	var target = collection.elementFromPoint(e.offsetX, e.offsetY);
+	
+	if (target.type === 'tile') {
+		play(target);
 	}
 
 }, false);
@@ -140,6 +147,17 @@ canvas.addEventListener('click', (e) => {
 
 
 canvas.addEventListener('resize', setup);
+
+
+canvas.addEventListener('frame', (e) => {
+
+	// Draw items
+	collection.prepare();
+
+	// Draw items
+	collection.draw();
+
+});
 
 
 
@@ -151,7 +169,7 @@ function setup() {
 	boom = false;
 
 	tiles.length = 0;
-	canvas.collection.length = 0;
+	collection.length = 0;
 
 	// Define type size
 	// set tile default Width and height
@@ -173,7 +191,7 @@ function setup() {
 			var tile = new Tile(x*w, y*h, w-1, h-1);
 			tile.grid = [x, y];
 			tiles.push(tile);
-			canvas.push(tile);
+			collection.push(tile);
 
 			// Upgrade the number of mines
 			if(tile.mine){
@@ -183,14 +201,17 @@ function setup() {
 	}
 
 	// Flood its neighbouring tiles on start
-	canvas.push(title);
-	canvas.push(credits);
-	canvas.push(info);
-	canvas.push(start);
+	collection.push(title);
+	collection.push(credits);
+	collection.push(info);
+	collection.push(start);
 
 	title.visible = true;
 	info.visible = true;
 	credits.visible = false;
+
+	// Sort the collection by z-index this ensures everything is drawn in the right order
+	collection.sort();
 }
 
 function play(tile){

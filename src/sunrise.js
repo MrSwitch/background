@@ -10,7 +10,7 @@ var slices = 32;
 var pi = (Math.PI/180), deg = (360/slices);
 var pallate = ['rgb(255, 140, 0)', 'rgb(255,0,0)', 'rgb(255,255,0)'];
 
-canvas.frame = (canvas) => {
+canvas.addEventListener('frame', (e) => {
 
 	var ctx = canvas.ctx;
 	var [cx, cy] = [canvas.width/2, canvas.height/2];
@@ -32,7 +32,7 @@ canvas.frame = (canvas) => {
 			opacity -= 0.1;
 		}
 
-		canvas.canvas.style.opacity = Math.round(opacity * 10) / 10;
+		canvas.target.style.opacity = Math.round(opacity * 10) / 10;
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -48,4 +48,4 @@ canvas.frame = (canvas) => {
 			ctx.closePath();
 		}
 	}
-};
+});

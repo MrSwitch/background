@@ -12,7 +12,6 @@ gulp.task('build', function() {
   gulp.src('./src/*.js', function(err,files){
     files.forEach(function(item){
       var name = item.match(/([^\/]+\.js)$/)[0];
-      console.log(name);
       browserify('./src/'+name, { debug: true })
       .transform(babelify)
       .bundle()
@@ -22,7 +21,10 @@ gulp.task('build', function() {
       .pipe(sourcemaps.init({loadMaps: true}))
       .pipe(uglify({ mangle: false }))
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./'));
+      .pipe(gulp.dest('./'))
+      .on('end', function() {
+          console.log(name);
+      });
     });
   });
 });

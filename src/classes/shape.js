@@ -104,15 +104,19 @@ export default class Shape{
 	// Assign getters and setters to default properties
 	_watchProperty(propName) {
 		Object.defineProperty(this, propName, {
-			get: function() {
-				return this['_' + propName];
-			},
-			set: function(v) {
-				if (this['_' + propName] !== v) {
-					this.dirty = true; 
-					this['_' + propName] = v;
-				}
-			}
+			get: this._getter.bind(this, propName),
+			set: this._setter.bind(this, propName)
 		});
+	}
+
+	_getter(propName) {
+		return this['_' + propName];
+	}
+
+	_setter(propName, v) {
+		if (this['_' + propName] !== v) {
+			this.dirty = true; 
+			this['_' + propName] = v;
+		}
 	}
 }

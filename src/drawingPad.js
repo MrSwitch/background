@@ -3,6 +3,7 @@
 
 // Get Canvas
 import Canvas from './classes/canvas';
+import Collection from './classes/collection';
 import Shape from './classes/shape';
 import Text from './classes/text';
 
@@ -46,9 +47,8 @@ class Brush extends Shape{
 	}
 
 	// Draw the line
-	draw(canvas) {
+	draw(ctx) {
 		// Loop through all the points and draw the line
-		var ctx = canvas.ctx;
 		ctx.beginPath();
 		var point = this.points[0];
 		ctx.moveTo(point[0], point[1]);
@@ -59,6 +59,8 @@ class Brush extends Shape{
 
 var canvas = new Canvas();
 
+var collection = new Collection(canvas.target);
+
 var	text = new Text();
 text.text = "Drawing Pad";
 text.align = "center center";
@@ -66,28 +68,39 @@ text.fontSize = 150;
 text.fillStyle = 'rgba(0,0,0,0.03)';
 text.strokeStyle = 'rgba(255,255,255,0.03)';
 text.calc(canvas);
-text.frame = function(canvas) {
+
+canvas.addEventListener('frame', (e) => {
+	hideText();
+
+	// Draw
+	collection.prepare();
+
+	// Draw
+	collection.draw();
+});
+
+function hideText() {
 
 	// Has the user started?
 	if (brush) {
-		if (this.opacity > 0.1) {
-			this.opacity *= 0.9;
+		if (text.opacity > 0.1) {
+			text.opacity *= 0.9;
 		}
 		else {
-			this.opacity = 0;
+			text.opacity = 0;
 		}
 	}
 };
 
-canvas.push(text);
+collection.push(text);
 
 var brush = null,
 	mousedown = false;
 
 function pointStart(e) {
 
-	brush = new Brush(e.clientX, e.clientY);
-	canvas.push(brush);
+	brush = new Brush(e.offsetX, e.offsetY);
+	collection.push(brush);
 	mousedown = true;
 
 }
@@ -112,6 +125,6 @@ canvas.addEventListener('resize', () => canvas.clean(true) );
 function move(e) {
 	// is mousedown?
 	if (brush) {
-		brush.push(e.clientX, e.clientY);
+		brush.push(e.offsetX, e.offsetY);
 	}
 }

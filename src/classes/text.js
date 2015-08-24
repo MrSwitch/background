@@ -29,8 +29,6 @@ export default class Text extends Shape{
 	// Define the text and the alignment of the object
 	calc (canvas) {
 
-		canvas.cleanItem(this);
-
 		// Define text
 		[this.textAlign, this.textBaseline] = this.align.split(" ");
 
@@ -117,9 +115,7 @@ export default class Text extends Shape{
 	}
 
 	// Draw
-	draw (canvas) {
-
-		var ctx = canvas.ctx;
+	draw (ctx) {
 
 		ctx.save();
 

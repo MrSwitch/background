@@ -3,6 +3,7 @@
 
 // Get Canvas
 import Canvas from './classes/canvas';
+import Collection from './classes/collection';
 import Text from './classes/text';
 import Rect from './classes/rect';
 
@@ -35,6 +36,21 @@ var palate = ["red","green","orange","blue","white","black"];
 
 // Initiate the canvas in the base
 var canvas = new Canvas();
+
+// Collection
+// Define the canvas start element
+var collection = new Collection(canvas.target);
+
+// Add listeners to the canvas Element
+canvas.addEventListener('frame', (e) => {
+
+	// On every frame
+	// Prepare dirty areas
+	collection.prepare();
+
+	// Draw marked items
+	collection.draw();
+});
 
 var clicks,
 	flooded,
@@ -108,9 +124,12 @@ canvas.addEventListener('click', (e) => {
 	// Tile Clicked
 	canvas.bringToFront();
 
+	// Get the item at the click location
+	var target = collection.elementFromPoint(e.offsetX, e.offsetY);
+
 	// Tile Clicked
-	if (e.target.type === 'tile') {
-		play(e.target);
+	if (target.type === 'tile') {
+		play(target);
 	}
 
 	// hide title
@@ -144,7 +163,7 @@ canvas.addEventListener('click', (e) => {
 function setup() {
 
 	// Remove everything
-	canvas.collection.length = 0;
+	collection.length = 0;
 
 	clicks = 0;
 	selectedColor = null;
@@ -171,7 +190,7 @@ function setup() {
 
 			var tile = new Tile(x*w, y*h, w-1, h-1);
 			tiles.push(tile);
-			canvas.push(tile);
+			collection.push(tile);
 			tile.grid = [x, y];
 		}
 	}
@@ -180,11 +199,11 @@ function setup() {
 	info.y = title.y + title.h;
 
 	// Add text items
-	canvas.push(title);
-	canvas.push(info);
-	canvas.push(credits);
-	canvas.push(playBtn);
-	canvas.push(score);
+	collection.push(title);
+	collection.push(info);
+	collection.push(credits);
+	collection.push(playBtn);
+	collection.push(score);
 
 	// Starting state
 	// Select the first tile, (top left corner)
@@ -194,6 +213,9 @@ function setup() {
 
 	// Flood its neighbouring tiles on start
 	play(tiles[0]);
+
+	// Sort the collection by z-index this ensures everything is drawn in the right order
+	collection.sort();
 }
 
 function play(tileSelected) {

@@ -6,6 +6,7 @@ import '../polyfills/requestAnimationFrame';
 
 // Constants
 const BACKGROUND_HASH = 'background';
+const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart', 'touchend', 'frame', 'resize'];
 
 export default class Canvas{
 
@@ -15,9 +16,6 @@ export default class Canvas{
 
 		// events
 		this.events = {};
-
-		// Set the collection to be empty
-		this.collection = [];
 
 		// browser check
 		if (!("getContext" in document.createElement('canvas'))) {
@@ -44,31 +42,27 @@ export default class Canvas{
 				document.body.style.cssText = "min-height:100%;";
 
 				// Bind window resize events
-				window.addEventListener('resize', this.resize.bind(this));
+				window.addEventListener('resize', () => this.resize.bind(this));
 			}
 
 			// Append this element
 			parent.insertBefore(canvas, parent.firstElementChild);
 
-			this.canvas = canvas;
+			this.target = canvas;
 
 			this.resize();
 		}
 		else{
-			this.canvas = canvas;
+			this.target = canvas;
 		}
 
 		this.ctx = canvas.getContext('2d');
-
-		// ensure its keeping up.
-		this.width = canvas.width;
-		this.height = canvas.height;
 
 		// Initiate the draw
 		this.draw();
 
 		// Bind events
-		CanvasListeners.call(this, ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart','touchend']);
+		UserEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
 
 
 		{
@@ -76,7 +70,7 @@ export default class Canvas{
 			// Listen to changes to the background hash to bring the canvas element to the front
 			window.addEventListener('hashchange', hashchange.bind(this));
 
-			let INITIAL_ZINDEX = this.canvas.style.getPropertyValue('z-index');
+			let INITIAL_ZINDEX = this.target.style.getPropertyValue('z-index');
 
 			function hashchange() {
 
@@ -88,11 +82,11 @@ export default class Canvas{
 
 				if (z !== undefined) {
 					// Set the z-Index
-					this.canvas.style.setProperty('z-index', z);
+					this.target.style.setProperty('z-index', z);
 				}
 				else {
 					// Remove the z-Index
-					this.canvas.style.removeProperty('z-index');
+					this.target.style.removeProperty('z-index');
 				}
 			}
 
@@ -101,25 +95,39 @@ export default class Canvas{
 
 	}
 
+	// ensure its keeping up.
+	get width() {
+		return this.target.width;
+	}
+	set width(value) {
+		return this.target.width = value;
+	}
+
+	get height() {
+		return this.target.height;
+	}
+	set height(value) {
+		return this.target.height = value;
+	}
+
+
 	resize() {
-		var parent = (this.canvas.parentNode === document.body) ? document.documentElement : this.canvas.parentNode;
+		var parent = (this.target.parentNode === document.body) ? document.documentElement : this.target.parentNode;
 		var height = parent.clientHeight;
 		var width = parent.clientWidth;
 		var changed = false;
 
 		if (this.width !== width) {
 			changed = true;
-			this.canvas.width = width;
 			this.width = width;
 		}
 		if (this.height !== height) {
 			changed = true;
-			this.canvas.height = height;
 			this.height = height;
 		}
 
 		if (changed) {
-			this.dispatchEvent(new Event('resize'));
+			this.target.dispatchEvent(new Event('resize'));
 		}
 	}
 
@@ -130,83 +138,11 @@ export default class Canvas{
 		window.location.hash = BACKGROUND_HASH;
 	}
 
-	push(item) {
-		item.dirty = true;
-		item.setup(this);
-		item.addEventListener('dirty', () => this.cleanItem(item));
-		this.collection.push(item);
-	}
-
-	// Touch
-	// Mark items and objects in the same space to be redrawn
-	clean(enforce) {
-		this.collection.forEach((item) => {
-			if (enforce || item.dirty)
-				this.cleanItem(item);
-		});
-	}
-
-	// Clean Item
-	cleanItem(item) {
-
-		// Mark this item as dirty
-		item.dirty = true;
-
-		// Remove from Canvas
-		this.ctx.clearRect(item.x, item.y, item.w, item.h);
-
-		// If the items old position is different
-		var shifted = displaced(item.past, item);
-		if (shifted) {
-			this.ctx.clearRect(item.past.x, item.past.y, item.past.w, item.past.h);
-		}
-
-		// Loop though objects and redraw those that exist within the position
-		this.collection.forEach((obj) => {
-
-			// Does this Object overlap with the focused object?
-			if (!obj.dirty && (intersect(obj, item) || (shifted ? intersect(obj, item.past) : false))) {
-
-				// Nested clean
-				this.cleanItem(obj);
-			}
-		});
-	}
-
-	// Placeholder for the frame function
-	frame() {}
-
 	// Trigger the draw function
 	draw() {
 
-		// Clean
-		this.clean();
-
 		// Call the frame function in the context of the frame to draw
-		this.frame(this);
-
-		// Sort items by z-index
-		this.collection.sort((a, b) => {
-			a = a.zIndex || 0;
-			b = b.zIndex || 0;
-			return +(a > b) || -(a < b);
-		});
-
-		// Find items that have changed
-		// Remove background
-		this.collection.forEach((item) => {
-
-			item.frame(this);
-
-			if (item.dirty) {
-				if (item.visible) {
-					item.draw(this);
-				}
-			}
-		});
-
-		// Mark all as undirty
-		this.collection.filter((item) => item.dirty).forEach((item) => item.dirty = false );
+		this.target.dispatchEvent(new Event('frame'));
 
 		// Request another frame
 		requestAnimationFrame(this.draw.bind(this));
@@ -225,98 +161,14 @@ export default class Canvas{
 
 	// Dispatch
 	dispatchEvent(e) {
-		if (e.type in this.events)
-			this.events[e.type].forEach((handler) => handler(e));
-	}
-}
-
-
-// Intersect
-// Given two objects with, x,y,w,h properties
-// Do their rectangular dimensions intersect?
-// return Boolean true false.
-function intersect(a,b){
-	return !( a.x>(b.x+b.w) ||
-	(a.x+a.w)<b.x  ||
-	a.y>(b.y+b.h) ||
-	(a.y+a.h)<b.y );
-}
-
-function displaced(a,b) {
-	return (a.x !== b.x ||
-	a.y !== b.y ||
-	a.w !== b.w ||
-	a.h !== b.h);
-}
-
-class CanvasEvent{
-	constructor (e) {
-		this.type = e.type;
-		this.originalEvent = e;	
-		this.target = null;
-
-		let _e = e;
-		// determine which elements in the collection are at this point
-		if (e.touches) {
-			_e = e.touches[0];
-		}
-
-		this.clientX = _e.clientX - e.target.clientLeft;
-		this.clientY = _e.clientY - e.target.clientTop;
-	}
-	preventDefault(){}
-}
-
-
-function CanvasListeners(events) {
-
-	// Self
-	var self = this;
-
-	events.forEach((eventname) => {
-
-		// Bind an event to the canvas
-		self.canvas.addEventListener(eventname, (_e) => {
+		if (e.type in this.events) {
 
 			// This was in the background
-			if (_e.target !== self.canvas) {
+			if (e.target !== this.target) {
 				return;
 			}
 
-			// Clone the event
-			var e = new CanvasEvent(_e);
-
-			// Find the canvas item which this targets?
-			var obj = {
-				x: e.clientX,
-				y: e.clientY,
-				w: 1,
-				h: 1
-			};
-
-			self.collection.forEach((item) => {
-
-				if (!item.visible || !item.w || !item.h || !item.pointerEvents) {
-					return;
-				}
-
-				// Is this a target?
-				var bool = intersect(obj, item);
-
-				if (bool) {
-					// Define this as a target
-					e.target = item;
-
-					// Does the element have any event listeners?
-					if ((e.type in item.events)) {
-						item.dispatchEvent(e);
-					}
-				}
-			});
-
-			// Lastly dispatch the event on the canvas instance
-			self.dispatchEvent(e);
-
-		});
-	});
+			this.events[e.type].forEach((handler) => handler(e));
+		}
+	}
 }
