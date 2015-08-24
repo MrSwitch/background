@@ -18,9 +18,7 @@ canvas.addEventListener('frame', (e) => {
 	// ensure its keeping up.
 	radius = Math.max(canvas.width, canvas.height) / 2;
 
-	//
 	// Do we need this?
-	//
 	if (hover || opacity > 0) {
 
 		spin++;

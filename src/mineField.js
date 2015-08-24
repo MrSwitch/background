@@ -18,20 +18,37 @@ class Tile extends Rect{
 		// Mine?
 		// Assign with a 1 in 5 chance
 		this.mine = Math.random() < (1/8);
-		this.played = false;
 
+		// Private mark as to whether this has been played
+		this._played = false;
+
+		// Define an initial grid position for this tile.
 		this.grid = [0, 0];
+
+		// Set the shape type
 		this.type = 'tile';
 
-		this.played = false;
+		// Define a default fill color for tiles.
 		this.fillStyle = "#ccc";
 
+		// Initial heat
 		this.heat = 0; // How many bombs are next to this?
 	}
 
-	play (){
+
+	get played() {
+		return this._played;
+	}
+
+	set played(v) {
+
+		// Has it already been played?
+		if (this._played) {
+			return;
+		}
+
 		// Mark as played
-		this.played = true;
+		this._played = !!v;
 
 		// Style
 		this.fillStyle = this.mine ? "red" : "#eee";
@@ -240,7 +257,7 @@ function play(tile){
 	if ((flooded + mines.length) === tiles.length || boom) {
 
 		// Show all the mines
-		mines.forEach((mine) => mine.play());
+		mines.forEach((mine) => mine.played = true);
 		credits.text = boom ? "BOOM!" : "Kudos!";
 		credits.visible = true;
 		credits.calc(canvas);
@@ -271,34 +288,31 @@ function flood(tile) {
 
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
-	var edgeTiles = unique([
-		(Math.max(y-1, 0)*nx)+Math.max(x-1, 0),
-		(Math.max(y-1, 0)*nx)+x,
-		(Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1),
-		(y*nx)+Math.min(x+1, nx-1),
-		((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1),
-		((Math.min(y+1, ny-1))*nx)+x,
-		((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0),
-		(y*nx)+Math.max(x-1, 0)
-	]);
+	let edgeTiles = new Set();
+
+	edgeTiles
+	.add((Math.max(y-1, 0)*nx)+Math.max(x-1, 0))
+	.add((Math.max(y-1, 0)*nx)+x)
+	.add((Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1))
+	.add((y*nx)+Math.min(x+1, nx-1))
+	.add(((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1))
+	.add(((Math.min(y+1, ny-1))*nx)+x)
+	.add(((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0))
+	.add((y*nx)+Math.max(x-1, 0));
 
 	// Any bombs nearby?
 	// Find the `heat` of the current node
 	// Loop through all the tiles surrouding this point
-	tile.heat = edgeTiles.reduce((prev, curr) => prev + +tiles[curr].mine, 0);
+	for (let key of edgeTiles.values())
+		tile.heat += +tiles[key].mine;
 
-	// Mark the tile as changed
-	tile.play();
+	// Set the tile mode to played
+	tile.played = true;
 
 	// If this tile is the one selected, 
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
-		edgeTiles.forEach((x) => flood(tiles[x]));
+		for (let key of edgeTiles.values())
+			flood(tiles[key]);
 	}
-}
-
-function unique (arr){
-	var o = {};
-	arr.forEach((item) => o[item] = 1);
-	return Object.keys(o);
 }

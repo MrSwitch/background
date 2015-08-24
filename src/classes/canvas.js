@@ -42,7 +42,7 @@ export default class Canvas{
 				document.body.style.cssText = "min-height:100%;";
 
 				// Bind window resize events
-				window.addEventListener('resize', () => this.resize.bind(this));
+				window.addEventListener('resize', this.resize.bind(this));
 			}
 
 			// Append this element
@@ -161,6 +161,7 @@ export default class Canvas{
 
 	// Dispatch
 	dispatchEvent(e) {
+
 		if (e.type in this.events) {
 
 			// This was in the background
