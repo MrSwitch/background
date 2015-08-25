@@ -1,5 +1,6 @@
-// ColorFlood, Canvas annimation
-// Copyright Andrew Dodson, March 2013
+// ColorFlood, Canvas animation
+// Copyright Andrew Dodson, March 2013.
+// Refactored in 2015
 
 // Get Canvas
 import Canvas from './classes/canvas';
@@ -98,6 +99,7 @@ info.calc(canvas);
 var	score = new Text();
 score.zIndex = 1;
 score.align = "right bottom";
+score.pointerEvents = false;
 score.fontSize = 40;
 
 // Is this playing as a background image?
@@ -121,7 +123,7 @@ canvas.addEventListener('resize', setup);
 // We'll use event delegation to tell us what the user has clicked.
 canvas.addEventListener('click', (e) => {
 
-	// Tile Clicked
+	// Canvas clicked
 	canvas.bringToFront();
 
 	// Get the item at the click location
