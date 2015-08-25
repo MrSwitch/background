@@ -33,7 +33,7 @@ class Tile extends Rect{
 }
 
 
-var palate = ["red","green","orange","blue","white","black"];
+var palate = ['red','green','orange','blue','white','black'];
 
 // Initiate the canvas in the base
 var canvas = new Canvas();
@@ -75,39 +75,39 @@ var ny;
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
 var	title = new Text();
-title.text = "Flood It";
+title.text = 'Flood It';
 title.fontSize = 150;
-title.align = "center center";
+title.align = 'center center';
 title.calc(canvas);
 
 var	credits = new Text();
-credits.text = "Ended";
+credits.text = 'Ended';
 credits.zIndex = 1;
 credits.fontSize = 150;
-credits.align = "center center";
+credits.align = 'center center';
 credits.visible = false;
 credits.addEventListener('click', setup);
 
 // Help
 var	info = new Text();
-info.text = "Start in the top left corner\nFlood tiles by color\nIn as few moves as possible";
+info.text = 'Start in the top left corner\nFlood tiles by color\nIn as few moves as possible';
 info.zIndex = 1;
-info.align = "center center";
+info.align = 'center center';
 info.fontSize = 40;
 info.calc(canvas);
 
 var	score = new Text();
 score.zIndex = 1;
-score.align = "right bottom";
+score.align = 'right bottom';
 score.pointerEvents = false;
 score.fontSize = 40;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
 var playBtn = new Text();
-playBtn.text = "►";
+playBtn.text = '►';
 playBtn.zIndex = 1;
-playBtn.align = "left top";
+playBtn.align = 'left top';
 playBtn.fontSize = 40;
 playBtn.addEventListener('click', setup);
 playBtn.calc(canvas);
@@ -139,21 +139,21 @@ canvas.addEventListener('click', (e) => {
 
 	// Has the game state changed?
 	if (flooded >= tiles.length && clicks < max_tries) {
-		credits.text = "Kudos! " + (clicks+1) + " moves";
+		credits.text = `Kudos! ${clicks+1} moves`;
 		credits.visible = true;
 		credits.calc(canvas);
 		info.visible = false;
 		score.visible = false;
 	}
 	else if (++clicks >= max_tries) {
-		credits.text = "Game over!";
+		credits.text = 'Game over!';
 		credits.visible = true;
 		credits.calc(canvas);
 		info.visible = true;
 		score.visible = false;
 	}
 	else {
-		score.text = clicks + "/" + max_tries;
+		score.text = `${clicks}/${max_tries}`;
 		score.visible = true;
 		score.calc(canvas);
 

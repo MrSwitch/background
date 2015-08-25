@@ -76,7 +76,7 @@ class Tile extends Rect{
 			}
 		}
 
-		this.fillStyle = "rgba(0, 0, 0, " + (opacity ? opacity / this.n : 0) + ")";
+		this.fillStyle = `rgba(0, 0, 0, ${opacity? opacity / this.n : 0})`;
 
 		if (this.i <= 0) {
 			this.ascending = true;
@@ -159,5 +159,5 @@ function action(e) {
 	}
 	timer = setTimeout(() => {
 		pointer = null;
-	},1e2);
+	}, 1e2);
 }

@@ -29,7 +29,7 @@ class Tile extends Rect{
 		this.type = 'tile';
 
 		// Define a default fill color for tiles.
-		this.fillStyle = "#ccc";
+		this.fillStyle = '#ccc';
 
 		// Initial heat
 		this.heat = 0; // How many bombs are next to this?
@@ -51,7 +51,7 @@ class Tile extends Rect{
 		this._played = !!v;
 
 		// Style
-		this.fillStyle = this.mine ? "red" : "#eee";
+		this.fillStyle = this.mine ? 'red' : '#eee';
 
 		// Can't make this visible
 		if (this.heat) {
@@ -59,11 +59,11 @@ class Tile extends Rect{
 			// Create text
 			var text = new Text();
 			text.text = this.heat;
-			text.textBaseline = "middle";
-			text.textAlign = "center";
+			text.textBaseline = 'middle';
+			text.textAlign = 'center';
 			text.strokeStyle = null;
-			text.fillStyle="black";
-			text.font = "30px Arial bold";
+			text.fillStyle='black';
+			text.font = '30px Arial bold';
 			text.x = this.x + (this.w / 2);
 			text.y = this.y + (this.h / 2);
 
@@ -100,16 +100,16 @@ var collection = new Collection(canvas.target);
 // We only have one text Object on the screen at a time, lets reuse it.
 
 var	title = new Text();
-title.text = "MineField";
-title.align = "center center";
+title.text = 'MineField';
+title.align = 'center center';
 title.fontSize = 150;
 title.zIndex = 1;
 title.calc(canvas);
 title.pointerEvents = false;
 
 var	info = new Text();
-info.text = "Tap  to  start";
-info.align = "center center";
+info.text = 'Tap  to  start';
+info.align = 'center center';
 info.fontSize = 40;
 info.zIndex = 1;
 info.calc(canvas);
@@ -117,7 +117,7 @@ info.pointerEvents = false;
 info.y = info.y + title.h;
 
 var	credits = new Text();
-credits.align = "center center";
+credits.align = 'center center';
 credits.zIndex = 1;
 credits.fontSize = 150;
 credits.calc(canvas);
@@ -127,9 +127,9 @@ credits.pointerEvents = false;
 // We want to display a button to enable playing in full screen.
 
 var start = new Text();
-start.text = "►";
+start.text = '►';
 start.zIndex = 1;
-start.align = "left top";
+start.align = 'left top';
 start.fontSize = 40;
 start.calc(canvas);
 start.addEventListener('click', setup);
@@ -141,7 +141,13 @@ setup();
  *  Add Events, to listen to in game play
  ******************************************/
 
-canvas.addEventListener('click', (e) => {
+canvas.addEventListener('mousedown', (e) => userClick(e.offsetX, e.offsetY));
+canvas.addEventListener('touchstart', (e) => {
+	let touch = e.touches[0] || e.changedtouches[0];
+	userClick(touch.offsetX, touch.offsetY);
+});
+
+function userClick(x, y) {
 
 	// Tile Clicked
 	canvas.bringToFront();
@@ -153,18 +159,15 @@ canvas.addEventListener('click', (e) => {
 	}
 
 	// Tile Clicked
-	var target = collection.elementFromPoint(e.offsetX, e.offsetY);
+	var target = collection.elementFromPoint(x, y);
 	
 	if (target.type === 'tile') {
 		play(target);
 	}
-
-}, false);
-
+}
 
 
 canvas.addEventListener('resize', setup);
-
 
 canvas.addEventListener('frame', (e) => {
 
@@ -258,10 +261,10 @@ function play(tile){
 
 		// Show all the mines
 		mines.forEach((mine) => mine.played = true);
-		credits.text = boom ? "BOOM!" : "Kudos!";
+		credits.text = boom ? 'BOOM!' : 'Kudos!';
 		credits.visible = true;
 		credits.calc(canvas);
-		info.text = "Tap to restart";
+		info.text = 'Tap to restart';
 		info.visible = true;
 
 		ended = true;

@@ -2,8 +2,8 @@
 import Canvas from './classes/canvas';
 
 let canvas = new Canvas();
-canvas.addEventListener("mouseover", (e) => hover = true);
-canvas.addEventListener("mouseout", (e) => hover = false);
+canvas.addEventListener('mouseover', (e) => hover = true);
+canvas.addEventListener('mouseout', (e) => hover = false);
 
 var spin = 0, radius, hover, opacity = 0;
 var slices = 32;

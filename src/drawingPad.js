@@ -62,8 +62,8 @@ var canvas = new Canvas();
 var collection = new Collection(canvas.target);
 
 var	text = new Text();
-text.text = "Drawing Pad";
-text.align = "center center";
+text.text = 'Drawing Pad';
+text.align = 'center center';
 text.fontSize = 150;
 text.fillStyle = 'rgba(0,0,0,0.03)';
 text.strokeStyle = 'rgba(255,255,255,0.03)';
