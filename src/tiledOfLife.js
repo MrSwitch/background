@@ -9,7 +9,7 @@ import Rect from './classes/rect';
 
 // Create a new tile
 class Tile extends Rect{
-	
+
 	constructor(...args) {
 
 		super(...args);
@@ -51,7 +51,7 @@ class Tile extends Rect{
 
 
 				dx = 0.3 * (Math.abs(dx) / dx) * -(radius - Math.abs(dx));
-				dy = 0.3 * (Math.abs(dy) / dy) * -(radius - Math.abs(dy)); 
+				dy = 0.3 * (Math.abs(dy) / dy) * -(radius - Math.abs(dy));
 
 				// sometimes we get a NaN, catch and set those
 				if (!dx) {
@@ -98,7 +98,7 @@ canvas.addEventListener('touchmove', action);
 canvas.addEventListener('resize', setup);
 
 canvas.addEventListener('frame', () => {
-	
+
 	// Clear canvas
 	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height)
 

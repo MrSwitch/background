@@ -115,7 +115,7 @@ export default class Shape{
 
 	_setter(propName, v) {
 		if (this['_' + propName] !== v) {
-			this.dirty = true; 
+			this.dirty = true;
 			this['_' + propName] = v;
 		}
 	}

@@ -160,7 +160,7 @@ function userClick(x, y) {
 
 	// Tile Clicked
 	var target = collection.elementFromPoint(x, y);
-	
+
 	if (target.type === 'tile') {
 		play(target);
 	}
@@ -240,7 +240,7 @@ function play(tile){
 		return true;
 	}
 
-	// If this is the first time the game has been played, 
+	// If this is the first time the game has been played,
 	// flooded will equal 0
 	if (flooded === 0) {
 		// Ensure this is not a mine
@@ -312,7 +312,7 @@ function flood(tile) {
 	// Set the tile mode to played
 	tile.played = true;
 
-	// If this tile is the one selected, 
+	// If this tile is the one selected,
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
 		for (let key of edgeTiles.values())
