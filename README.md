@@ -7,4 +7,5 @@ Playground in canvas
  * [Color Flood](./demo/colorflood.html)
  * [Mine Field](./demo/minefield.html)
  * [Drawing Pad](./demo/drawingpad.html)
+ * [Balloon](./demo/balloon.html)
 
