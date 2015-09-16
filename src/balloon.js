@@ -14,27 +14,27 @@ class Balloon extends Circle{
 
 		super(...args);
 
-		this.max_radius = max_radius;
-
 		this.ascending = true;
 	}
 
 	frame(canvas) {
 
+		// Is this expanding or shrinking?
 		if (this.r <= 0) {
 			this.ascending = true;
 		}
-		else if (this.r >= this.max_radius) {
+		else if (this.r >= max_radius) {
 			this.ascending = false;
 		}
 
-		this.r += this.ascending ? 1 : -1;
+		this.r += (this.ascending ? 1 : -1) * (max_radius/200);
 	}
 }
 
 
 let canvas = new Canvas();
 let collection = new Collection(canvas.target);
+canvas.addEventListener('resize', setup);
 canvas.addEventListener('frame', () => {
 
 	// Clear canvas
@@ -53,25 +53,41 @@ setup();
 
 function setup() {
 
-	var h, w;
-	w = h = 100;
+	// There are 100 balloons
+	var n = 100;
 
-	var nx = Math.floor(canvas.width/w);
-	var ny = Math.floor(canvas.height/h);
+	// To fill the rectangular screen area
+	var W = canvas.width;
+	var H = canvas.height;
+	var A = H * W;
 
-	w += Math.floor((canvas.width%(nx*w))/nx);
-	h += Math.floor((canvas.height%(ny*h))/ny);
+	// Each would have to fill an area about.
+	var a = A / n;
 
-	max_radius = Math.max(w, h);
+	// And since they must fill a square we can sqrt to find width and height of the balloons
+	var w = Math.sqrt(a);
+	var h = w;
+
+	// Find the number that would be needed to fill the axis
+	var nx = Math.floor(W / w) || 1;
+	var ny = Math.floor(H / h) || 1;
+
+	// Adjust the width and height to uniformly spread them out
+	w = W / nx;
+	h = H / ny;
+
+	// Capture max-radius
+	var r = Math.max(w, h) / 2;
+	max_radius = r * 1.5;
 
 	for (var i = 0; i < nx; i++) {
-		var r = ((i + 1) / nx) * w;
+		r = (((i + 1) / nx) * w) / 2;
 		for (var j = 0; j < ny; j++) {
 
-			var cx = (i * w) + (w / 2);
-			var cy = (j * h) + (h / 2);
+			var cx = parseInt((i * w) + (w / 2), 10);
+			var cy = parseInt((j * h) + (h / 2), 10);
 
-			var balloon = balloons[((i*ny)+j)];
+			var balloon = balloons[((i * ny) + j)];
 
 			// %100
 
@@ -81,8 +97,18 @@ function setup() {
 				balloons.push(balloon);
 			}
 			else {
-				balloon.position(cx, cy, r);
+				// Insert into a collection
+				collection.push(balloon);
+
+				// Update its position
+				balloon.cx = cx;
+				balloon.cy = cy;
+				balloon.r = r;
+				balloon.ascending = true;
 			}
 		}
 	}
+
+	// Crop the collection array to nx * ny
+	collection.length = (nx * ny);
 }

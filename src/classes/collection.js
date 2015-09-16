@@ -31,9 +31,14 @@ export default class Collection{
 
 	push(item) {
 		item.dirty = true;
-		item.setup(this);
-		// item.addEventListener('dirty', this.prepareChild.bind(this, item));
-		this.children.push(item);
+
+		// Is this item already in the collection?
+		if (this.children.indexOf(item) === -1) {
+			item.setup(this);
+
+			// item.addEventListener('dirty', this.prepareChild.bind(this, item));
+			this.children.push(item);
+		}
 	}
 
 	get length () {
