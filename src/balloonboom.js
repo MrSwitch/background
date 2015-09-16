@@ -13,8 +13,6 @@ class Balloon extends Circle{
 	constructor(...args) {
 
 		super(...args);
-
-		this.ascending = true;
 	}
 
 	frame(canvas) {
@@ -114,7 +112,7 @@ function setup() {
 				balloon.cx = cx;
 				balloon.cy = cy;
 				balloon.r = r;
-				balloon.ascending = true;
+				balloon.fillStyle = null;
 			}
 		}
 	}
