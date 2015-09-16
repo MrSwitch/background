@@ -8,4 +8,5 @@ Playground in canvas
  * [Mine Field](./demo/minefield.html)
  * [Drawing Pad](./demo/drawingpad.html)
  * [Balloon](./demo/balloon.html)
+ * [Balloonboom](./demo/balloonboom.html)
 
