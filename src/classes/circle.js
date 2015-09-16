@@ -30,12 +30,10 @@ export default class Circle extends Shape{
 			return;
 		}
 
-		ctx.save();
 		ctx.fillStyle = this.fillStyle;
 		ctx.beginPath();
 		ctx.arc(this.cx, this.cy, this.r, 0, 2 * Math.PI, false);
 		ctx.fill();
-		ctx.restore();
 	}
 }
 

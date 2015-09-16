@@ -51,7 +51,9 @@ class Tile extends Rect{
 		this._played = !!v;
 
 		// Style
-		this.fillStyle = this.mine ? 'red' : '#eee';
+		this.fillStyle = this.mine ? 'red' : 'rgba(0,0,0,0.1)';
+
+		this.dirty = true;
 
 		// Can't make this visible
 		if (this.heat) {
@@ -133,6 +135,7 @@ start.align = 'left top';
 start.fontSize = 40;
 start.calc(canvas);
 start.addEventListener('click', setup);
+start.addEventListener('touchstart', setup);
 
 // Setup all the tiles
 setup();
@@ -142,10 +145,7 @@ setup();
  ******************************************/
 
 canvas.addEventListener('mousedown', (e) => userClick(e.offsetX, e.offsetY));
-canvas.addEventListener('touchstart', (e) => {
-	let touch = e.touches[0] || e.changedtouches[0];
-	userClick(touch.offsetX, touch.offsetY);
-});
+canvas.addEventListener('touchstart', (e) => userClick(e.offsetX, e.offsetY));
 
 function userClick(x, y) {
 
@@ -161,7 +161,7 @@ function userClick(x, y) {
 	// Tile Clicked
 	var target = collection.elementFromPoint(x, y);
 
-	if (target.type === 'tile') {
+	if (target && target.type === 'tile') {
 		play(target);
 	}
 }
@@ -236,6 +236,7 @@ function setup() {
 
 function play(tile){
 
+
 	if (!tile) {
 		return true;
 	}
@@ -291,23 +292,24 @@ function flood(tile) {
 
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
-	let edgeTiles = new Set();
-
-	edgeTiles
-	.add((Math.max(y-1, 0)*nx)+Math.max(x-1, 0))
-	.add((Math.max(y-1, 0)*nx)+x)
-	.add((Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1))
-	.add((y*nx)+Math.min(x+1, nx-1))
-	.add(((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1))
-	.add(((Math.min(y+1, ny-1))*nx)+x)
-	.add(((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0))
-	.add((y*nx)+Math.max(x-1, 0));
+	var edgeTiles = [
+	((Math.max(y-1, 0)*nx)+Math.max(x-1, 0))
+	,((Math.max(y-1, 0)*nx)+x)
+	,((Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1))
+	,((y*nx)+Math.min(x+1, nx-1))
+	,(((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1))
+	,(((Math.min(y+1, ny-1))*nx)+x)
+	,(((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0))
+	,((y*nx)+Math.max(x-1, 0))
+	]
+	.filter((key, index, arr) => {return arr.indexOf(key) === index && tiles[key];})
+	.map((key) => {return tiles[key];});
 
 	// Any bombs nearby?
 	// Find the `heat` of the current node
 	// Loop through all the tiles surrouding this point
-	for (let key of edgeTiles.values())
-		tile.heat += +tiles[key].mine;
+	edgeTiles
+	.forEach((_tile) => {tile.heat += +_tile.mine;});
 
 	// Set the tile mode to played
 	tile.played = true;
@@ -315,7 +317,6 @@ function flood(tile) {
 	// If this tile is the one selected,
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
-		for (let key of edgeTiles.values())
-			flood(tiles[key]);
+		edgeTiles.forEach(flood);
 	}
 }

@@ -6,7 +6,9 @@ import '../polyfills/requestAnimationFrame';
 
 // Constants
 const BACKGROUND_HASH = 'background';
-const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart', 'touchend', 'frame', 'resize'];
+const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'frame', 'resize'];
+const TouchEvents = ['touchmove', 'touchstart', 'touchend'];
+
 
 export default class Canvas{
 
@@ -63,6 +65,8 @@ export default class Canvas{
 
 		// Bind events
 		UserEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
+		// Format Touch events
+		TouchEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
 
 
 		{
@@ -170,6 +174,21 @@ export default class Canvas{
 			}
 
 			this.events[e.type].forEach((handler) => handler(e));
+			e.preventDefault();
+			e.stopPropagation();
 		}
+	}
+
+	// Dispatch
+	dispatchTouchEvent(e) {
+		// If this was a touch event
+		// Determine the offset to the canvas element relative to the item being clicked
+		var touch = (e.touches || e.changedTouches)[0];
+		if (touch) {
+			e.offsetX = Math.abs(touch.screenX);
+			e.offsetY = Math.abs(touch.screenY);
+		}
+
+		this.dispatchEvent(e);
 	}
 }
