@@ -2,7 +2,8 @@
 // This constructs the canvas object
 
 // Includes
-import '../polyfills/requestAnimationFrame';
+import '../utils/support/requestAnimationFrame';
+import createEvent from '../utils/events/createEvent';
 
 // Constants
 const BACKGROUND_HASH = 'background';
@@ -65,36 +66,29 @@ export default class Canvas{
 
 		// Bind events
 		UserEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
+
 		// Format Touch events
 		TouchEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
 
+		// In IE user-events aren't propagated to elements which have negative z-Index's
+		// Listen to events on the document element and propagate those accordingly
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+			// Bind events
+			UserEvents.forEach((eventname) => document.addEventListener(eventname, this.dispatchEvent.bind(this)));
 
+			// Format Touch events
+			TouchEvents.forEach((eventname) => document.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
+		}
+
+		// Listen to hashChange events
 		{
 			// HASH CHANGE DEPTH
+			let style = this.target.style;
+			let initialZ = style.getPropertyValue('z-index');
 			// Listen to changes to the background hash to bring the canvas element to the front
-			window.addEventListener('hashchange', hashchange.bind(this));
+			window.addEventListener('hashchange', hashchange.bind(style, initialZ));
 
-			let INITIAL_ZINDEX = this.target.style.getPropertyValue('z-index');
-
-			function hashchange() {
-
-				var z = INITIAL_ZINDEX;
-
-				if (window.location.hash === '#'+BACKGROUND_HASH) {
-					z = 10000;
-				}
-
-				if (z !== undefined) {
-					// Set the z-Index
-					this.target.style.setProperty('z-index', z);
-				}
-				else {
-					// Remove the z-Index
-					this.target.style.removeProperty('z-index');
-				}
-			}
-
-			hashchange.call(this);
+			hashchange.call(style, initialZ);
 		}
 
 	}
@@ -104,14 +98,16 @@ export default class Canvas{
 		return this.target.width;
 	}
 	set width(value) {
-		return this.target.width = value;
+		this.target.width = value;
+		return value;
 	}
 
 	get height() {
 		return this.target.height;
 	}
 	set height(value) {
-		return this.target.height = value;
+		this.target.height = value;
+		return value;
 	}
 
 
@@ -131,7 +127,7 @@ export default class Canvas{
 		}
 
 		if (changed) {
-			this.target.dispatchEvent(new Event('resize'));
+			this.target.dispatchEvent(createEvent('resize'));
 		}
 	}
 
@@ -146,7 +142,7 @@ export default class Canvas{
 	draw() {
 
 		// Call the frame function in the context of the frame to draw
-		this.target.dispatchEvent(new Event('frame'));
+		this.target.dispatchEvent(createEvent('frame'));
 
 		// Request another frame
 		requestAnimationFrame(this.draw.bind(this));
@@ -169,7 +165,7 @@ export default class Canvas{
 		if (e.type in this.events) {
 
 			// This was in the background
-			if (e.target !== this.target) {
+			if (!(e.target === this.target || e.target === document.documentElement)) {
 				return;
 			}
 
@@ -190,5 +186,24 @@ export default class Canvas{
 		}
 
 		this.dispatchEvent(e);
+	}
+}
+
+
+function hashchange(z) {
+
+	let zIndex = 'z-index';
+
+	if (window.location.hash === '#'+BACKGROUND_HASH) {
+		z = 10000;
+	}
+
+	if (z !== undefined) {
+		// Set the z-Index
+		this.setProperty(zIndex, z);
+	}
+	else {
+		// Remove the z-Index
+		this.removeProperty(zIndex);
 	}
 }

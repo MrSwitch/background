@@ -2,6 +2,7 @@
 // CanvasShapes
 // The parent object defining a basic shape, x,y,w,h, for starters.
 // And basic operatings you might like to include on a shape
+import createEvent from '../utils/events/createEvent';
 
 export default class Shape{
 
@@ -41,7 +42,7 @@ export default class Shape{
 			this._dirty = v;
 
 			// Trigger a canvas clean
-			this.dispatchEvent(new Event('dirty'));
+			this.dispatchEvent(createEvent('dirty'));
 		}
 		else if(!v) {
 			// reset

@@ -167,7 +167,8 @@ export default class Collection{
 	// Find and _dispatch
 	_findAndDispatch(e) {
 		// If this is not a pointerEvent lets just pass it through.
-		if (e instanceof MouseEvent || e instanceof TouchEvent) {
+		if ((typeof MouseEvent !== 'undefined' && e instanceof MouseEvent) ||
+			(typeof TouchEvent !== 'undefined' && e instanceof TouchEvent)) {
 
 			// Find the canvas item which this targets?
 			var obj = {
