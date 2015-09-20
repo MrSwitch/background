@@ -13,6 +13,8 @@ class Balloon extends Circle{
 	constructor(...args) {
 
 		super(...args);
+
+		this.fillStyle = "black";
 	}
 
 	frame(canvas) {
