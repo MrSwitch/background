@@ -24,7 +24,7 @@ function build(item){
 	});
 }
 
-gulp.task('buildAll', function() {
+gulp.task('build', function() {
 	gulp.src('./src/*.js', function(err, files){
 		files.forEach(build);
 	});
@@ -39,7 +39,7 @@ gulp.task('watch', function () {
 		});
 	});
 
-	gulp.watch('src/*/**.js', {interval: 500}, ['buildAll']);
+	gulp.watch('src/*/**.js', {interval: 500}, ['build']);
 });
 
 gulp.task('default', ['build']);

@@ -10,6 +10,7 @@ const BACKGROUND_HASH = 'background';
 const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'frame', 'resize'];
 const TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
+const EVENT_SEPARATOR = /[\s\,]+/;
 
 export default class Canvas{
 
@@ -33,6 +34,7 @@ export default class Canvas{
 
 			// Create the canvas layer
 			canvas = document.createElement('canvas');
+			canvas.style.backgroundColor = 'white';
 
 			// Not a parent
 			if (!parent) {
@@ -60,6 +62,13 @@ export default class Canvas{
 		}
 
 		this.ctx = canvas.getContext('2d');
+
+		// Set initial save point
+		this.ctx.save();
+
+		// Initiate the time
+		this._time = 0;
+		this._fps = 0;
 
 		// Initiate the draw
 		this.draw();
@@ -90,7 +99,6 @@ export default class Canvas{
 
 			hashchange.call(style, initialZ);
 		}
-
 	}
 
 	// ensure its keeping up.
@@ -108,6 +116,21 @@ export default class Canvas{
 	set height(value) {
 		this.target.height = value;
 		return value;
+	}
+	get fps() {
+		return this._fps;
+	}
+	set fps(value) {
+
+		this._fps++;
+
+		let now = (new Date()).getTime();
+
+		if ((now - this._time) > 1000) {
+			console.log('fps: %d', this._fps);
+			this._time = now;
+			this._fps = 0;
+		}
 	}
 
 
@@ -131,6 +154,10 @@ export default class Canvas{
 		}
 	}
 
+	clear() {
+		this.ctx.clearRect(0, 0, this.target.width, this.target.height);
+	}
+
 	// Bring the content of the canvas to the front
 	bringToFront() {
 
@@ -141,6 +168,9 @@ export default class Canvas{
 	// Trigger the draw function
 	draw() {
 
+		// Increment the number of frames
+		this.fps++;
+
 		// Call the frame function in the context of the frame to draw
 		this.target.dispatchEvent(createEvent('frame'));
 
@@ -149,14 +179,16 @@ export default class Canvas{
 	}
 
 	// The user has clicked an item on the page
-	addEventListener(eventname, handler) {
+	addEventListener(eventnames, handler) {
 
-		// Add to the events list
-		if (!(eventname in this.events)) {
-			this.events[eventname] = [];
-		}
+		eventnames.split(EVENT_SEPARATOR).forEach((eventname) => {
+			// Add to the events list
+			if (!(eventname in this.events)) {
+				this.events[eventname] = [];
+			}
 
-		this.events[eventname].push(handler);
+			this.events[eventname].push(handler);
+		});
 	}
 
 	// Dispatch

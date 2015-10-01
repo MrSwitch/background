@@ -8,32 +8,39 @@ export default class Shape{
 
 	constructor (...args) {
 
-		// Set property listeners
-		['x', 'y', 'w', 'h', 'dx', 'dy', 'visible', 'opacity'].forEach(this._watchProperty.bind(this));
-
-		// The default status is touched,
-		// This means it needs to be drawn on to canvas
-		this._dirty = true;
-
 		// initieate  events
 		this.events = [];
 
-		// Let events bubble up
-		this.pointerEvents = true;
-
-		// Set past points
-		this.past = {};
-
-		// Store the values
-		this.position(...args);
-
-		// Whether or not to draw this out
-		this.visible = true;
-
-		// Opacity
-		this.opacity = 1;
-
+		if (args.length) {
+			// Store the values
+			this.position(...args);
+		}
 	}
+
+//	Set property listeners
+	get x(){ return this._x;}
+	set x(v){ if (this._x !== v) {this.dirty = true; this._x = v;}}
+
+	get y(){ return this._y;}
+	set y(v){ if (this._y !== v) {this.dirty = true; this._y = v;}}
+
+	get w(){ return this._w;}
+	set w(v){ if (this._w !== v) {this.dirty = true; this._w = v;}}
+
+	get h(){ return this._h;}
+	set h(v){ if (this._h !== v) {this.dirty = true; this._h = v;}}
+
+	get dx(){ return this._dx;}
+	set dx(v){ if (this._dx !== v) {this.dirty = true; this._dx = v;}}
+
+	get dy(){ return this._dy;}
+	set dy(v){ if (this._dy !== v) {this.dirty = true; this._dy = v;}}
+
+	get visible(){ return (this._visible === undefined ? true : this._visible);}
+	set visible(v){ if (this._visible !== v) {this.dirty = true; this._visible = v;}}
+
+	get opacity(){ return (this._opacity === undefined ? 1 : this._opacity);}
+	set opacity(v){ if (this._opacity !== v) {this.dirty = true; this._opacity = v;}}
 
 	set dirty (v) {
 		// Has this just been made dirty?
@@ -46,26 +53,27 @@ export default class Shape{
 		}
 		else if(!v) {
 			// reset
-			this._dirty = false;
+			this._dirty = v;
 		}
 	}
 	get dirty () {
 		return this._dirty;
 	}
 
-	// set x (v) { this._x = v; }
-	// get x () { return this._x || 0; }
-
-	// set y (v) { this._y = v; }
-	// get y () { return this._y || 0; }
-
-	// set w (v) { this._w = v; }
-	// get w () { return this._w || 0; }
-
-	// set h (v) { this._h = v; }
-	// get h () { return this._h || 0; }
+	// Let events bubble up
+	get pointerEvents () {
+		return (this._pointerEvents === undefined ? 1 : this._pointerEvents);
+	}
+	set pointerEvents (v) {
+		this._pointerEvents = v;
+	}
 
 	position(x = 0, y = 0, w = 0, h = 0) {
+
+		if (!this.past) {
+			// Set past points
+			this.past = {};
+		}
 
 		this.past.x = this.x;
 		this.past.y = this.y;

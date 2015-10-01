@@ -11,15 +11,18 @@ import Rect from './classes/rect';
 
 // Create a new tile
 // Arguments handled by parent
-class Tile extends Rect{
+class Tile{
 
-	constructor(...args) {
+	constructor(x, y, w, h) {
 
 		// Parent Object
-		super(...args);
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
 
-		this.type = 'tile';
-		this.grid = [0, 0];
+		// Capture the grid position
+		this.grid = new Uint8Array(2);
 
 		var index = Math.floor(Math.random()*palate.length);
 		if (index === palate.length) {
@@ -29,6 +32,19 @@ class Tile extends Rect{
 		this.colorIndex = index;
 		this.fillStyle = palate[this.colorIndex];
 		this.flooded = false; // is this tile caught
+	}
+
+	get type (){
+		return 'tile';
+	}
+
+	setup(){}
+	frame(){}
+
+	// Each function passed into the collection must have a draw function
+	draw(ctx) {
+		ctx.fillStyle = this.fillStyle;
+		ctx.fillRect(this.x, this.y, this.w, this.h);
 	}
 }
 
@@ -135,7 +151,10 @@ canvas.addEventListener('click', (e) => {
 	}
 
 	// hide title
-	title.visible = false;
+	if (title.visible) {
+		title.visible = false;
+		title.dirty = true;
+	}
 
 	// Has the game state changed?
 	if (flooded >= tiles.length && clicks < max_tries) {
@@ -144,6 +163,10 @@ canvas.addEventListener('click', (e) => {
 		credits.calc(canvas);
 		info.visible = false;
 		score.visible = false;
+
+		credits.dirty = true;
+		info.dirty = true;
+		score.dirty = true;
 	}
 	else if (++clicks >= max_tries) {
 		credits.text = 'Game over!';
@@ -151,14 +174,28 @@ canvas.addEventListener('click', (e) => {
 		credits.calc(canvas);
 		info.visible = true;
 		score.visible = false;
+
+		credits.dirty = true;
+		info.dirty = true;
+		score.dirty = true;
 	}
 	else {
 		score.text = `${clicks}/${max_tries}`;
-		score.visible = true;
+		if(!score.visible){
+			score.visible = true;
+			score.dirty = true;
+		}
 		score.calc(canvas);
 
-		credits.visible = false;
-		info.visible = false;
+		// Hide others if need be...
+		if(credits.visible){
+			credits.visible = false;
+			credits.dirty = true;
+		}
+		if(info.visible){
+			info.visible = false;
+			info.dirty = true;
+		}
 	}
 });
 
@@ -243,6 +280,9 @@ function flood(tile) {
 
 	tile.colorIndex = selectedColor;
 	tile.fillStyle = palate[selectedColor];
+
+	// Mark this as needing to be redrawn
+	tile.dirty = true;
 
 	// find all tiles next to this one.
 	var edgeTiles = [

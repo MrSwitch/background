@@ -28,6 +28,7 @@ class Balloon extends Circle{
 		}
 
 		this.r += (this.ascending ? 1 : -1) * (max_radius/200);
+		this.dirty = true;
 	}
 }
 

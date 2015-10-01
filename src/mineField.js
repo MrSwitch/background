@@ -5,15 +5,15 @@
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
-import Rect from './classes/rect';
 
 // Create a new tile
 // Arguments handled by parent
-class Tile extends Rect{
+class Tile{
 
 	constructor (...args) {
 
-		super(...args);
+		// Define the position of this square
+		this.position(...args);
 
 		// Mine?
 		// Assign with a 1 in 5 chance
@@ -25,9 +25,6 @@ class Tile extends Rect{
 		// Define an initial grid position for this tile.
 		this.grid = [0, 0];
 
-		// Set the shape type
-		this.type = 'tile';
-
 		// Define a default fill color for tiles.
 		this.fillStyle = '#ccc';
 
@@ -35,6 +32,22 @@ class Tile extends Rect{
 		this.heat = 0; // How many bombs are next to this?
 	}
 
+	position(x, y, w, h) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.dirty = true;
+	}
+
+	setup() {}
+	frame() {}
+	draw(ctx) {
+		ctx.fillStyle = this.fillStyle;
+		ctx.fillRect(this.x, this.y, this.w, this.h);
+	}
+
+	get type() {return 'tile';}
 
 	get played() {
 		return this._played;
@@ -68,6 +81,8 @@ class Tile extends Rect{
 			text.font = '30px Arial bold';
 			text.x = this.x + (this.w / 2);
 			text.y = this.y + (this.h / 2);
+			text.w = 0;
+			text.h = 0;
 
 			collection.push(text);
 			collection.sort();

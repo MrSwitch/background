@@ -8,23 +8,48 @@ import Rect from './classes/rect';
 
 
 // Create a new tile
-class Tile extends Rect{
+class Tile{
 
 	constructor(...args) {
 
-		super(...args);
-
-		this.n = 100;
 		this.i = Math.round(Math.random()*this.n);
 		this.ascending = !Math.round(Math.random());
 		this.dx = 0;
 		this.dy = 0;
 		this.grid = [];
+		this.position(...args);
 	}
 
+	get n() {
+		return 100;
+	}
+
+	position(x, y, w, h) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+	}
+	draw(ctx) {
+
+		if (this.dx || this.dy) {
+			ctx.translate(this.dx, this.dy);
+		}
+
+		ctx.fillStyle = this.fillStyle;
+		ctx.fillRect(this.x, this.y, this.w, this.h);
+
+		if (this.dx || this.dy) {
+			// reset
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+		}
+	}
+	setup() {}
 	frame(canvas) {
 
 		var [i, j] = this.grid;
+
+		this.dirty = true;
 
 		var opacity = this.i;
 
@@ -100,7 +125,7 @@ canvas.addEventListener('resize', setup);
 canvas.addEventListener('frame', () => {
 
 	// Clear canvas
-	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height)
+	canvas.clear();
 
 	// Draw items
 	collection.draw();

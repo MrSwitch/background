@@ -29,6 +29,7 @@ class Balloon extends Circle{
 		}
 
 		this.r += (max_radius/200);
+		this.dirty = true;
 	}
 }
 
@@ -64,7 +65,7 @@ setup();
 function setup() {
 
 	// There are 100 balloons
-	var n = 100;
+	var n = 1000;
 
 	// To fill the rectangular screen area
 	var W = canvas.width;

@@ -53,7 +53,7 @@ export default class Collection{
 	// Mark items and objects in the same space to be redrawn
 	prepare() {
 		this.children.forEach((item) => {
-			if (item.dirty)
+			if (item.dirty === true)
 				this.prepareChild(item);
 		});
 	}
@@ -63,14 +63,18 @@ export default class Collection{
 
 		let ctx = this.ctx;
 
+		if (item.dirty === 'pending') {
+			return;
+		}
+
 		// Mark this item as dirty
-		item.dirty = true;
+		item.dirty = 'pending';
 
 		// Remove from Canvas
 		ctx.clearRect(item.x, item.y, item.w, item.h);
 
 		// If the items old position is different
-		if (displaced(item.past, item)) {
+		if (item.past && displaced(item.past, item)) {
 			ctx.clearRect(item.past.x, item.past.y, item.past.w, item.past.h);
 		}
 
@@ -81,8 +85,7 @@ export default class Collection{
 	_prepareSiblings(item, sibling) {
 
 		// Does this Object overlap with the focused object?
-		if (!sibling.dirty && (intersect(sibling, item) || (item.past ? intersect(sibling, item.past) : false))) {
-
+		if (!sibling.dirty && sibling.visible !== false && (intersect(sibling, item) || (item.past ? intersect(sibling, item.past) : false))) {
 			// Nested clean
 			this.prepareChild(sibling);
 		}
@@ -108,15 +111,12 @@ export default class Collection{
 
 			item.frame(ctx);
 
-			if (item.dirty) {
-				if (item.visible) {
-					item.draw(ctx);
-				}
+			if (item.dirty && item.visible !== false) {
+				item.draw(ctx);
 			}
-		});
 
-		// Mark all as undirty
-		this.children.filter((item) => item.dirty).forEach((item) => item.dirty = false );
+			item.dirty = false;
+		});
 	}
 
 	elementFromPoint(x, y) {
@@ -133,7 +133,7 @@ export default class Collection{
 
 		this.children.forEach((item) => {
 
-			if (!item.visible || !item.w || !item.h || !item.pointerEvents) {
+			if (item.visible === false || !item.w || !item.h || item.pointerEvents === false) {
 				return;
 			}
 

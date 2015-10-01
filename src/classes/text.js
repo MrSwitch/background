@@ -36,7 +36,7 @@ export default class Text extends Shape{
 		var fontSize = this.fontSize;
 
 		// Split text by line breaks
-		this.lines = this.text.split('\n');
+		this.lines = this.text.toString().split('\n');
 
 		// Which is the longest line?
 		var _width = 0;
