@@ -4,17 +4,57 @@
 // Get Canvas
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
-import Circle from './classes/circle';
 
+const MATH_PI2 = 2 * Math.PI;
+
+const sprites = [];
 
 // Create a new tile
-class Balloon extends Circle{
+class Balloon{
 
-	constructor(...args) {
+	constructor(cx, cy, r) {
 
-		super(...args);
+		this.cx = cx;
+		this.cy = cy;
+		this.r = r;
 
 		this.ascending = true;
+		this.fillStyle = "black";
+
+		this.calc();
+	}
+
+	calc() {
+		let r = this.r;
+		this.x = this.cx - r;
+		this.y = this.cy - r;
+		this.w = r*2;
+		this.h = r*2;
+	}
+
+	draw(ctx) {
+
+		if (this.r <= 0) {
+			this.r = 0;
+			return;
+		}
+
+		// Does this exist as a sprite?
+		var key = this.fillStyle + this.r;
+		if (!(key in sprites)) {
+			var _canvas = document.createElement('canvas');
+			_canvas.width = Math.ceil(this.w)+2;
+			_canvas.height = Math.ceil(this.h)+2;
+			var _ctx = _canvas.getContext('2d');
+			_ctx.fillStyle = this.fillStyle;
+			_ctx.beginPath();
+			_ctx.arc(this.r + 1, this.r + 1, this.r, 0, MATH_PI2, false);
+			_ctx.fill();
+
+			sprites[key] = _canvas;
+		}
+
+		ctx.drawImage(sprites[key], this.x - 1, this.y - 1);
 	}
 
 	frame(canvas) {
@@ -28,10 +68,10 @@ class Balloon extends Circle{
 		}
 
 		this.r += (this.ascending ? 1 : -1) * (max_radius/200);
+		this.calc();
 		this.dirty = true;
 	}
 }
-
 
 let canvas = new Canvas();
 let collection = new Collection(canvas.target);

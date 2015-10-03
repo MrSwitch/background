@@ -34,7 +34,9 @@ export default class Collection{
 
 		// Is this item already in the collection?
 		if (this.children.indexOf(item) === -1) {
-			item.setup(this);
+			if (item.setup) {
+				item.setup(this);
+			}
 
 			// item.addEventListener('dirty', this.prepareChild.bind(this, item));
 			this.children.push(item);
