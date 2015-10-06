@@ -34,13 +34,6 @@ class Tile{
 		this.flooded = false; // is this tile caught
 	}
 
-	get type (){
-		return 'tile';
-	}
-
-	setup(){}
-	frame(){}
-
 	// Each function passed into the collection must have a draw function
 	draw(ctx) {
 		ctx.fillStyle = this.fillStyle;
@@ -146,7 +139,7 @@ canvas.addEventListener('click', (e) => {
 	var target = collection.elementFromPoint(e.offsetX, e.offsetY);
 
 	// Tile Clicked
-	if (target.type === 'tile') {
+	if (target.constructor.name === 'Tile') {
 		play(target);
 	}
 

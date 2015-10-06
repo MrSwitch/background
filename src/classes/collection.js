@@ -111,7 +111,9 @@ export default class Collection{
 		// Remove background
 		this.children.forEach((item) => {
 
-			item.frame(ctx);
+			if (item.frame) {
+				item.frame(ctx);
+			}
 
 			if (item.dirty && item.visible !== false) {
 				item.draw(ctx);
