@@ -16,7 +16,6 @@ function build(item){
 	.pipe(source('./dist/'+name))
 	.pipe(buffer())
 	.pipe(sourcemaps.init({loadMaps: true}))
-	.pipe(uglify({ mangle: false }))
 	.pipe(sourcemaps.write('./'))
 	.pipe(gulp.dest('./'))
 	.on('end', function() {

@@ -76,7 +76,7 @@ export default class Text extends Shape{
 
 		// Store style attributes
 		// Store the new attributes of the text item
-		this.lineWidth = Math.floor(fontSize / 30);
+		this.lineWidth = Math.floor(fontSize / 60);
 
 
 		// HEIGHT and WIDTH

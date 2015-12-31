@@ -4,7 +4,8 @@
   "description": "Animated website backgrounds",
   "main": "dist/colorFlood.js",
   "scripts": {
-    "test": "gulp"
+    "test": "gulp",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",

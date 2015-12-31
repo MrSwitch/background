@@ -5,10 +5,12 @@
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
+import Background from './classes/background';
+
 
 // Create a new tile
 // Arguments handled by parent
-class Tile{
+class Tile {
 
 	constructor (...args) {
 
@@ -96,22 +98,22 @@ class Tile{
  * * Tiles
  * * Data
  ******************************************/
+class Stage {
+	constructor() {
 
-var tiles = [],
-	mines = [],
-	flooded = 0,
-	boom = false,
-	ended = true;
-
-var h, w;
-var nx;
-var ny;
+this.tiles = [],
+this.mines = [],
+this.flooded = 0,
+this.boom = false,
+this.ended = true;
 
 // Iniitate canvas
 var canvas = new Canvas();
+this.canvas = canvas;
 
 // Iniitate collection
 var collection = new Collection(canvas.target);
+this.collection = collection;
 
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
@@ -123,6 +125,7 @@ title.fontSize = 150;
 title.zIndex = 1;
 title.calc(canvas);
 title.pointerEvents = false;
+this.title = title;
 
 var	info = new Text();
 info.text = 'Tap  to  start';
@@ -132,6 +135,7 @@ info.zIndex = 1;
 info.calc(canvas);
 info.pointerEvents = false;
 info.y = info.y + title.h;
+this.info = info;
 
 var	credits = new Text();
 credits.align = 'center center';
@@ -139,6 +143,7 @@ credits.zIndex = 1;
 credits.fontSize = 150;
 credits.calc(canvas);
 credits.pointerEvents = false;
+this.credits = credits;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
@@ -151,39 +156,15 @@ start.fontSize = 40;
 start.calc(canvas);
 start.addEventListener('click', setup);
 start.addEventListener('touchstart', setup);
-
-// Setup all the tiles
-setup();
+this.start = start;
 
 /******************************************
  *  Add Events, to listen to in game play
  ******************************************/
 
-canvas.addEventListener('mousedown', (e) => userClick(e.offsetX, e.offsetY));
-canvas.addEventListener('touchstart', (e) => userClick(e.offsetX, e.offsetY));
-
-function userClick(x, y) {
-
-	// Tile Clicked
-	canvas.bringToFront();
-
-	if (ended) {
-		ended = false;
-		setup();
-		return;
-	}
-
-	// Tile Clicked
-	var target = collection.elementFromPoint(x, y);
-
-	if (target && target.type === 'tile') {
-		play(target);
-	}
-}
-
-
-canvas.addEventListener('resize', setup);
-
+canvas.addEventListener('mousedown', (e) => userClick.call(this, e.offsetX, e.offsetY));
+canvas.addEventListener('touchstart', (e) => userClick.call(this, e.offsetX, e.offsetY));
+canvas.addEventListener('resize', setup.bind(this));
 canvas.addEventListener('frame', (e) => {
 
 	// Draw items
@@ -195,24 +176,66 @@ canvas.addEventListener('frame', (e) => {
 });
 
 
+	}
+	setup() {
+
+		// Setup all the tiles
+		setup.call(this);
+	}
+}
+
+
+// Add Stage to the background
+Background.add(Stage);
+
+function userClick(x, y) {
+
+	if (this.ended) {
+		this.ended = false;
+		setup.call(this);
+		return;
+	}
+
+	// Tile Clicked
+	var target = this.collection.elementFromPoint(x, y);
+
+	if (target && target.type === 'tile') {
+		play.call(this, target);
+	}
+}
+
 
 // Setup
 function setup() {
 
-	mines.length = 0;
-	flooded = 0;
-	boom = false;
+	let canvas = this.canvas;
+	let collection = this.collection;
+	let tiles = this.tiles;
+	let mines = this.mines;
+
+	// Define type size
+	// set tile default Width and height
+	var h, w;
+	var nx;
+	var ny;
+
+
+	this.mines.length = 0;
+	this.flooded = 0;
+	this.boom = false;
 
 	tiles.length = 0;
 	collection.length = 0;
 
-	// Define type size
-	// set tile default Width and height
+
 	w = h = 50;
 
 	// set number of tiles horizontally and vertically
 	nx = Math.floor(canvas.width / w);
 	ny = Math.floor(canvas.height / h);
+
+	this.nx = nx;
+	this.ny = ny;
 
 	// Do the tiles not perfectly fit the space?
 	// split the difference between the tiles, adding to the widths and heights
@@ -235,6 +258,11 @@ function setup() {
 		}
 	}
 
+	let credits = this.credits;
+	let info = this.info;
+	let title = this.title;
+	let start = this.start;
+
 	// Flood its neighbouring tiles on start
 	collection.push(title);
 	collection.push(credits);
@@ -251,6 +279,12 @@ function setup() {
 
 function play(tile){
 
+	let flooded = this.flooded;
+	let mines = this.mines;
+	let tiles = this.tiles;
+	let credits = this.credits;
+	let info = this.info;
+	let title = this.title;
 
 	if (!tile) {
 		return true;
@@ -265,12 +299,12 @@ function play(tile){
 
 	// Is it a mine
 	if (tile.mine) {
-		boom = true;
+		this.boom = true;
 	}
 	// Check to see it this tile has been exposed before?
 	else if(!tile.played) {
 		// Trigger Flooding
-		flood(tile);
+		flood.call(this, tile);
 	}
 
 	if ((flooded + mines.length) === tiles.length || boom) {
@@ -283,7 +317,7 @@ function play(tile){
 		info.text = 'Tap to restart';
 		info.visible = true;
 
-		ended = true;
+		this.ended = true;
 	}
 	else {
 		title.visible = false;
@@ -296,6 +330,10 @@ function play(tile){
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
 
+	let nx = this.nx;
+	let ny = this.ny;
+	let tiles = this.tiles;
+
 	var [x, y] = tile.grid;
 
 	if (tile.played) {
@@ -303,7 +341,7 @@ function flood(tile) {
 	}
 
 	// Add to Counter
-	flooded++;
+	this.flooded++;
 
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
@@ -332,6 +370,6 @@ function flood(tile) {
 	// If this tile is the one selected,
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
-		edgeTiles.forEach(flood);
+		edgeTiles.forEach(flood.bind(this));
 	}
 }

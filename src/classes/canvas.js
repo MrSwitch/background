@@ -4,6 +4,8 @@
 // Includes
 import '../utils/support/requestAnimationFrame';
 import createEvent from '../utils/events/createEvent';
+import createDummyEvent from '../utils/events/createDummyEvent';
+import userInitiated from '../utils/events/userinitiated';
 
 // Constants
 const BACKGROUND_HASH = 'background';
@@ -14,6 +16,8 @@ const EVENT_SEPARATOR = /[\s\,]+/;
 
 export default class Canvas{
 
+	// Construct the Canvas Element
+	// @param canvas should be an root element container for this imagery.
 	constructor(canvas) {
 
 		var parent;
@@ -59,6 +63,7 @@ export default class Canvas{
 		}
 		else{
 			this.target = canvas;
+			parent = canvas.parentNode;
 		}
 
 		this.ctx = canvas.getContext('2d');
@@ -196,9 +201,17 @@ export default class Canvas{
 
 		if (e.type in this.events) {
 
-			// This was in the background
-			if (!(e.target === this.target || e.target === document.documentElement)) {
-				return;
+			let target = e.currentTarget;
+
+			// This was triggered using event delegation, aka in the background
+			if (target === document) {
+
+				e = createDummyEvent({
+					type: e.type,
+					target: this.target,
+					offsetX: e.pageX,
+					offsetY: e.pageY
+				});
 			}
 
 			this.events[e.type].forEach((handler) => handler(e));

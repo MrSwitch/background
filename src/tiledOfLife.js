@@ -5,7 +5,7 @@
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Rect from './classes/rect';
-
+import Background from './classes/background';
 
 // Create a new tile
 class Tile{
@@ -114,13 +114,18 @@ class Tile{
 	}
 }
 
+class Stage{
+	constructor(target) {
 
-let canvas = new Canvas();
+let canvas = new Canvas(target);
 let collection = new Collection(canvas.target);
 
-canvas.addEventListener('mousemove', action);
-canvas.addEventListener('touchmove', action);
-canvas.addEventListener('resize', setup);
+this.canvas = canvas;
+this.collection = collection;
+
+canvas.addEventListener('mousemove', action.bind(this));
+canvas.addEventListener('touchmove', action.bind(this));
+canvas.addEventListener('resize', setup.bind(this));
 
 canvas.addEventListener('frame', () => {
 
@@ -131,20 +136,28 @@ canvas.addEventListener('frame', () => {
 	collection.draw();
 });
 
+this.tiles = [];
 
+	}
+	setup() {
+		setup.call(this);
+	}
+}
 
 
 // Canvas
 var radius = 80;
 var pointer;
 
-// draw variant background
+// Add Stage to the background
+Background.add(Stage);
 
-var tiles = [];
-
-setup();
 
 function setup() {
+
+	let canvas = this.canvas;
+	let tiles = this.tiles;
+	let collection = this.collection;
 
 	var h, w;
 	w = h = 40;

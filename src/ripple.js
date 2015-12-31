@@ -4,7 +4,7 @@
 // Get Canvas
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
-import easeInOut from './utils/animation/timing.easeInOutCubic.js';
+import easeInOut from './utils/time/timing.easeInOutCubic.js';
 
 const MATH_PI2 = 2 * Math.PI;
 const MAX = 500;
