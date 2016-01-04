@@ -313,8 +313,8 @@ var Canvas = (function () {
 					e = (0, _utilsEventsCreateDummyEvent2['default'])({
 						type: e.type,
 						target: this.target,
-						offsetX: e.pageX,
-						offsetY: e.pageY
+						offsetX: e.pageX || e.offsetX,
+						offsetY: e.pageY || e.offsetY
 					});
 				}
 
@@ -334,8 +334,8 @@ var Canvas = (function () {
 			// Determine the offset to the canvas element relative to the item being clicked
 			var touch = (e.touches || e.changedTouches)[0];
 			if (touch) {
-				e.offsetX = Math.abs(touch.screenX);
-				e.offsetY = Math.abs(touch.screenY);
+				e.offsetX = Math.abs(touch.pageX || touch.screenX);
+				e.offsetY = Math.abs(touch.pageY || touch.screenY);
 			}
 
 			this.dispatchEvent(e);
@@ -1109,53 +1109,35 @@ var Tile = (function () {
 	return Tile;
 })();
 
-var Stage = (function () {
-	function Stage(target) {
-		_classCallCheck(this, Stage);
+var Stage = function Stage(target) {
+	_classCallCheck(this, Stage);
 
-		var canvas = new _classesCanvas2['default'](target);
-		var collection = new _classesCollection2['default'](canvas.target);
+	var canvas = new _classesCanvas2['default'](target);
+	var collection = new _classesCollection2['default'](canvas.target);
 
-		this.canvas = canvas;
-		this.collection = collection;
+	this.canvas = canvas;
+	this.collection = collection;
 
-		canvas.addEventListener('mousemove', action.bind(this));
-		canvas.addEventListener('touchmove', action.bind(this));
-		canvas.addEventListener('resize', setup.bind(this));
+	canvas.addEventListener('mousemove', action.bind(this));
+	canvas.addEventListener('touchmove', action.bind(this));
+	canvas.addEventListener('resize', setup.bind(this));
 
-		canvas.addEventListener('frame', function () {
+	canvas.addEventListener('frame', function () {
 
-			// Clear canvas
-			canvas.clear();
+		// Clear canvas
+		canvas.clear();
 
-			// Draw items
-			collection.draw();
-		});
+		// Draw items
+		collection.draw();
+	});
 
-		this.tiles = [];
-	}
+	this.tiles = [];
 
-	// Canvas
+	setup.call(this);
+}
 
-	_createClass(Stage, [{
-		key: 'setup',
-		value: (function (_setup) {
-			function setup() {
-				return _setup.apply(this, arguments);
-			}
-
-			setup.toString = function () {
-				return _setup.toString();
-			};
-
-			return setup;
-		})(function () {
-			setup.call(this);
-		})
-	}]);
-
-	return Stage;
-})();
+// Canvas
+;
 
 var radius = 80;
 var pointer;

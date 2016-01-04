@@ -6,6 +6,7 @@ import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
 import Background from './classes/background';
+import extend from './utils/object/extend';
 
 
 // Create a new tile
@@ -22,7 +23,7 @@ class Tile {
 		this.mine = Math.random() < (1/8);
 
 		// Private mark as to whether this has been played
-		this._played = false;
+		this.played = false;
 
 		// Define an initial grid position for this tile.
 		this.grid = [0, 0];
@@ -50,46 +51,6 @@ class Tile {
 	}
 
 	get type() {return 'tile';}
-
-	get played() {
-		return this._played;
-	}
-
-	set played(v) {
-
-		// Has it already been played?
-		if (this._played) {
-			return;
-		}
-
-		// Mark as played
-		this._played = !!v;
-
-		// Style
-		this.fillStyle = this.mine ? 'red' : 'rgba(0,0,0,0.1)';
-
-		this.dirty = true;
-
-		// Can't make this visible
-		if (this.heat) {
-
-			// Create text
-			var text = new Text();
-			text.text = this.heat;
-			text.textBaseline = 'middle';
-			text.textAlign = 'center';
-			text.strokeStyle = null;
-			text.fillStyle='black';
-			text.font = '30px Arial bold';
-			text.x = this.x + (this.w / 2);
-			text.y = this.y + (this.h / 2);
-			text.w = 0;
-			text.h = 0;
-
-			collection.push(text);
-			collection.sort();
-		}
-	}
 }
 
 /******************************************
@@ -101,11 +62,15 @@ class Tile {
 class Stage {
 	constructor() {
 
+this.options = {
+	controls: false
+};
+
 this.tiles = [],
 this.mines = [],
 this.flooded = 0,
 this.boom = false,
-this.ended = true;
+this.ended = false;
 
 // Iniitate canvas
 var canvas = new Canvas();
@@ -177,10 +142,21 @@ canvas.addEventListener('frame', (e) => {
 
 
 	}
-	setup() {
+	setup(options) {
+
+		// Update config
+		this.config(options);
 
 		// Setup all the tiles
 		setup.call(this);
+	}
+	config(options) {
+
+		// Merge the current options
+		extend(this.options, options);
+
+		// Show Controls
+		showControls.call(this);
 	}
 }
 
@@ -190,8 +166,8 @@ Background.add(Stage);
 
 function userClick(x, y) {
 
+	// If we need to reset?
 	if (this.ended) {
-		this.ended = false;
 		setup.call(this);
 		return;
 	}
@@ -223,6 +199,7 @@ function setup() {
 	this.mines.length = 0;
 	this.flooded = 0;
 	this.boom = false;
+	this.ended = false;
 
 	tiles.length = 0;
 	collection.length = 0;
@@ -269,8 +246,9 @@ function setup() {
 	collection.push(info);
 	collection.push(start);
 
-	title.visible = true;
-	info.visible = true;
+	// Show Controls?
+	showControls.call(this);
+
 	credits.visible = false;
 
 	// Sort the collection by z-index this ensures everything is drawn in the right order
@@ -307,13 +285,13 @@ function play(tile){
 		flood.call(this, tile);
 	}
 
-	if ((flooded + mines.length) === tiles.length || boom) {
+	if ((flooded + mines.length) === tiles.length || this.boom) {
 
 		// Show all the mines
-		mines.forEach((mine) => mine.played = true);
-		credits.text = boom ? 'BOOM!' : 'Kudos!';
+		mines.forEach((mine) => markTile.call(this, mine));
+		credits.text = this.boom ? 'BOOM!' : 'Kudos!';
 		credits.visible = true;
-		credits.calc(canvas);
+		credits.calc(this.canvas);
 		info.text = 'Tap to restart';
 		info.visible = true;
 
@@ -367,9 +345,52 @@ function flood(tile) {
 	// Set the tile mode to played
 	tile.played = true;
 
+	// Change tile appearance tile
+	markTile.call(this, tile);
+
 	// If this tile is the one selected,
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
 		edgeTiles.forEach(flood.bind(this));
 	}
+}
+
+
+function markTile(tile) {
+	// Style
+	tile.fillStyle = tile.mine ? 'red' : 'rgba(0,0,0,0.1)';
+
+	// Mark as dirty
+	tile.dirty = true;
+
+	// Can't make this visible
+	if (tile.heat) {
+
+		// Create text
+		var text = new Text();
+		text.text = tile.heat;
+		text.textBaseline = 'middle';
+		text.textAlign = 'center';
+		text.strokeStyle = null;
+		text.fillStyle='black';
+		text.font = '30px Arial bold';
+		text.x = tile.x + (tile.w / 2);
+		text.y = tile.y + (tile.h / 2);
+		text.w = 0;
+		text.h = 0;
+
+		this.collection.push(text);
+		this.collection.sort();
+	}
+}
+
+function showControls() {
+	let showControls = this.options.controls;
+	let inProgress = !(this.flooded === 0 || this.boom || this.ended);
+
+	// Show some controls only between game plays?
+	this.title.visible = !inProgress && showControls;
+	this.info.visible = !inProgress && showControls;
+	this.start.visible = showControls;
+	this.credits.visible = this.ended && showControls;
 }

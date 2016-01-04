@@ -138,9 +138,8 @@ canvas.addEventListener('frame', () => {
 
 this.tiles = [];
 
-	}
-	setup() {
-		setup.call(this);
+setup.call(this);
+
 	}
 }
 

@@ -209,8 +209,8 @@ export default class Canvas{
 				e = createDummyEvent({
 					type: e.type,
 					target: this.target,
-					offsetX: e.pageX,
-					offsetY: e.pageY
+					offsetX: e.pageX || e.offsetX,
+					offsetY: e.pageY || e.offsetY
 				});
 			}
 
@@ -226,8 +226,8 @@ export default class Canvas{
 		// Determine the offset to the canvas element relative to the item being clicked
 		var touch = (e.touches || e.changedTouches)[0];
 		if (touch) {
-			e.offsetX = Math.abs(touch.screenX);
-			e.offsetY = Math.abs(touch.screenY);
+			e.offsetX = Math.abs(touch.pageX || touch.screenX);
+			e.offsetY = Math.abs(touch.pageY || touch.screenY);
 		}
 
 		this.dispatchEvent(e);

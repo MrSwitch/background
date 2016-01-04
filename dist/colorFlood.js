@@ -313,8 +313,8 @@ var Canvas = (function () {
 					e = (0, _utilsEventsCreateDummyEvent2['default'])({
 						type: e.type,
 						target: this.target,
-						offsetX: e.pageX,
-						offsetY: e.pageY
+						offsetX: e.pageX || e.offsetX,
+						offsetY: e.pageY || e.offsetY
 					});
 				}
 
@@ -334,8 +334,8 @@ var Canvas = (function () {
 			// Determine the offset to the canvas element relative to the item being clicked
 			var touch = (e.touches || e.changedTouches)[0];
 			if (touch) {
-				e.offsetX = Math.abs(touch.screenX);
-				e.offsetY = Math.abs(touch.screenY);
+				e.offsetX = Math.abs(touch.pageX || touch.screenX);
+				e.offsetY = Math.abs(touch.pageY || touch.screenY);
 			}
 
 			this.dispatchEvent(e);
@@ -1285,12 +1285,22 @@ var Stage = (function () {
 			return setup;
 		})(function (options) {
 
-			// Merge the current options
-			(0, _utilsObjectExtend2['default'])(this.options, options);
+			// Set the options
+			this.config(options);
 
 			// Setup
 			setup.call(this);
 		})
+	}, {
+		key: 'config',
+		value: function config(options) {
+
+			// Merge the current options
+			(0, _utilsObjectExtend2['default'])(this.options, options);
+
+			// Show Controls
+			showControls.call(this);
+		}
 	}]);
 
 	return Stage;
@@ -1303,7 +1313,7 @@ function init() {
 
 	// Show text
 	this.options = {
-		text: true
+		controls: true
 	};
 
 	// Add a text Object
@@ -1423,14 +1433,6 @@ function setup() {
 	this.selectedColor = null;
 	this.flooded = 1;
 
-	// Show text?
-	var showText = this.options.text;
-	this.title.visible = showText;
-	this.info.visible = showText;
-	this.score.visible = showText;
-	this.credits.visible = showText;
-	this.playBtn.visible = showText;
-
 	// Define type size
 	// set tile default Width and height
 	var w = 50;
@@ -1525,6 +1527,16 @@ function flood(tile) {
 			}
 		}
 	});
+}
+
+function showControls() {
+	// Show Controls and information?
+	var showControls = this.options.controls;
+	this.title.visible = showControls;
+	this.info.visible = showControls;
+	this.score.visible = showControls;
+	this.credits.visible = showControls;
+	this.playBtn.visible = showControls;
 }
 
 },{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/rect":4,"./classes/text":6,"./utils/object/extend":11}],8:[function(require,module,exports){

@@ -75,11 +75,20 @@ class Stage{
 
 	setup(options) {
 
-		// Merge the current options
-		extend(this.options, options);
+		// Set the options
+		this.config(options);
 
 		// Setup
 		setup.call(this);
+	}
+
+	config(options) {
+
+		// Merge the current options
+		extend(this.options, options);
+
+		// Show Controls
+		showControls.call(this);
 	}
 }
 
@@ -92,7 +101,7 @@ function init() {
 
 // Show text
 this.options = {
-	text: true
+	controls: true
 };
 
 // Add a text Object
@@ -216,15 +225,6 @@ function setup() {
 	this.selectedColor = null;
 	this.flooded = 1;
 
-	// Show text?
-	let showText = this.options.text;
-	this.title.visible = showText;
-	this.info.visible = showText;
-	this.score.visible = showText;
-	this.credits.visible = showText;
-	this.playBtn.visible = showText;
-
-
 	// Define type size
 	// set tile default Width and height
 	let w = 50;
@@ -320,4 +320,14 @@ function flood(tile) {
 			}
 		}
 	});
+}
+
+function showControls() {
+	// Show Controls and information?
+	let showControls = this.options.controls;
+	this.title.visible = showControls;
+	this.info.visible = showControls;
+	this.score.visible = showControls;
+	this.credits.visible = showControls;
+	this.playBtn.visible = showControls;
 }

@@ -313,8 +313,8 @@ var Canvas = (function () {
 					e = (0, _utilsEventsCreateDummyEvent2['default'])({
 						type: e.type,
 						target: this.target,
-						offsetX: e.pageX,
-						offsetY: e.pageY
+						offsetX: e.pageX || e.offsetX,
+						offsetY: e.pageY || e.offsetY
 					});
 				}
 
@@ -334,8 +334,8 @@ var Canvas = (function () {
 			// Determine the offset to the canvas element relative to the item being clicked
 			var touch = (e.touches || e.changedTouches)[0];
 			if (touch) {
-				e.offsetX = Math.abs(touch.screenX);
-				e.offsetY = Math.abs(touch.screenY);
+				e.offsetX = Math.abs(touch.pageX || touch.screenX);
+				e.offsetY = Math.abs(touch.pageY || touch.screenY);
 			}
 
 			this.dispatchEvent(e);
@@ -400,7 +400,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/events/userinitiated":9,"../utils/support/requestAnimationFrame":10}],3:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/events/userinitiated":9,"../utils/support/requestAnimationFrame":12}],3:[function(require,module,exports){
 // Collection
 
 'use strict';
@@ -1114,6 +1114,10 @@ var _classesBackground = require('./classes/background');
 
 var _classesBackground2 = _interopRequireDefault(_classesBackground);
 
+var _utilsObjectExtend = require('./utils/object/extend');
+
+var _utilsObjectExtend2 = _interopRequireDefault(_utilsObjectExtend);
+
 // Create a new tile
 // Arguments handled by parent
 
@@ -1129,7 +1133,7 @@ var Tile = (function () {
 		this.mine = Math.random() < 1 / 8;
 
 		// Private mark as to whether this has been played
-		this._played = false;
+		this.played = false;
 
 		// Define an initial grid position for this tile.
 		this.grid = [0, 0];
@@ -1174,46 +1178,6 @@ var Tile = (function () {
 		get: function get() {
 			return 'tile';
 		}
-	}, {
-		key: 'played',
-		get: function get() {
-			return this._played;
-		},
-		set: function set(v) {
-
-			// Has it already been played?
-			if (this._played) {
-				return;
-			}
-
-			// Mark as played
-			this._played = !!v;
-
-			// Style
-			this.fillStyle = this.mine ? 'red' : 'rgba(0,0,0,0.1)';
-
-			this.dirty = true;
-
-			// Can't make this visible
-			if (this.heat) {
-
-				// Create text
-				var text = new _classesText2['default']();
-				text.text = this.heat;
-				text.textBaseline = 'middle';
-				text.textAlign = 'center';
-				text.strokeStyle = null;
-				text.fillStyle = 'black';
-				text.font = '30px Arial bold';
-				text.x = this.x + this.w / 2;
-				text.y = this.y + this.h / 2;
-				text.w = 0;
-				text.h = 0;
-
-				collection.push(text);
-				collection.sort();
-			}
-		}
 	}]);
 
 	return Tile;
@@ -1225,7 +1189,11 @@ var Stage = (function () {
 
 		_classCallCheck(this, Stage);
 
-		this.tiles = [], this.mines = [], this.flooded = 0, this.boom = false, this.ended = true;
+		this.options = {
+			controls: false
+		};
+
+		this.tiles = [], this.mines = [], this.flooded = 0, this.boom = false, this.ended = false;
 
 		// Iniitate canvas
 		var canvas = new _classesCanvas2['default']();
@@ -1304,7 +1272,7 @@ var Stage = (function () {
 	_createClass(Stage, [{
 		key: 'setup',
 		value: (function (_setup) {
-			function setup() {
+			function setup(_x) {
 				return _setup.apply(this, arguments);
 			}
 
@@ -1313,11 +1281,24 @@ var Stage = (function () {
 			};
 
 			return setup;
-		})(function () {
+		})(function (options) {
+
+			// Update config
+			this.config(options);
 
 			// Setup all the tiles
 			setup.call(this);
 		})
+	}, {
+		key: 'config',
+		value: function config(options) {
+
+			// Merge the current options
+			(0, _utilsObjectExtend2['default'])(this.options, options);
+
+			// Show Controls
+			showControls.call(this);
+		}
 	}]);
 
 	return Stage;
@@ -1327,8 +1308,8 @@ _classesBackground2['default'].add(Stage);
 
 function userClick(x, y) {
 
+	// If we need to reset?
 	if (this.ended) {
-		this.ended = false;
 		setup.call(this);
 		return;
 	}
@@ -1358,6 +1339,7 @@ function setup() {
 	this.mines.length = 0;
 	this.flooded = 0;
 	this.boom = false;
+	this.ended = false;
 
 	tiles.length = 0;
 	collection.length = 0;
@@ -1403,8 +1385,9 @@ function setup() {
 	collection.push(info);
 	collection.push(start);
 
-	title.visible = true;
-	info.visible = true;
+	// Show Controls?
+	showControls.call(this);
+
 	credits.visible = false;
 
 	// Sort the collection by z-index this ensures everything is drawn in the right order
@@ -1412,6 +1395,7 @@ function setup() {
 }
 
 function play(tile) {
+	var _this2 = this;
 
 	var flooded = this.flooded;
 	var mines = this.mines;
@@ -1441,15 +1425,15 @@ function play(tile) {
 			flood.call(this, tile);
 		}
 
-	if (flooded + mines.length === tiles.length || boom) {
+	if (flooded + mines.length === tiles.length || this.boom) {
 
 		// Show all the mines
 		mines.forEach(function (mine) {
-			return mine.played = true;
+			return markTile.call(_this2, mine);
 		});
-		credits.text = boom ? 'BOOM!' : 'Kudos!';
+		credits.text = this.boom ? 'BOOM!' : 'Kudos!';
 		credits.visible = true;
-		credits.calc(canvas);
+		credits.calc(this.canvas);
 		info.text = 'Tap to restart';
 		info.visible = true;
 
@@ -1498,6 +1482,9 @@ function flood(tile) {
 	// Set the tile mode to played
 	tile.played = true;
 
+	// Change tile appearance tile
+	markTile.call(this, tile);
+
 	// If this tile is the one selected,
 	// And has no heat, then recurse through all neighbours and flood them no heat
 	if (tile.heat === 0) {
@@ -1505,7 +1492,46 @@ function flood(tile) {
 	}
 }
 
-},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5}],7:[function(require,module,exports){
+function markTile(tile) {
+	// Style
+	tile.fillStyle = tile.mine ? 'red' : 'rgba(0,0,0,0.1)';
+
+	// Mark as dirty
+	tile.dirty = true;
+
+	// Can't make this visible
+	if (tile.heat) {
+
+		// Create text
+		var text = new _classesText2['default']();
+		text.text = tile.heat;
+		text.textBaseline = 'middle';
+		text.textAlign = 'center';
+		text.strokeStyle = null;
+		text.fillStyle = 'black';
+		text.font = '30px Arial bold';
+		text.x = tile.x + tile.w / 2;
+		text.y = tile.y + tile.h / 2;
+		text.w = 0;
+		text.h = 0;
+
+		this.collection.push(text);
+		this.collection.sort();
+	}
+}
+
+function showControls() {
+	var showControls = this.options.controls;
+	var inProgress = !(this.flooded === 0 || this.boom || this.ended);
+
+	// Show some controls only between game plays?
+	this.title.visible = !inProgress && showControls;
+	this.info.visible = !inProgress && showControls;
+	this.start.visible = showControls;
+	this.credits.visible = this.ended && showControls;
+}
+
+},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":10}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1564,6 +1590,52 @@ exports['default'] = function () {
 module.exports = exports['default'];
 
 },{}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+exports['default'] = extend;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _instanceOfJs = require('./instanceOf.js');
+
+var _instanceOfJs2 = _interopRequireDefault(_instanceOfJs);
+
+function extend(r) {
+	for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+		args[_key - 1] = arguments[_key];
+	}
+
+	args.forEach(function (o) {
+		if ((0, _instanceOfJs2['default'])(r, Object) && (0, _instanceOfJs2['default'])(o, Object) && r !== o) {
+			for (var x in o) {
+				r[x] = extend(r[x], o[x]);
+			}
+		} else {
+			r = o;
+		}
+	});
+	return r;
+}
+
+module.exports = exports['default'];
+
+},{"./instanceOf.js":11}],11:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports["default"] = function (test, root) {
+	return root && test instanceof root;
+};
+
+module.exports = exports["default"];
+
+},{}],12:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 
