@@ -1242,8 +1242,8 @@ var Stage = (function () {
 		start.align = 'left top';
 		start.fontSize = 40;
 		start.calc(canvas);
-		start.addEventListener('click', setup);
-		start.addEventListener('touchstart', setup);
+		start.addEventListener('click', setup.call(this));
+		start.addEventListener('touchstart', setup.call(this));
 		this.start = start;
 
 		/******************************************
