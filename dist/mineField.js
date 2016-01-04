@@ -1431,13 +1431,17 @@ function play(tile) {
 		mines.forEach(function (mine) {
 			return markTile.call(_this2, mine);
 		});
+
+		// Mark as ended
+		this.ended = true;
+
+		// Update Text
 		credits.text = this.boom ? 'BOOM!' : 'Kudos!';
-		credits.visible = true;
 		credits.calc(this.canvas);
 		info.text = 'Tap to restart';
-		info.visible = true;
 
-		this.ended = true;
+		// Show controls
+		showControls.call(this);
 	} else {
 		title.visible = false;
 		info.visible = false;
@@ -1525,7 +1529,7 @@ function showControls() {
 	var inProgress = !(this.flooded === 0 || this.boom || this.ended);
 
 	// Show some controls only between game plays?
-	this.title.visible = !inProgress && showControls;
+	this.title.visible = this.flooded === 0 && !this.ended && showControls;
 	this.info.visible = !inProgress && showControls;
 	this.start.visible = showControls;
 	this.credits.visible = this.ended && showControls;
