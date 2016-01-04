@@ -888,12 +888,12 @@ var Text = (function (_Shape) {
 			ctx.shadowColor = "black";
 			ctx.fillStyle = "black";
 			ctx.strokeStyle = "rgba(255,255,255,0.5)";
-			ctx.font = fontSize + "px Arial bold";
+			ctx.font = "bold " + fontSize + "px Arial";
 
 			while (ctx.measureText(default_text).width > canvas.width) {
 				fontSize *= 0.9;
 				fontSize = Math.round(fontSize);
-				ctx.font = fontSize + "px Arial bold";
+				ctx.font = "bold " + fontSize + "px Arial";
 			}
 
 			this.shadowBlur = ctx.shadowBlur = Math.round(fontSize / 10);

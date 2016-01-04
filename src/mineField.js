@@ -372,8 +372,8 @@ function markTile(tile) {
 		text.textBaseline = 'middle';
 		text.textAlign = 'center';
 		text.strokeStyle = null;
-		text.fillStyle='black';
-		text.font = '30px Arial bold';
+		text.fillStyle = 'black';
+		text.font = 'bold 30px Arial';
 		text.x = tile.x + (tile.w / 2);
 		text.y = tile.y + (tile.h / 2);
 		text.w = 0;
