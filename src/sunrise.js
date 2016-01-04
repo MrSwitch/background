@@ -2,18 +2,18 @@
 import Canvas from './classes/canvas';
 
 let canvas = new Canvas();
-canvas.addEventListener('mouseover', (e) => hover = true);
-canvas.addEventListener('mouseout', (e) => hover = false);
+canvas.addEventListener('mouseover', () => hover = true);
+canvas.addEventListener('mouseout', () => hover = false);
 
 var spin = 0, radius, hover, opacity = 0;
 var slices = 32;
-var pi = (Math.PI/180), deg = (360/slices);
+var pi = (Math.PI / 180), deg = (360 / slices);
 var pallate = ['rgb(255, 140, 0)', 'rgb(255,0,0)', 'rgb(255,255,0)'];
 
-canvas.addEventListener('frame', (e) => {
+canvas.addEventListener('frame', () => {
 
 	var ctx = canvas.ctx;
-	var [cx, cy] = [canvas.width/2, canvas.height/2];
+	var [cx, cy] = [canvas.width / 2, canvas.height / 2];
 
 	// ensure its keeping up.
 	radius = Math.max(canvas.width, canvas.height) / 2;
@@ -40,7 +40,7 @@ canvas.addEventListener('frame', (e) => {
 			ctx.fillStyle = pallate[i % pallate.length];
 
 			// *270 changed to *360
-			ctx.arc(radius, radius, radius*1.5, pi*((i*deg)+spin), pi*(((i+1)*deg)+spin), false);
+			ctx.arc(radius, radius, radius * 1.5, pi * ((i * deg) + spin), pi * (((i + 1) * deg) + spin), false);
 			ctx.lineTo(cx, cy);
 			ctx.fill();
 			ctx.closePath();

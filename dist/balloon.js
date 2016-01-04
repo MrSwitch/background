@@ -34,7 +34,7 @@ var Balloon = (function () {
 		this.r = r;
 
 		this.ascending = true;
-		this.fillStyle = "black";
+		this.fillStyle = 'black';
 
 		this.calc();
 	}
@@ -76,7 +76,7 @@ var Balloon = (function () {
 		}
 	}, {
 		key: 'frame',
-		value: function frame(canvas) {
+		value: function frame() {
 
 			// Is this expanding or shrinking?
 			if (this.r <= 0) {
@@ -201,10 +201,6 @@ var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
 
 var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
 
-var _utilsEventsUserinitiated = require('../utils/events/userinitiated');
-
-var _utilsEventsUserinitiated2 = _interopRequireDefault(_utilsEventsUserinitiated);
-
 // Constants
 var BACKGROUND_HASH = 'background';
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
@@ -228,7 +224,7 @@ var Canvas = (function () {
 		this.events = {};
 
 		// browser check
-		if (!("getContext" in document.createElement('canvas'))) {
+		if (!('getContext' in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
@@ -246,11 +242,11 @@ var Canvas = (function () {
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
 				canvas.setAttribute('tabindex', 0);
 
-				document.documentElement.style.cssText = "min-height:100%;";
-				document.body.style.cssText = "min-height:100%;";
+				document.documentElement.style.cssText = 'min-height:100%;';
+				document.body.style.cssText = 'min-height:100%;';
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -291,7 +287,7 @@ var Canvas = (function () {
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			UserEvents.forEach(function (eventname) {
 				return document.addEventListener(eventname, _this.dispatchEvent.bind(_this));
@@ -451,12 +447,12 @@ var Canvas = (function () {
 		},
 		set: function set(value) {
 
-			this._fps++;
+			this._fps = value;
 
 			var now = new Date().getTime();
 
 			if (now - this._time > 1000) {
-				console.log('fps: %d', this._fps);
+				// console.log('fps: %d', this._fps);
 				this._time = now;
 				this._fps = 0;
 			}
@@ -486,7 +482,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":4,"../utils/events/createEvent":5,"../utils/events/userinitiated":6,"../utils/support/requestAnimationFrame":7}],3:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":4,"../utils/events/createEvent":5,"../utils/support/requestAnimationFrame":6}],3:[function(require,module,exports){
 // Collection
 
 'use strict';
@@ -775,25 +771,6 @@ exports['default'] = createEvent;
 module.exports = exports['default'];
 
 },{}],6:[function(require,module,exports){
-// Was the current event userInitiated?
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-exports['default'] = function () {
-	var e = arguments.length <= 0 || arguments[0] === undefined ? window.event : arguments[0];
-
-	if (!e || typeof e !== 'object') {
-		return false;
-	}
-	return !!('which' in e ? e.which : 'button' in e);
-};
-
-module.exports = exports['default'];
-
-},{}],7:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 

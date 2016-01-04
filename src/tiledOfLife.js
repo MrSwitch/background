@@ -4,15 +4,14 @@
 // Get Canvas
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
-import Rect from './classes/rect';
 import Background from './classes/background';
 
 // Create a new tile
-class Tile{
+class Tile {
 
 	constructor(...args) {
 
-		this.i = Math.round(Math.random()*this.n);
+		this.i = Math.round(Math.random() * this.n);
 		this.ascending = !Math.round(Math.random());
 		this.dx = 0;
 		this.dy = 0;
@@ -45,9 +44,7 @@ class Tile{
 		}
 	}
 	setup() {}
-	frame(canvas) {
-
-		var [i, j] = this.grid;
+	frame() {
 
 		this.dirty = true;
 
@@ -101,7 +98,7 @@ class Tile{
 			}
 		}
 
-		this.fillStyle = `rgba(0, 0, 0, ${opacity? opacity / this.n : 0})`;
+		this.fillStyle = `rgba(0, 0, 0, ${opacity ? opacity / this.n : 0})`;
 
 		if (this.i <= 0) {
 			this.ascending = true;
@@ -114,7 +111,7 @@ class Tile{
 	}
 }
 
-class Stage{
+class Stage {
 	constructor(target) {
 
 let canvas = new Canvas(target);
@@ -161,26 +158,26 @@ function setup() {
 	var h, w;
 	w = h = 40;
 
-	var nx = Math.floor(canvas.width/w);
-	var ny = Math.floor(canvas.height/h);
+	var nx = Math.floor(canvas.width / w);
+	var ny = Math.floor(canvas.height / h);
 
-	w += Math.floor((canvas.width%(nx*w))/nx);
-	h += Math.floor((canvas.height%(ny*h))/ny);
+	w += Math.floor((canvas.width % (nx * w)) / nx);
+	h += Math.floor((canvas.height % (ny * h)) / ny);
 
 	for (var i = 0; i < nx; i++) {
 		for (var j = 0; j < ny; j++) {
 
-			var tile = tiles[((i*ny)+j)];
+			var tile = tiles[((i * ny) + j)];
 
 			// %100
 
-			if(!tile){
-				tile = new Tile((i*w) +1, (j*h) +1, w-1, h-1);
+			if (!tile) {
+				tile = new Tile((i * w) + 1, (j * h) + 1, w - 1, h - 1);
 				collection.push(tile);
 				tiles.push(tile);
 			}
 			else {
-				tile.position((i*w) +1, (j*h) +1, w-1, h-1);
+				tile.position((i * w) + 1, (j * h) + 1, w - 1, h - 1);
 			}
 			tile.grid = [i, j];
 		}

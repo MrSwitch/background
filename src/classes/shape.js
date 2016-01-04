@@ -4,7 +4,7 @@
 // And basic operatings you might like to include on a shape
 import createEvent from '../utils/events/createEvent';
 
-export default class Shape{
+export default class Shape {
 
 	constructor (...args) {
 
@@ -18,29 +18,29 @@ export default class Shape{
 	}
 
 //	Set property listeners
-	get x(){ return this._x;}
-	set x(v){ if (this._x !== v) {this.dirty = true; this._x = v;}}
+	get x() { return this._x;}
+	set x(v) { if (this._x !== v) {this.dirty = true; this._x = v;}}
 
-	get y(){ return this._y;}
-	set y(v){ if (this._y !== v) {this.dirty = true; this._y = v;}}
+	get y() { return this._y;}
+	set y(v) { if (this._y !== v) {this.dirty = true; this._y = v;}}
 
-	get w(){ return this._w;}
-	set w(v){ if (this._w !== v) {this.dirty = true; this._w = v;}}
+	get w() { return this._w;}
+	set w(v) { if (this._w !== v) {this.dirty = true; this._w = v;}}
 
-	get h(){ return this._h;}
-	set h(v){ if (this._h !== v) {this.dirty = true; this._h = v;}}
+	get h() { return this._h;}
+	set h(v) { if (this._h !== v) {this.dirty = true; this._h = v;}}
 
-	get dx(){ return this._dx;}
-	set dx(v){ if (this._dx !== v) {this.dirty = true; this._dx = v;}}
+	get dx() { return this._dx;}
+	set dx(v) { if (this._dx !== v) {this.dirty = true; this._dx = v;}}
 
-	get dy(){ return this._dy;}
-	set dy(v){ if (this._dy !== v) {this.dirty = true; this._dy = v;}}
+	get dy() { return this._dy;}
+	set dy(v) { if (this._dy !== v) {this.dirty = true; this._dy = v;}}
 
-	get visible(){ return (this._visible === undefined ? true : this._visible);}
-	set visible(v){ if (this._visible !== v) {this.dirty = true; this._visible = v;}}
+	get visible() { return (this._visible === undefined ? true : this._visible);}
+	set visible(v) { if (this._visible !== v) {this.dirty = true; this._visible = v;}}
 
-	get opacity(){ return (this._opacity === undefined ? 1 : this._opacity);}
-	set opacity(v){ if (this._opacity !== v) {this.dirty = true; this._opacity = v;}}
+	get opacity() { return (this._opacity === undefined ? 1 : this._opacity);}
+	set opacity(v) { if (this._opacity !== v) {this.dirty = true; this._opacity = v;}}
 
 	set dirty (v) {
 		// Has this just been made dirty?
@@ -51,7 +51,7 @@ export default class Shape{
 			// Trigger a canvas clean
 			this.dispatchEvent(createEvent('dirty'));
 		}
-		else if(!v) {
+		else if (!v) {
 			// reset
 			this._dirty = v;
 		}
@@ -89,9 +89,9 @@ export default class Shape{
 	}
 
 	// Placeholder function for drawing to canvas
-	frame(){}
-	draw(){}
-	setup(){}
+	frame() {}
+	draw() {}
+	setup() {}
 
 	// Events
 	// Assign Events to be fired when the user clicks this object

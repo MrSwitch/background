@@ -4,16 +4,25 @@
 
 import Shape from './shape';
 
-export default class Rect extends Shape{
+export default class Rect extends Shape {
 
 	constructor(...args) {
 		super(...args);
 	}
 
-	get fillStyle(){ return this._fillStyle;}
-	set fillStyle(v){ if (this._fillStyle !== v) {this.dirty = true; this._fillStyle = v;}}
+	get fillStyle() {
+		return this._fillStyle;
+	}
+	set fillStyle(v) {
+		if (this._fillStyle !== v) {
+			this.dirty = true;
+			this._fillStyle = v;
+		}
+	}
 
-	get type() {return 'rect';}
+	get type() {
+		return 'rect';
+	}
 
 	draw(ctx) {
 

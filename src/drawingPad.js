@@ -9,7 +9,7 @@ import Text from './classes/text';
 
 // Create a new scribble
 // Arguments handled by parent
-class Brush extends Shape{
+class Brush extends Shape {
 
 	constructor(...args) {
 
@@ -69,7 +69,7 @@ text.fillStyle = 'rgba(0,0,0,0.03)';
 text.strokeStyle = 'rgba(255,255,255,0.03)';
 text.calc(canvas);
 
-canvas.addEventListener('frame', (e) => {
+canvas.addEventListener('frame', () => {
 	hideText();
 
 	// Draw
@@ -90,24 +90,21 @@ function hideText() {
 			text.opacity = 0;
 		}
 	}
-};
+}
 
 collection.push(text);
 
-var brush = null,
-	mousedown = false;
+var brush = null;
 
 function pointStart(e) {
 
 	brush = new Brush(e.offsetX, e.offsetY);
 	collection.push(brush);
-	mousedown = true;
 
 }
 
 function pointEnd() {
 	brush = null;
-	mousedown = false;
 }
 
 canvas.addEventListener('touchstart', pointStart);
@@ -118,7 +115,7 @@ canvas.addEventListener('mousedown', pointStart);
 canvas.addEventListener('mouseup', pointEnd);
 canvas.addEventListener('mousemove', move);
 
-canvas.addEventListener('resize', () => canvas.clean(true) );
+canvas.addEventListener('resize', () => canvas.clean(true));
 
 // Move
 // Depending on the event

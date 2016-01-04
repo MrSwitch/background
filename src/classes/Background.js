@@ -6,7 +6,7 @@ var _callbacks = (Array.isArray(window.background) ? window.background : []);
 var callbacks = [];
 var stages = [];
 
-export default class Background{
+export default class Background {
 
 	static push(cb) {
 
@@ -20,7 +20,6 @@ export default class Background{
 	}
 
 	static ready() {
-		console.log('bg:ready');
 		callbacks.forEach((item) => {
 			Background.push(item);
 		});
@@ -38,9 +37,7 @@ export default class Background{
 	}
 
 	// Create a new instance of a stage
-	static init(target, name = '') {
-		console.log(name);
-
+	static init(target) {
 		// Get the default stage which has been registered with this class
 		let stage = stages[0];
 

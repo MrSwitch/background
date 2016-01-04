@@ -3,15 +3,15 @@
 // Exposes the basic properties/methods of a controllable background
 
 // Extract the window.background items
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _callbacks = Array.isArray(window.background) ? window.background : [];
 var callbacks = [];
@@ -25,7 +25,7 @@ var Background = (function () {
 	// Execute the current callbacks
 
 	_createClass(Background, null, [{
-		key: 'push',
+		key: "push",
 		value: function push(cb) {
 
 			// Return callback with an instance of this Object
@@ -36,16 +36,15 @@ var Background = (function () {
 			}
 		}
 	}, {
-		key: 'ready',
+		key: "ready",
 		value: function ready() {
-			console.log('bg:ready');
 			callbacks.forEach(function (item) {
 				Background.push(item);
 			});
 			callbacks.length = 0;
 		}
 	}, {
-		key: 'add',
+		key: "add",
 		value: function add(stage) {
 			// Store the
 			stages.push(stage);
@@ -58,12 +57,8 @@ var Background = (function () {
 
 		// Create a new instance of a stage
 	}, {
-		key: 'init',
+		key: "init",
 		value: function init(target) {
-			var name = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-			console.log(name);
-
 			// Get the default stage which has been registered with this class
 			var stage = stages[0];
 
@@ -77,7 +72,7 @@ var Background = (function () {
 	return Background;
 })();
 
-exports['default'] = Background;
+exports["default"] = Background;
 _callbacks.forEach(function (item) {
 	Background.push(item);
 });
@@ -86,7 +81,7 @@ _callbacks.length = 0;
 // Define the background on the window
 // This is a rudimentary service which works...
 window.background = Background;
-module.exports = exports['default'];
+module.exports = exports["default"];
 
 },{}],2:[function(require,module,exports){
 // Setup
@@ -115,10 +110,6 @@ var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
 
 var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
 
-var _utilsEventsUserinitiated = require('../utils/events/userinitiated');
-
-var _utilsEventsUserinitiated2 = _interopRequireDefault(_utilsEventsUserinitiated);
-
 // Constants
 var BACKGROUND_HASH = 'background';
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
@@ -142,7 +133,7 @@ var Canvas = (function () {
 		this.events = {};
 
 		// browser check
-		if (!("getContext" in document.createElement('canvas'))) {
+		if (!('getContext' in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
@@ -160,11 +151,11 @@ var Canvas = (function () {
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
 				canvas.setAttribute('tabindex', 0);
 
-				document.documentElement.style.cssText = "min-height:100%;";
-				document.body.style.cssText = "min-height:100%;";
+				document.documentElement.style.cssText = 'min-height:100%;';
+				document.body.style.cssText = 'min-height:100%;';
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -205,7 +196,7 @@ var Canvas = (function () {
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			UserEvents.forEach(function (eventname) {
 				return document.addEventListener(eventname, _this.dispatchEvent.bind(_this));
@@ -365,12 +356,12 @@ var Canvas = (function () {
 		},
 		set: function set(value) {
 
-			this._fps++;
+			this._fps = value;
 
 			var now = new Date().getTime();
 
 			if (now - this._time > 1000) {
-				console.log('fps: %d', this._fps);
+				// console.log('fps: %d', this._fps);
 				this._time = now;
 				this._fps = 0;
 			}
@@ -400,7 +391,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":8,"../utils/events/createEvent":9,"../utils/events/userinitiated":10,"../utils/support/requestAnimationFrame":13}],3:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/support/requestAnimationFrame":11}],3:[function(require,module,exports){
 // Collection
 
 'use strict';
@@ -650,80 +641,6 @@ function displaced(a, b) {
 module.exports = exports['default'];
 
 },{}],4:[function(require,module,exports){
-//
-// Rectangle
-//
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _shape = require('./shape');
-
-var _shape2 = _interopRequireDefault(_shape);
-
-var Rect = (function (_Shape) {
-	_inherits(Rect, _Shape);
-
-	function Rect() {
-		_classCallCheck(this, Rect);
-
-		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-			args[_key] = arguments[_key];
-		}
-
-		_get(Object.getPrototypeOf(Rect.prototype), 'constructor', this).apply(this, args);
-	}
-
-	_createClass(Rect, [{
-		key: 'draw',
-		value: function draw(ctx) {
-
-			ctx.save();
-
-			if (this.dx || this.dy) {
-				ctx.translate(this.dx, this.dy);
-			}
-			ctx.fillStyle = this.fillStyle;
-			ctx.fillRect(this.x, this.y, this.w, this.h);
-			ctx.restore();
-		}
-	}, {
-		key: 'fillStyle',
-		get: function get() {
-			return this._fillStyle;
-		},
-		set: function set(v) {
-			if (this._fillStyle !== v) {
-				this.dirty = true;this._fillStyle = v;
-			}
-		}
-	}, {
-		key: 'type',
-		get: function get() {
-			return 'rect';
-		}
-	}]);
-
-	return Rect;
-})(_shape2['default']);
-
-exports['default'] = Rect;
-module.exports = exports['default'];
-
-},{"./shape":5}],5:[function(require,module,exports){
 // Shape
 // CanvasShapes
 // The parent object defining a basic shape, x,y,w,h, for starters.
@@ -960,7 +877,7 @@ var Shape = (function () {
 exports['default'] = Shape;
 module.exports = exports['default'];
 
-},{"../utils/events/createEvent":9}],6:[function(require,module,exports){
+},{"../utils/events/createEvent":8}],5:[function(require,module,exports){
 // text
 // TextObject, defines a shape object which contains text.
 
@@ -1003,9 +920,9 @@ var Text = (function (_Shape) {
 		// Define text
 		this.text = text || '';
 
-		this.shadowColor = "black";
-		this.fillStyle = "black";
-		this.strokeStyle = "white";
+		this.shadowColor = 'black';
+		this.fillStyle = 'black';
+		this.strokeStyle = 'white';
 		this.textAlign = 'left';
 		this.textBaseline = 'top';
 		this.lineWidth = 0;
@@ -1018,7 +935,7 @@ var Text = (function (_Shape) {
 	_createClass(Text, [{
 		key: 'calc',
 		value: function calc(canvas) {
-			var _align$split = this.align.split(" ");
+			var _align$split = this.align.split(' ');
 
 			// Define text
 
@@ -1049,15 +966,15 @@ var Text = (function (_Shape) {
 			// Using the canvas context
 			ctx.save();
 
-			ctx.shadowColor = "black";
-			ctx.fillStyle = "black";
-			ctx.strokeStyle = "rgba(255,255,255,0.5)";
-			ctx.font = "bold " + fontSize + "px Arial";
+			ctx.shadowColor = 'black';
+			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+			ctx.font = 'bold ' + fontSize + 'px Arial';
 
 			while (ctx.measureText(default_text).width > canvas.width) {
 				fontSize *= 0.9;
 				fontSize = Math.round(fontSize);
-				ctx.font = "bold " + fontSize + "px Arial";
+				ctx.font = 'bold ' + fontSize + 'px Arial';
 			}
 
 			this.shadowBlur = ctx.shadowBlur = Math.round(fontSize / 10);
@@ -1075,29 +992,29 @@ var Text = (function (_Shape) {
 
 			// HEIGHT and WIDTH
 			switch (this.textAlign) {
-				case "center":
-				case "middle":
-					this.textAlign = "center";
+				case 'center':
+				case 'middle':
+					this.textAlign = 'center';
 					this.x = canvas.width / 2 - this.w / 2;
 					break;
-				case "left":
+				case 'left':
 					this.x = 0;
 					break;
-				case "right":
+				case 'right':
 					this.x = canvas.width - this.w;
 					break;
 			}
 
 			switch (this.textBaseline) {
-				case "center":
-				case "middle":
-					this.textBaseline = "middle";
+				case 'center':
+				case 'middle':
+					this.textBaseline = 'middle';
 					this.y = canvas.height / 2 - this.h / 2;
 					break;
-				case "top":
+				case 'top':
 					this.y = 0;
 					break;
-				case "bottom":
+				case 'bottom':
 					this.y = canvas.height - this.h;
 					break;
 			}
@@ -1157,7 +1074,7 @@ var Text = (function (_Shape) {
 exports['default'] = Text;
 module.exports = exports['default'];
 
-},{"./shape":5}],7:[function(require,module,exports){
+},{"./shape":4}],6:[function(require,module,exports){
 // ColorFlood, Canvas animation
 // Copyright Andrew Dodson, March 2013.
 // Refactored in 2015
@@ -1184,10 +1101,6 @@ var _classesCollection2 = _interopRequireDefault(_classesCollection);
 var _classesText = require('./classes/text');
 
 var _classesText2 = _interopRequireDefault(_classesText);
-
-var _classesRect = require('./classes/rect');
-
-var _classesRect2 = _interopRequireDefault(_classesRect);
 
 var _classesBackground = require('./classes/background');
 
@@ -1255,7 +1168,7 @@ var Stage = (function () {
 		this.tiles = [];
 
 		// Add listeners to the canvas Element
-		this.canvas.addEventListener('frame', function (e) {
+		this.canvas.addEventListener('frame', function () {
 
 			// On every frame
 			// Prepare dirty areas
@@ -1539,7 +1452,7 @@ function showControls() {
 	this.playBtn.visible = showControls;
 }
 
-},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/rect":4,"./classes/text":6,"./utils/object/extend":11}],8:[function(require,module,exports){
+},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":9}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1554,7 +1467,7 @@ exports["default"] = function (e) {
 
 module.exports = exports["default"];
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // IE does not support `new Event()`
 // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events for details
 'use strict';
@@ -1578,26 +1491,7 @@ try {
 exports['default'] = createEvent;
 module.exports = exports['default'];
 
-},{}],10:[function(require,module,exports){
-// Was the current event userInitiated?
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-exports['default'] = function () {
-	var e = arguments.length <= 0 || arguments[0] === undefined ? window.event : arguments[0];
-
-	if (!e || typeof e !== 'object') {
-		return false;
-	}
-	return !!('which' in e ? e.which : 'button' in e);
-};
-
-module.exports = exports['default'];
-
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1630,7 +1524,7 @@ function extend(r) {
 
 module.exports = exports['default'];
 
-},{"./instanceOf.js":12}],12:[function(require,module,exports){
+},{"./instanceOf.js":10}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1643,7 +1537,7 @@ exports["default"] = function (test, root) {
 
 module.exports = exports["default"];
 
-},{}],13:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 
@@ -1657,7 +1551,7 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 exports["default"] = window.requestAnimationFrame.bind(window);
 module.exports = exports["default"];
 
-},{}]},{},[7])
+},{}]},{},[6])
 
 
 //# sourceMappingURL=../dist/colorFlood.js.map

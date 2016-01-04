@@ -25,10 +25,6 @@ var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
 
 var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
 
-var _utilsEventsUserinitiated = require('../utils/events/userinitiated');
-
-var _utilsEventsUserinitiated2 = _interopRequireDefault(_utilsEventsUserinitiated);
-
 // Constants
 var BACKGROUND_HASH = 'background';
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
@@ -52,7 +48,7 @@ var Canvas = (function () {
 		this.events = {};
 
 		// browser check
-		if (!("getContext" in document.createElement('canvas'))) {
+		if (!('getContext' in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
@@ -70,11 +66,11 @@ var Canvas = (function () {
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
 				canvas.setAttribute('tabindex', 0);
 
-				document.documentElement.style.cssText = "min-height:100%;";
-				document.body.style.cssText = "min-height:100%;";
+				document.documentElement.style.cssText = 'min-height:100%;';
+				document.body.style.cssText = 'min-height:100%;';
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -115,7 +111,7 @@ var Canvas = (function () {
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			UserEvents.forEach(function (eventname) {
 				return document.addEventListener(eventname, _this.dispatchEvent.bind(_this));
@@ -275,12 +271,12 @@ var Canvas = (function () {
 		},
 		set: function set(value) {
 
-			this._fps++;
+			this._fps = value;
 
 			var now = new Date().getTime();
 
 			if (now - this._time > 1000) {
-				console.log('fps: %d', this._fps);
+				// console.log('fps: %d', this._fps);
 				this._time = now;
 				this._fps = 0;
 			}
@@ -310,7 +306,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":3,"../utils/events/createEvent":4,"../utils/events/userinitiated":5,"../utils/support/requestAnimationFrame":6}],2:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":3,"../utils/events/createEvent":4,"../utils/support/requestAnimationFrame":5}],2:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -320,10 +316,10 @@ var _classesCanvas = require('./classes/canvas');
 var _classesCanvas2 = _interopRequireDefault(_classesCanvas);
 
 var canvas = new _classesCanvas2['default']();
-canvas.addEventListener('mouseover', function (e) {
+canvas.addEventListener('mouseover', function () {
 	return hover = true;
 });
-canvas.addEventListener('mouseout', function (e) {
+canvas.addEventListener('mouseout', function () {
 	return hover = false;
 });
 
@@ -336,7 +332,7 @@ var pi = Math.PI / 180,
     deg = 360 / slices;
 var pallate = ['rgb(255, 140, 0)', 'rgb(255,0,0)', 'rgb(255,255,0)'];
 
-canvas.addEventListener('frame', function (e) {
+canvas.addEventListener('frame', function () {
 
 	var ctx = canvas.ctx;
 	var cx = canvas.width / 2;
@@ -415,25 +411,6 @@ exports['default'] = createEvent;
 module.exports = exports['default'];
 
 },{}],5:[function(require,module,exports){
-// Was the current event userInitiated?
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-exports['default'] = function () {
-	var e = arguments.length <= 0 || arguments[0] === undefined ? window.event : arguments[0];
-
-	if (!e || typeof e !== 'object') {
-		return false;
-	}
-	return !!('which' in e ? e.which : 'button' in e);
-};
-
-module.exports = exports['default'];
-
-},{}],6:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 

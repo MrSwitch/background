@@ -20,7 +20,7 @@ class Tile {
 
 		// Mine?
 		// Assign with a 1 in 5 chance
-		this.mine = Math.random() < (1/8);
+		this.mine = Math.random() < (1 / 8);
 
 		// Private mark as to whether this has been played
 		this.played = false;
@@ -119,8 +119,8 @@ start.zIndex = 1;
 start.align = 'left top';
 start.fontSize = 40;
 start.calc(canvas);
-start.addEventListener('click', setup.call(this));
-start.addEventListener('touchstart', setup.call(this));
+start.addEventListener('click', setup.bind(this));
+start.addEventListener('touchstart', setup.bind(this));
 this.start = start;
 
 /******************************************
@@ -130,7 +130,7 @@ this.start = start;
 canvas.addEventListener('mousedown', (e) => userClick.call(this, e.offsetX, e.offsetY));
 canvas.addEventListener('touchstart', (e) => userClick.call(this, e.offsetX, e.offsetY));
 canvas.addEventListener('resize', setup.bind(this));
-canvas.addEventListener('frame', (e) => {
+canvas.addEventListener('frame', () => {
 
 	// Draw items
 	collection.prepare();
@@ -220,16 +220,16 @@ function setup() {
 	h += Math.floor((canvas.height % (ny * h)) / ny);
 
 	// Create tiles
-	for (var y=0; y<ny; y++) {
-		for (var x=0; x<nx; x++) {
+	for (var y = 0; y < ny; y++) {
+		for (var x = 0; x < nx; x++) {
 
-			var tile = new Tile(x*w, y*h, w-1, h-1);
+			var tile = new Tile(x * w, y * h, w - 1, h - 1);
 			tile.grid = [x, y];
 			tiles.push(tile);
 			collection.push(tile);
 
 			// Upgrade the number of mines
-			if(tile.mine){
+			if (tile.mine) {
 				mines.push(tile);
 			}
 		}
@@ -255,7 +255,7 @@ function setup() {
 	collection.sort();
 }
 
-function play(tile){
+function play(tile) {
 
 	let flooded = this.flooded;
 	let mines = this.mines;
@@ -280,7 +280,7 @@ function play(tile){
 		this.boom = true;
 	}
 	// Check to see it this tile has been exposed before?
-	else if(!tile.played) {
+	else if (!tile.played) {
 		// Trigger Flooding
 		flood.call(this, tile);
 	}
@@ -328,14 +328,14 @@ function flood(tile) {
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
 	var edgeTiles = [
-	((Math.max(y-1, 0)*nx)+Math.max(x-1, 0))
-	,((Math.max(y-1, 0)*nx)+x)
-	,((Math.max(y-1, 0)*nx)+Math.min(x+1, nx-1))
-	,((y*nx)+Math.min(x+1, nx-1))
-	,(((Math.min(y+1, ny-1))*nx)+Math.min(x+1, nx-1))
-	,(((Math.min(y+1, ny-1))*nx)+x)
-	,(((Math.min(y+1, ny-1))*nx)+Math.max(x-1, 0))
-	,((y*nx)+Math.max(x-1, 0))
+	((Math.max(y - 1, 0) * nx) + Math.max(x - 1, 0))
+	, ((Math.max(y - 1, 0) * nx) + x)
+	, ((Math.max(y - 1, 0) * nx) + Math.min(x + 1, nx - 1))
+	, ((y * nx) + Math.min(x + 1, nx - 1))
+	, (((Math.min(y + 1, ny - 1)) * nx) + Math.min(x + 1, nx - 1))
+	, (((Math.min(y + 1, ny - 1)) * nx) + x)
+	, (((Math.min(y + 1, ny - 1)) * nx) + Math.max(x - 1, 0))
+	, ((y * nx) + Math.max(x - 1, 0))
 	]
 	.filter((key, index, arr) => {return arr.indexOf(key) === index && tiles[key];})
 	.map((key) => {return tiles[key];});

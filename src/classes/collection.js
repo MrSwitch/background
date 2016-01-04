@@ -1,8 +1,8 @@
 // Collection
 
-const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'touchmove','touchstart', 'touchend', 'frame'];
+const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'touchmove', 'touchstart', 'touchend', 'frame'];
 
-export default class Collection{
+export default class Collection {
 
 	constructor(target) {
 		// Create an empty children
@@ -81,7 +81,7 @@ export default class Collection{
 		}
 
 		// Loop though objects and redraw those that exist within the position
-		this.children.forEach( this._prepareSiblings.bind(this, item));
+		this.children.forEach(this._prepareSiblings.bind(this, item));
 	}
 
 	_prepareSiblings(item, sibling) {
@@ -200,14 +200,14 @@ export default class Collection{
 // Given two objects with, x,y,w,h properties
 // Do their rectangular dimensions intersect?
 // return Boolean true false.
-function intersect(a,b){
-	return !( a.x>(b.x+b.w) ||
-	(a.x+a.w)<b.x  ||
-	a.y>(b.y+b.h) ||
-	(a.y+a.h)<b.y );
+function intersect(a, b) {
+	return !(a.x > (b.x + b.w) ||
+	(a.x + a.w) < b.x ||
+	a.y > (b.y + b.h) ||
+	(a.y + a.h) < b.y);
 }
 
-function displaced(a,b) {
+function displaced(a, b) {
 	return (a.x !== b.x ||
 	a.y !== b.y ||
 	a.w !== b.w ||

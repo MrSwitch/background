@@ -10,7 +10,7 @@ const MATH_PI2 = 2 * Math.PI;
 const sprites = [];
 
 // Create a new tile
-class Balloon{
+class Balloon {
 
 	constructor(cx, cy, r) {
 
@@ -18,7 +18,7 @@ class Balloon{
 		this.cy = cy;
 		this.r = r;
 
-		this.fillStyle = "black";
+		this.fillStyle = 'black';
 
 		this.calc();
 	}
@@ -27,8 +27,8 @@ class Balloon{
 		let r = this.r;
 		this.x = this.cx - r;
 		this.y = this.cy - r;
-		this.w = r*2;
-		this.h = r*2;
+		this.w = r * 2;
+		this.h = r * 2;
 	}
 
 	draw(ctx) {
@@ -42,8 +42,8 @@ class Balloon{
 		var key = this.fillStyle + this.r;
 		if (!(key in sprites)) {
 			var _canvas = document.createElement('canvas');
-			_canvas.width = Math.ceil(this.w)+2;
-			_canvas.height = Math.ceil(this.h)+2;
+			_canvas.width = Math.ceil(this.w) + 2;
+			_canvas.height = Math.ceil(this.h) + 2;
 			var _ctx = _canvas.getContext('2d');
 			_ctx.fillStyle = this.fillStyle;
 			_ctx.beginPath();
@@ -56,7 +56,7 @@ class Balloon{
 		ctx.drawImage(sprites[key], this.x - 1, this.y - 1);
 	}
 
-	frame(canvas) {
+	frame() {
 
 		// Is this expanding or shrinking?
 		if (this.r >= max_radius) {
@@ -64,10 +64,10 @@ class Balloon{
 			this.r = 0;
 
 			// Swap the color
-			this.fillStyle = toggle(this.fillStyle, "white", "black");
+			this.fillStyle = toggle(this.fillStyle, 'white', 'black');
 		}
 
-		this.r += (max_radius/200);
+		this.r += (max_radius / 200);
 		this.calc();
 		this.dirty = true;
 	}
@@ -144,7 +144,7 @@ function setup() {
 
 			// %100
 
-			if(!balloon){
+			if (!balloon) {
 				balloon = new Balloon(cx, cy, r);
 				collection.push(balloon);
 				balloons.push(balloon);

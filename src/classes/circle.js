@@ -4,7 +4,7 @@
 
 import Shape from './shape';
 
-export default class Circle extends Shape{
+export default class Circle extends Shape {
 
 	constructor(cx, cy, r) {
 		// Find the uppermost

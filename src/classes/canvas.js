@@ -5,16 +5,15 @@
 import '../utils/support/requestAnimationFrame';
 import createEvent from '../utils/events/createEvent';
 import createDummyEvent from '../utils/events/createDummyEvent';
-import userInitiated from '../utils/events/userinitiated';
 
 // Constants
 const BACKGROUND_HASH = 'background';
-const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove','mouseout', 'frame', 'resize'];
+const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
 const TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 const EVENT_SEPARATOR = /[\s\,]+/;
 
-export default class Canvas{
+export default class Canvas {
 
 	// Construct the Canvas Element
 	// @param canvas should be an root element container for this imagery.
@@ -26,7 +25,7 @@ export default class Canvas{
 		this.events = {};
 
 		// browser check
-		if (!("getContext" in document.createElement('canvas'))) {
+		if (!('getContext' in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
@@ -44,11 +43,11 @@ export default class Canvas{
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
 				canvas.setAttribute('tabindex', 0);
 
-				document.documentElement.style.cssText = "min-height:100%;";
-				document.body.style.cssText = "min-height:100%;";
+				document.documentElement.style.cssText = 'min-height:100%;';
+				document.body.style.cssText = 'min-height:100%;';
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -61,7 +60,7 @@ export default class Canvas{
 
 			this.resize();
 		}
-		else{
+		else {
 			this.target = canvas;
 			parent = canvas.parentNode;
 		}
@@ -86,7 +85,7 @@ export default class Canvas{
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			UserEvents.forEach((eventname) => document.addEventListener(eventname, this.dispatchEvent.bind(this)));
 
@@ -127,12 +126,12 @@ export default class Canvas{
 	}
 	set fps(value) {
 
-		this._fps++;
+		this._fps = value;
 
 		let now = (new Date()).getTime();
 
 		if ((now - this._time) > 1000) {
-			console.log('fps: %d', this._fps);
+			// console.log('fps: %d', this._fps);
 			this._time = now;
 			this._fps = 0;
 		}
@@ -239,7 +238,7 @@ function hashchange(z) {
 
 	let zIndex = 'z-index';
 
-	if (window.location.hash === '#'+BACKGROUND_HASH) {
+	if (window.location.hash === '#' + BACKGROUND_HASH) {
 		z = 10000;
 	}
 

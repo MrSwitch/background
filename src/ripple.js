@@ -9,7 +9,7 @@ import easeInOut from './utils/time/timing.easeInOutCubic.js';
 const MATH_PI2 = 2 * Math.PI;
 const MAX = 500;
 // Create a new tile
-class Ripple{
+class Ripple {
 
 	constructor(cx, cy, r) {
 
@@ -17,7 +17,7 @@ class Ripple{
 		this.cy = cy;
 		this.r = r;
 
-		this.fillStyle = "black";
+		this.fillStyle = 'black';
 
 		// T is the proportion of life
 		this.t = 1;
@@ -29,19 +29,19 @@ class Ripple{
 		let r = this.r;
 		this.x = this.cx - r;
 		this.y = this.cy - r;
-		this.w = r*2;
-		this.h = r*2;
+		this.w = r * 2;
+		this.h = r * 2;
 	}
 
 	draw(ctx) {
 		var opacity = this.t;
-		ctx.fillStyle = `rgba(0,0,0,${opacity/10})`;
+		ctx.fillStyle = `rgba(0,0,0,${opacity / 10})`;
 		ctx.beginPath();
 		ctx.arc(this.cx, this.cy, this.r, 0, MATH_PI2, false);
 		ctx.fill();
 	}
 
-	frame(canvas) {
+	frame() {
 
 		this.t -= 0.01;
 

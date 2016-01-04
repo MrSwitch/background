@@ -3,15 +3,15 @@
 // Exposes the basic properties/methods of a controllable background
 
 // Extract the window.background items
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _callbacks = Array.isArray(window.background) ? window.background : [];
 var callbacks = [];
@@ -25,7 +25,7 @@ var Background = (function () {
 	// Execute the current callbacks
 
 	_createClass(Background, null, [{
-		key: 'push',
+		key: "push",
 		value: function push(cb) {
 
 			// Return callback with an instance of this Object
@@ -36,16 +36,15 @@ var Background = (function () {
 			}
 		}
 	}, {
-		key: 'ready',
+		key: "ready",
 		value: function ready() {
-			console.log('bg:ready');
 			callbacks.forEach(function (item) {
 				Background.push(item);
 			});
 			callbacks.length = 0;
 		}
 	}, {
-		key: 'add',
+		key: "add",
 		value: function add(stage) {
 			// Store the
 			stages.push(stage);
@@ -58,12 +57,8 @@ var Background = (function () {
 
 		// Create a new instance of a stage
 	}, {
-		key: 'init',
+		key: "init",
 		value: function init(target) {
-			var name = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-			console.log(name);
-
 			// Get the default stage which has been registered with this class
 			var stage = stages[0];
 
@@ -77,7 +72,7 @@ var Background = (function () {
 	return Background;
 })();
 
-exports['default'] = Background;
+exports["default"] = Background;
 _callbacks.forEach(function (item) {
 	Background.push(item);
 });
@@ -86,7 +81,7 @@ _callbacks.length = 0;
 // Define the background on the window
 // This is a rudimentary service which works...
 window.background = Background;
-module.exports = exports['default'];
+module.exports = exports["default"];
 
 },{}],2:[function(require,module,exports){
 // Setup
@@ -115,10 +110,6 @@ var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
 
 var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
 
-var _utilsEventsUserinitiated = require('../utils/events/userinitiated');
-
-var _utilsEventsUserinitiated2 = _interopRequireDefault(_utilsEventsUserinitiated);
-
 // Constants
 var BACKGROUND_HASH = 'background';
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
@@ -142,7 +133,7 @@ var Canvas = (function () {
 		this.events = {};
 
 		// browser check
-		if (!("getContext" in document.createElement('canvas'))) {
+		if (!('getContext' in document.createElement('canvas'))) {
 			// browser doesn't support canvas
 			return;
 		}
@@ -160,11 +151,11 @@ var Canvas = (function () {
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = "position:fixed;z-index:-1;top:0;left:0;";
+				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
 				canvas.setAttribute('tabindex', 0);
 
-				document.documentElement.style.cssText = "min-height:100%;";
-				document.body.style.cssText = "min-height:100%;";
+				document.documentElement.style.cssText = 'min-height:100%;';
+				document.body.style.cssText = 'min-height:100%;';
 
 				// Bind window resize events
 				window.addEventListener('resize', this.resize.bind(this));
@@ -205,7 +196,7 @@ var Canvas = (function () {
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === "-1") {
+		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			UserEvents.forEach(function (eventname) {
 				return document.addEventListener(eventname, _this.dispatchEvent.bind(_this));
@@ -365,12 +356,12 @@ var Canvas = (function () {
 		},
 		set: function set(value) {
 
-			this._fps++;
+			this._fps = value;
 
 			var now = new Date().getTime();
 
 			if (now - this._time > 1000) {
-				console.log('fps: %d', this._fps);
+				// console.log('fps: %d', this._fps);
 				this._time = now;
 				this._fps = 0;
 			}
@@ -400,7 +391,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/events/userinitiated":9,"../utils/support/requestAnimationFrame":12}],3:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/support/requestAnimationFrame":11}],3:[function(require,module,exports){
 // Collection
 
 'use strict';
@@ -929,9 +920,9 @@ var Text = (function (_Shape) {
 		// Define text
 		this.text = text || '';
 
-		this.shadowColor = "black";
-		this.fillStyle = "black";
-		this.strokeStyle = "white";
+		this.shadowColor = 'black';
+		this.fillStyle = 'black';
+		this.strokeStyle = 'white';
 		this.textAlign = 'left';
 		this.textBaseline = 'top';
 		this.lineWidth = 0;
@@ -944,7 +935,7 @@ var Text = (function (_Shape) {
 	_createClass(Text, [{
 		key: 'calc',
 		value: function calc(canvas) {
-			var _align$split = this.align.split(" ");
+			var _align$split = this.align.split(' ');
 
 			// Define text
 
@@ -975,15 +966,15 @@ var Text = (function (_Shape) {
 			// Using the canvas context
 			ctx.save();
 
-			ctx.shadowColor = "black";
-			ctx.fillStyle = "black";
-			ctx.strokeStyle = "rgba(255,255,255,0.5)";
-			ctx.font = "bold " + fontSize + "px Arial";
+			ctx.shadowColor = 'black';
+			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+			ctx.font = 'bold ' + fontSize + 'px Arial';
 
 			while (ctx.measureText(default_text).width > canvas.width) {
 				fontSize *= 0.9;
 				fontSize = Math.round(fontSize);
-				ctx.font = "bold " + fontSize + "px Arial";
+				ctx.font = 'bold ' + fontSize + 'px Arial';
 			}
 
 			this.shadowBlur = ctx.shadowBlur = Math.round(fontSize / 10);
@@ -1001,29 +992,29 @@ var Text = (function (_Shape) {
 
 			// HEIGHT and WIDTH
 			switch (this.textAlign) {
-				case "center":
-				case "middle":
-					this.textAlign = "center";
+				case 'center':
+				case 'middle':
+					this.textAlign = 'center';
 					this.x = canvas.width / 2 - this.w / 2;
 					break;
-				case "left":
+				case 'left':
 					this.x = 0;
 					break;
-				case "right":
+				case 'right':
 					this.x = canvas.width - this.w;
 					break;
 			}
 
 			switch (this.textBaseline) {
-				case "center":
-				case "middle":
-					this.textBaseline = "middle";
+				case 'center':
+				case 'middle':
+					this.textBaseline = 'middle';
 					this.y = canvas.height / 2 - this.h / 2;
 					break;
-				case "top":
+				case 'top':
 					this.y = 0;
 					break;
-				case "bottom":
+				case 'bottom':
 					this.y = canvas.height - this.h;
 					break;
 			}
@@ -1242,8 +1233,8 @@ var Stage = (function () {
 		start.align = 'left top';
 		start.fontSize = 40;
 		start.calc(canvas);
-		start.addEventListener('click', setup.call(this));
-		start.addEventListener('touchstart', setup.call(this));
+		start.addEventListener('click', setup.bind(this));
+		start.addEventListener('touchstart', setup.bind(this));
 		this.start = start;
 
 		/******************************************
@@ -1257,7 +1248,7 @@ var Stage = (function () {
 			return userClick.call(_this, e.offsetX, e.offsetY);
 		});
 		canvas.addEventListener('resize', setup.bind(this));
-		canvas.addEventListener('frame', function (e) {
+		canvas.addEventListener('frame', function () {
 
 			// Draw items
 			collection.prepare();
@@ -1535,7 +1526,7 @@ function showControls() {
 	this.credits.visible = this.ended && showControls;
 }
 
-},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":10}],7:[function(require,module,exports){
+},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":9}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1575,25 +1566,6 @@ exports['default'] = createEvent;
 module.exports = exports['default'];
 
 },{}],9:[function(require,module,exports){
-// Was the current event userInitiated?
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-exports['default'] = function () {
-	var e = arguments.length <= 0 || arguments[0] === undefined ? window.event : arguments[0];
-
-	if (!e || typeof e !== 'object') {
-		return false;
-	}
-	return !!('which' in e ? e.which : 'button' in e);
-};
-
-module.exports = exports['default'];
-
-},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1626,7 +1598,7 @@ function extend(r) {
 
 module.exports = exports['default'];
 
-},{"./instanceOf.js":11}],11:[function(require,module,exports){
+},{"./instanceOf.js":10}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1639,7 +1611,7 @@ exports["default"] = function (test, root) {
 
 module.exports = exports["default"];
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 

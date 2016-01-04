@@ -6,13 +6,12 @@
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
-import Rect from './classes/rect';
 import Background from './classes/background';
 import extend from './utils/object/extend';
 
 // Create a new tile
 // Arguments handled by parent
-class Tile{
+class Tile {
 
 	constructor(x, y, w, h) {
 
@@ -42,9 +41,9 @@ class Tile{
 	}
 }
 
-var palate = ['red','green','orange','blue','white','black'];
+var palate = ['red', 'green', 'orange', 'blue', 'white', 'black'];
 
-class Stage{
+class Stage {
 
 	constructor(target) {
 
@@ -59,7 +58,7 @@ class Stage{
 		this.tiles = [];
 
 		// Add listeners to the canvas Element
-		this.canvas.addEventListener('frame', (e) => {
+		this.canvas.addEventListener('frame', () => {
 
 			// On every frame
 			// Prepare dirty areas
@@ -174,7 +173,7 @@ this.canvas.addEventListener('click', (e) => {
 
 	// Has the game state changed?
 	if (this.flooded >= this.tiles.length && this.clicks < this.max_tries) {
-		this.credits.text = `Kudos! ${this.clicks+1} moves`;
+		this.credits.text = `Kudos! ${this.clicks + 1} moves`;
 		this.credits.visible = true;
 		this.credits.calc(this.canvas);
 		this.info.visible = false;
@@ -197,18 +196,18 @@ this.canvas.addEventListener('click', (e) => {
 	}
 	else {
 		this.score.text = `${this.clicks}/${this.max_tries}`;
-		if(!this.score.visible){
+		if (!this.score.visible) {
 			this.score.visible = true;
 			this.score.dirty = true;
 		}
 		this.score.calc(this.canvas);
 
 		// Hide others if need be...
-		if(this.credits.visible){
+		if (this.credits.visible) {
 			this.credits.visible = false;
 			this.credits.dirty = true;
 		}
-		if(this.info.visible){
+		if (this.info.visible) {
 			this.info.visible = false;
 			this.info.dirty = true;
 		}
@@ -238,14 +237,14 @@ function setup() {
 
 	// Do the tiles not perfectly fit the space?
 	// split the difference between the tiles, adding to the widths and heights
-	w += Math.floor((this.canvas.width%(this.nx*w))/this.nx);
-	h += Math.floor((this.canvas.height%(this.ny*h))/this.ny);
+	w += Math.floor((this.canvas.width % (this.nx * w)) / this.nx);
+	h += Math.floor((this.canvas.height % (this.ny * h)) / this.ny);
 
 	// Create tiles
 	for (var y = 0; y < this.ny; y++) {
 		for (var x = 0; x < this.nx; x++) {
 
-			var tile = new Tile(x*w, y*h, w-1, h-1);
+			var tile = new Tile(x * w, y * h, w - 1, h - 1);
 			this.tiles.push(tile);
 			this.collection.push(tile);
 			tile.grid = [x, y];
@@ -304,10 +303,10 @@ function flood(tile) {
 
 	// find all tiles next to this one.
 	var edgeTiles = [
-		(Math.max(y-1, 0) * this.nx) + x,
+		(Math.max(y - 1, 0) * this.nx) + x,
 		(y * this.nx) + Math.min(x + 1, this.nx - 1),
 		((Math.min(y + 1, this.ny - 1)) * this.nx) + x,
-		(y * this.nx) + Math.max(x-1, 0)
+		(y * this.nx) + Math.max(x - 1, 0)
 	];
 
 	edgeTiles.forEach((edge) => {

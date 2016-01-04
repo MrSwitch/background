@@ -3,7 +3,7 @@
 
 import Shape from './shape';
 
-export default class Text extends Shape{
+export default class Text extends Shape {
 
 	// Initiate a new shape object.
 	constructor (text) {
@@ -16,9 +16,9 @@ export default class Text extends Shape{
 		// Define text
 		this.text = text || '';
 
-		this.shadowColor = "black";
-		this.fillStyle = "black";
-		this.strokeStyle = "white";
+		this.shadowColor = 'black';
+		this.fillStyle = 'black';
+		this.strokeStyle = 'white';
 		this.textAlign = 'left';
 		this.textBaseline = 'top';
 		this.lineWidth = 0;
@@ -30,7 +30,7 @@ export default class Text extends Shape{
 	calc (canvas) {
 
 		// Define text
-		[this.textAlign, this.textBaseline] = this.align.split(" ");
+		[this.textAlign, this.textBaseline] = this.align.split(' ');
 
 		var ctx = canvas.ctx;
 		var fontSize = this.fontSize;
@@ -54,18 +54,18 @@ export default class Text extends Shape{
 		// Using the canvas context
 		ctx.save();
 
-		ctx.shadowColor = "black";
-		ctx.fillStyle = "black";
-		ctx.strokeStyle = "rgba(255,255,255,0.5)";
-		ctx.font = "bold " + fontSize + "px Arial";
+		ctx.shadowColor = 'black';
+		ctx.fillStyle = 'black';
+		ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+		ctx.font = 'bold ' + fontSize + 'px Arial';
 
 		while (ctx.measureText(default_text).width > canvas.width) {
 			fontSize *= 0.9;
 			fontSize = Math.round(fontSize);
-			ctx.font = "bold " + fontSize + "px Arial";
+			ctx.font = 'bold ' + fontSize + 'px Arial';
 		}
 
-		this.shadowBlur = ctx.shadowBlur = Math.round(fontSize/10);
+		this.shadowBlur = ctx.shadowBlur = Math.round(fontSize / 10);
 		this.fontSize = fontSize;
 		this.font = ctx.font;
 
@@ -80,30 +80,30 @@ export default class Text extends Shape{
 
 
 		// HEIGHT and WIDTH
-		switch(this.textAlign) {
-			case "center":
-			case "middle":
-				this.textAlign = "center";
+		switch (this.textAlign) {
+			case 'center':
+			case 'middle':
+				this.textAlign = 'center';
 				this.x = (canvas.width / 2) - (this.w / 2);
 			break;
-			case "left":
+			case 'left':
 				this.x = 0;
 			break;
-			case "right":
+			case 'right':
 				this.x = canvas.width - this.w;
 			break;
 		}
 
-		switch(this.textBaseline) {
-			case "center":
-			case "middle":
-				this.textBaseline = "middle";
+		switch (this.textBaseline) {
+			case 'center':
+			case 'middle':
+				this.textBaseline = 'middle';
 				this.y = (canvas.height / 2) - (this.h / 2);
 			break;
-			case "top":
+			case 'top':
 				this.y = 0;
 			break;
-			case "bottom":
+			case 'bottom':
 				this.y = canvas.height - this.h;
 			break;
 		}
