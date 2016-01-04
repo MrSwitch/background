@@ -285,7 +285,7 @@ function play(tile){
 		flood.call(this, tile);
 	}
 
-	if ((flooded + mines.length) === tiles.length || this.boom) {
+	if (((flooded + mines.length) === tiles.length) || this.boom) {
 
 		// Show all the mines
 		mines.forEach((mine) => markTile.call(this, mine));

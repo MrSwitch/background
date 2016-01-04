@@ -174,9 +174,9 @@ this.canvas.addEventListener('click', (e) => {
 
 	// Has the game state changed?
 	if (this.flooded >= this.tiles.length && this.clicks < this.max_tries) {
-		this.credits.text = `Kudos! ${clicks+1} moves`;
+		this.credits.text = `Kudos! ${this.clicks+1} moves`;
 		this.credits.visible = true;
-		this.credits.calc(canvas);
+		this.credits.calc(this.canvas);
 		this.info.visible = false;
 		this.score.visible = false;
 

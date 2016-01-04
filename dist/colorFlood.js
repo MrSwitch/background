@@ -1384,9 +1384,9 @@ function init() {
 
 		// Has the game state changed?
 		if (_this2.flooded >= _this2.tiles.length && _this2.clicks < _this2.max_tries) {
-			_this2.credits.text = 'Kudos! ' + (clicks + 1) + ' moves';
+			_this2.credits.text = 'Kudos! ' + (_this2.clicks + 1) + ' moves';
 			_this2.credits.visible = true;
-			_this2.credits.calc(canvas);
+			_this2.credits.calc(_this2.canvas);
 			_this2.info.visible = false;
 			_this2.score.visible = false;
 
