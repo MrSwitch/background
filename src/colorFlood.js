@@ -155,7 +155,12 @@ this.canvas.addEventListener('resize', setup.bind(this));
 
 // User has clicked an item on the canvas
 // We'll use event delegation to tell us what the user has clicked.
-this.canvas.addEventListener('click', (e) => {
+this.canvas.addEventListener('mousedown', userClick.bind(this));
+this.canvas.addEventListener('touchstart', userClick.bind(this));
+
+}
+
+function userClick(e) {
 
 	// Get the item at the click location
 	var target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
@@ -212,7 +217,6 @@ this.canvas.addEventListener('click', (e) => {
 			this.info.dirty = true;
 		}
 	}
-});
 }
 
 function setup() {

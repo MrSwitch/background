@@ -1222,7 +1222,6 @@ var Stage = (function () {
 _classesBackground2['default'].add(Stage);
 
 function init() {
-	var _this2 = this;
 
 	// Show text
 	this.options = {
@@ -1279,62 +1278,65 @@ function init() {
 
 	// User has clicked an item on the canvas
 	// We'll use event delegation to tell us what the user has clicked.
-	this.canvas.addEventListener('click', function (e) {
+	this.canvas.addEventListener('mousedown', userClick.bind(this));
+	this.canvas.addEventListener('touchstart', userClick.bind(this));
+}
 
-		// Get the item at the click location
-		var target = _this2.collection.elementFromPoint(e.offsetX, e.offsetY);
+function userClick(e) {
 
-		// Tile Clicked
-		if (target.constructor.name === 'Tile') {
-			play.call(_this2, target);
+	// Get the item at the click location
+	var target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
+
+	// Tile Clicked
+	if (target.constructor.name === 'Tile') {
+		play.call(this, target);
+	}
+
+	// hide title
+	if (this.title.visible) {
+		this.title.visible = false;
+		this.title.dirty = true;
+	}
+
+	// Has the game state changed?
+	if (this.flooded >= this.tiles.length && this.clicks < this.max_tries) {
+		this.credits.text = 'Kudos! ' + (this.clicks + 1) + ' moves';
+		this.credits.visible = true;
+		this.credits.calc(this.canvas);
+		this.info.visible = false;
+		this.score.visible = false;
+
+		this.credits.dirty = true;
+		this.info.dirty = true;
+		this.score.dirty = true;
+	} else if (++this.clicks >= this.max_tries) {
+		this.credits.text = 'Game over!';
+		this.credits.visible = true;
+		this.credits.calc(this.canvas);
+		this.info.visible = true;
+		this.score.visible = false;
+
+		this.credits.dirty = true;
+		this.info.dirty = true;
+		this.score.dirty = true;
+	} else {
+		this.score.text = this.clicks + '/' + this.max_tries;
+		if (!this.score.visible) {
+			this.score.visible = true;
+			this.score.dirty = true;
 		}
+		this.score.calc(this.canvas);
 
-		// hide title
-		if (_this2.title.visible) {
-			_this2.title.visible = false;
-			_this2.title.dirty = true;
+		// Hide others if need be...
+		if (this.credits.visible) {
+			this.credits.visible = false;
+			this.credits.dirty = true;
 		}
-
-		// Has the game state changed?
-		if (_this2.flooded >= _this2.tiles.length && _this2.clicks < _this2.max_tries) {
-			_this2.credits.text = 'Kudos! ' + (_this2.clicks + 1) + ' moves';
-			_this2.credits.visible = true;
-			_this2.credits.calc(_this2.canvas);
-			_this2.info.visible = false;
-			_this2.score.visible = false;
-
-			_this2.credits.dirty = true;
-			_this2.info.dirty = true;
-			_this2.score.dirty = true;
-		} else if (++_this2.clicks >= _this2.max_tries) {
-			_this2.credits.text = 'Game over!';
-			_this2.credits.visible = true;
-			_this2.credits.calc(_this2.canvas);
-			_this2.info.visible = true;
-			_this2.score.visible = false;
-
-			_this2.credits.dirty = true;
-			_this2.info.dirty = true;
-			_this2.score.dirty = true;
-		} else {
-			_this2.score.text = _this2.clicks + '/' + _this2.max_tries;
-			if (!_this2.score.visible) {
-				_this2.score.visible = true;
-				_this2.score.dirty = true;
-			}
-			_this2.score.calc(_this2.canvas);
-
-			// Hide others if need be...
-			if (_this2.credits.visible) {
-				_this2.credits.visible = false;
-				_this2.credits.dirty = true;
-			}
-			if (_this2.info.visible) {
-				_this2.info.visible = false;
-				_this2.info.dirty = true;
-			}
+		if (this.info.visible) {
+			this.info.visible = false;
+			this.info.dirty = true;
 		}
-	});
+	}
 }
 
 function setup() {
@@ -1396,7 +1398,7 @@ function setup() {
 }
 
 function play(tileSelected) {
-	var _this3 = this;
+	var _this2 = this;
 
 	if (!tileSelected) {
 		return;
@@ -1407,14 +1409,14 @@ function play(tileSelected) {
 	// Trigger Flooding
 	this.tiles.forEach(function (tile) {
 		if (tile.flooded) {
-			flood.call(_this3, tile);
+			flood.call(_this2, tile);
 		}
 	});
 }
 
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
-	var _this4 = this;
+	var _this3 = this;
 
 	var _tile$grid = _slicedToArray(tile.grid, 2);
 
@@ -1431,12 +1433,12 @@ function flood(tile) {
 	var edgeTiles = [Math.max(y - 1, 0) * this.nx + x, y * this.nx + Math.min(x + 1, this.nx - 1), Math.min(y + 1, this.ny - 1) * this.nx + x, y * this.nx + Math.max(x - 1, 0)];
 
 	edgeTiles.forEach(function (edge) {
-		var tile = _this4.tiles[edge];
+		var tile = _this3.tiles[edge];
 		if (edge > 0 && tile) {
-			if (tile.colorIndex === _this4.selectedColor && !tile.flooded) {
+			if (tile.colorIndex === _this3.selectedColor && !tile.flooded) {
 				tile.flooded = true;
-				flood.call(_this4, tile);
-				_this4.flooded++;
+				flood.call(_this3, tile);
+				_this3.flooded++;
 			}
 		}
 	});
