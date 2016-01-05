@@ -1243,7 +1243,8 @@ function init() {
 	credits.fontSize = 150;
 	credits.align = 'center center';
 	credits.visible = false;
-	credits.addEventListener('click', setup.bind(this));
+	credits.addEventListener('mousedown', setup.bind(this));
+	credits.addEventListener('touchstart', setup.bind(this));
 	this.credits = credits;
 
 	// Help
@@ -1269,7 +1270,8 @@ function init() {
 	playBtn.zIndex = 1;
 	playBtn.align = 'left top';
 	playBtn.fontSize = 40;
-	playBtn.addEventListener('click', setup.bind(this));
+	playBtn.addEventListener('mousedown', setup.bind(this));
+	playBtn.addEventListener('touchstart', setup.bind(this));
 	playBtn.calc(this.canvas);
 	this.playBtn = playBtn;
 
