@@ -1,12 +1,5 @@
 # Background
 
-Playground in canvas
+Playground in canvas [see demos](./demo)
 
- * [Sun Rise](./demo/sunrise.html)
- * [Tiled of Life](./demo/tiledoflife.html)
- * [Color Flood](./demo/colorflood.html)
- * [Mine Field](./demo/minefield.html)
- * [Drawing Pad](./demo/drawingpad.html)
- * [Balloon](./demo/balloon.html)
- * [Balloonboom](./demo/balloonboom.html)
 
