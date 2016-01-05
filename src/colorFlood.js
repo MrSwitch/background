@@ -119,7 +119,7 @@ credits.fontSize = 150;
 credits.align = 'center center';
 credits.visible = false;
 credits.addEventListener('mousedown', setup.bind(this));
-creditsgit .addEventListener('touchstart', setup.bind(this));
+credits.addEventListener('touchstart', setup.bind(this));
 this.credits = credits;
 
 // Help
