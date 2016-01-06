@@ -63,7 +63,7 @@ class Stage {
 	constructor() {
 
 this.options = {
-	controls: false
+	controls: true
 };
 
 this.tiles = [],
@@ -109,19 +109,6 @@ credits.fontSize = 150;
 credits.calc(canvas);
 credits.pointerEvents = false;
 this.credits = credits;
-
-// Is this playing as a background image?
-// We want to display a button to enable playing in full screen.
-
-var start = new Text();
-start.text = '►';
-start.zIndex = 1;
-start.align = 'left top';
-start.fontSize = 40;
-start.calc(canvas);
-start.addEventListener('click', setup.bind(this));
-start.addEventListener('touchstart', setup.bind(this));
-this.start = start;
 
 /******************************************
  *  Add Events, to listen to in game play
@@ -238,13 +225,11 @@ function setup() {
 	let credits = this.credits;
 	let info = this.info;
 	let title = this.title;
-	let start = this.start;
 
 	// Flood its neighbouring tiles on start
 	collection.push(title);
 	collection.push(credits);
 	collection.push(info);
-	collection.push(start);
 
 	// Show Controls?
 	showControls.call(this);
@@ -257,7 +242,6 @@ function setup() {
 
 function play(tile) {
 
-	let flooded = this.flooded;
 	let mines = this.mines;
 	let tiles = this.tiles;
 	let credits = this.credits;
@@ -270,7 +254,7 @@ function play(tile) {
 
 	// If this is the first time the game has been played,
 	// flooded will equal 0
-	if (flooded === 0) {
+	if (this.flooded === 0) {
 		// Ensure this is not a mine
 		tile.mine = false;
 	}
@@ -285,7 +269,7 @@ function play(tile) {
 		flood.call(this, tile);
 	}
 
-	if (((flooded + mines.length) === tiles.length) || this.boom) {
+	if (((this.flooded + mines.length) === tiles.length) || this.boom) {
 
 		// Show all the mines
 		mines.forEach((mine) => markTile.call(this, mine));
@@ -349,7 +333,7 @@ function flood(tile) {
 	// Set the tile mode to played
 	tile.played = true;
 
-	// Change tile appearance tile
+	// Change tile appearance
 	markTile.call(this, tile);
 
 	// If this tile is the one selected,
@@ -395,6 +379,5 @@ function showControls() {
 	// Show some controls only between game plays?
 	this.title.visible = this.flooded === 0 && !this.ended && showControls;
 	this.info.visible = !inProgress && showControls;
-	this.start.visible = showControls;
 	this.credits.visible = this.ended && showControls;
 }
