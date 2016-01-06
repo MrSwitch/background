@@ -2,65 +2,54 @@
 // Background
 // Exposes the basic properties/methods of a controllable background
 
-// Extract the window.background items
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _callbacks = Array.isArray(window.background) ? window.background : [];
-var callbacks = [];
-var stages = [];
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _utilsObjectQueue = require('../utils/object/Queue');
+
+var _utilsObjectQueue2 = _interopRequireDefault(_utilsObjectQueue);
+
+// Extract the window.background items
+var queue = window.background = new _utilsObjectQueue2['default'](window.background);
+
+function queueHandler(callback) {
+	// Each item in the queue should be a function
+	callback(Background);
+}
 
 var Background = (function () {
 	function Background() {
 		_classCallCheck(this, Background);
 	}
 
-	// Execute the current callbacks
-
 	_createClass(Background, null, [{
-		key: "push",
-		value: function push(cb) {
-
-			// Return callback with an instance of this Object
-			if (stages.length) {
-				cb(Background);
-			} else {
-				callbacks.push(cb);
-			}
-		}
-	}, {
-		key: "ready",
-		value: function ready() {
-			callbacks.forEach(function (item) {
-				Background.push(item);
-			});
-			callbacks.length = 0;
-		}
-	}, {
-		key: "add",
+		key: 'add',
 		value: function add(stage) {
 			// Store the
-			stages.push(stage);
+			Background.stages.push(stage);
 
 			// Trigger ready if it has not already been set
-			if (stages.length === 1) {
-				Background.ready();
+			if (Background.stages.length === 1) {
+				// Initiate the queue
+				queue.handler = queueHandler;
 			}
 		}
 
 		// Create a new instance of a stage
 	}, {
-		key: "init",
+		key: 'init',
 		value: function init(target) {
 			// Get the default stage which has been registered with this class
-			var stage = stages[0];
+			var stage = Background.stages[0];
 
 			// Return instance
 			if (stage) {
@@ -72,18 +61,12 @@ var Background = (function () {
 	return Background;
 })();
 
-exports["default"] = Background;
-_callbacks.forEach(function (item) {
-	Background.push(item);
-});
-_callbacks.length = 0;
+exports['default'] = Background;
 
-// Define the background on the window
-// This is a rudimentary service which works...
-window.background = Background;
-module.exports = exports["default"];
+Background.stages = [];
+module.exports = exports['default'];
 
-},{}],2:[function(require,module,exports){
+},{"../utils/object/Queue":9}],2:[function(require,module,exports){
 // Setup
 // This constructs the canvas object
 
@@ -391,7 +374,7 @@ function hashchange(z) {
 }
 module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/support/requestAnimationFrame":11}],3:[function(require,module,exports){
+},{"../utils/events/createDummyEvent":7,"../utils/events/createEvent":8,"../utils/support/requestAnimationFrame":12}],3:[function(require,module,exports){
 // Collection
 
 'use strict';
@@ -1509,7 +1492,7 @@ function showControls() {
 	this.credits.visible = this.ended && showControls;
 }
 
-},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":9}],7:[function(require,module,exports){
+},{"./classes/background":1,"./classes/canvas":2,"./classes/collection":3,"./classes/text":5,"./utils/object/extend":10}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1549,6 +1532,89 @@ exports['default'] = createEvent;
 module.exports = exports['default'];
 
 },{}],9:[function(require,module,exports){
+// Create a queuing function
+// Queues items in an Array like function until a handler has been defined
+// Then each item will be processed against the handler.
+// Useful for creating Global Asynchronous Queues, as can be retro fitted to existing arrays.
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Queue = (function () {
+	function Queue(arr, handler) {
+		_classCallCheck(this, Queue);
+
+		this.items = Array.isArray(arr) ? arr : [];
+		this.handler = handler;
+	}
+
+	// Mimic the Array.push function
+
+	_createClass(Queue, [{
+		key: "push",
+		value: function push() {
+			var _this = this;
+
+			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+				args[_key] = arguments[_key];
+			}
+
+			// Append items to the internal array.
+			args.forEach(function (item) {
+				return _this.items.push(item);
+			});
+
+			// Trigger the custom handler
+			if (this._handler) {
+				args.forEach(function (item) {
+					return _this._handler(item);
+				});
+			}
+		}
+
+		// Mimic the length
+	}, {
+		key: "length",
+		get: function get() {
+			return this.items.length;
+		},
+		set: function set(value) {
+			return this.items.length = value;
+		}
+
+		// Set the item handler
+	}, {
+		key: "handler",
+		get: function get() {
+			return this._handler;
+		},
+		set: function set(callback) {
+			var _this2 = this;
+
+			this._handler = callback;
+
+			if (this._handler) {
+				this.items.forEach(function (item) {
+					return _this2._handler(item);
+				});
+			}
+		}
+	}]);
+
+	return Queue;
+})();
+
+exports["default"] = Queue;
+module.exports = exports["default"];
+
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1581,7 +1647,7 @@ function extend(r) {
 
 module.exports = exports['default'];
 
-},{"./instanceOf.js":10}],10:[function(require,module,exports){
+},{"./instanceOf.js":11}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1594,7 +1660,7 @@ exports["default"] = function (test, root) {
 
 module.exports = exports["default"];
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // requestAnimationFrame polyfill
 "use strict";
 

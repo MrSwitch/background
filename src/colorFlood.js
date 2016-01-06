@@ -175,53 +175,27 @@ function userClick(e) {
 		return;
 	}
 
-	// hide title
-	if (this.title.visible) {
-		this.title.visible = false;
-		this.title.dirty = true;
-	}
-
 	// Has the game state changed?
 	if (this.flooded >= this.tiles.length && this.clicks < this.max_tries) {
 		this.credits.text = `Kudos! ${this.clicks + 1} moves`;
-		this.credits.visible = true;
 		this.credits.calc(this.canvas);
-		this.info.visible = false;
-		this.score.visible = false;
-
-		this.credits.dirty = true;
-		this.info.dirty = true;
-		this.score.dirty = true;
+		this.ended = true;
 	}
 	else if (++this.clicks >= this.max_tries) {
 		this.credits.text = 'Game over!';
-		this.credits.visible = true;
 		this.credits.calc(this.canvas);
-		this.info.visible = true;
-		this.score.visible = false;
 
-		this.credits.dirty = true;
-		this.info.dirty = true;
-		this.score.dirty = true;
+		this.ended = true;
 	}
 	else {
-		this.score.text = `${this.clicks}/${this.max_tries}`;
-		if (!this.score.visible) {
-			this.score.visible = true;
-			this.score.dirty = true;
-		}
-		this.score.calc(this.canvas);
-
-		// Hide others if need be...
-		if (this.credits.visible) {
-			this.credits.visible = false;
-			this.credits.dirty = true;
-		}
-		if (this.info.visible) {
-			this.info.visible = false;
-			this.info.dirty = true;
-		}
+		this.ended = false;
 	}
+
+	// Calculate clicks
+	this.score.text = `${this.clicks}/${this.max_tries}`;
+	this.score.calc(this.canvas);
+
+	showControls.call(this);
 }
 
 function setup() {
@@ -232,6 +206,7 @@ function setup() {
 	this.clicks = 0;
 	this.selectedColor = null;
 	this.flooded = 1;
+	this.ended = false;
 
 	// Define type size
 	// set tile default Width and height
@@ -280,6 +255,9 @@ function setup() {
 
 	// Sort the collection by z-index this ensures everything is drawn in the right order
 	this.collection.sort();
+
+	// Show Controls
+	showControls.call(this);
 }
 
 
@@ -333,9 +311,10 @@ function flood(tile) {
 function showControls() {
 	// Show Controls and information?
 	let showControls = this.options.controls;
-	this.title.visible = showControls;
-	this.info.visible = showControls;
-	this.score.visible = showControls;
-	this.credits.visible = showControls;
+
+	this.title.visible = this.clicks === 0 && !this.ended && showControls;
+	this.info.visible = this.clicks === 0 && !this.ended && showControls;
+	this.score.visible = this.clicks > 0 && showControls;
+	this.credits.visible = this.ended && showControls;
 	this.playBtn.visible = showControls;
 }

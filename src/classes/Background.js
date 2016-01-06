@@ -1,45 +1,33 @@
 // Background
 // Exposes the basic properties/methods of a controllable background
 
+import Queue from '../utils/object/Queue';
+
 // Extract the window.background items
-var _callbacks = (Array.isArray(window.background) ? window.background : []);
-var callbacks = [];
-var stages = [];
+let queue = window.background = new Queue(window.background);
+
+function queueHandler(callback) {
+	// Each item in the queue should be a function
+	callback(Background);
+}
 
 export default class Background {
 
-	static push(cb) {
-
-		// Return callback with an instance of this Object
-		if (stages.length) {
-			cb(Background);
-		}
-		else {
-			callbacks.push(cb);
-		}
-	}
-
-	static ready() {
-		callbacks.forEach((item) => {
-			Background.push(item);
-		});
-		callbacks.length = 0;
-	}
-
 	static add(stage) {
 		// Store the
-		stages.push(stage);
+		Background.stages.push(stage);
 
 		// Trigger ready if it has not already been set
-		if (stages.length === 1) {
-			Background.ready();
+		if (Background.stages.length === 1) {
+			// Initiate the queue
+			queue.handler = queueHandler;
 		}
 	}
 
 	// Create a new instance of a stage
 	static init(target) {
 		// Get the default stage which has been registered with this class
-		let stage = stages[0];
+		let stage = Background.stages[0];
 
 		// Return instance
 		if (stage) {
@@ -48,12 +36,4 @@ export default class Background {
 	}
 }
 
-// Execute the current callbacks
-_callbacks.forEach((item) => {
-	Background.push(item);
-});
-_callbacks.length = 0;
-
-// Define the background on the window
-// This is a rudimentary service which works...
-window.background = Background;
+Background.stages = [];
