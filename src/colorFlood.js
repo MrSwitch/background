@@ -168,7 +168,7 @@ function userClick(e) {
 	var target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
 
 	// Tile Clicked
-	if (target && target.constructor.name === 'Tile') {
+	if (target && target instanceof Tile) {
 		play.call(this, target);
 	}
 	else {
