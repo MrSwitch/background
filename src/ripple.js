@@ -4,7 +4,7 @@
 // Get Canvas
 import Canvas from './classes/canvas';
 import Collection from './classes/collection';
-import easeInOut from './utils/time/timing.easeInOutCubic.js';
+import easeInOut from 'tricks/animation/timing.easeInOutCubic.js';
 
 const MATH_PI2 = 2 * Math.PI;
 const MAX = 500;
@@ -26,7 +26,7 @@ class Ripple {
 	}
 
 	calc() {
-		let r = this.r;
+		const r = this.r;
 		this.x = this.cx - r;
 		this.y = this.cy - r;
 		this.w = r * 2;
@@ -34,7 +34,7 @@ class Ripple {
 	}
 
 	draw(ctx) {
-		var opacity = this.t;
+		const opacity = this.t;
 		ctx.fillStyle = `rgba(0,0,0,${opacity / 10})`;
 		ctx.beginPath();
 		ctx.arc(this.cx, this.cy, this.r, 0, MATH_PI2, false);
@@ -58,8 +58,8 @@ class Ripple {
 	}
 }
 
-let canvas = new Canvas();
-let collection = new Collection(canvas.target);
+const canvas = new Canvas();
+const collection = new Collection(canvas.target);
 canvas.addEventListener('frame', () => {
 
 	// Clear canvas
@@ -69,7 +69,7 @@ canvas.addEventListener('frame', () => {
 	collection.draw();
 });
 
-canvas.addEventListener('click', (e) => {
-	var ripple = new Ripple(e.offsetX, e.offsetY, 1);
+canvas.addEventListener('click', e => {
+	const ripple = new Ripple(e.offsetX, e.offsetY, 1);
 	collection.push(ripple);
 });

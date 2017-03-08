@@ -7,7 +7,7 @@ import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
 import Background from './classes/background';
-import extend from './utils/object/extend';
+import extend from 'tricks/object/extend';
 
 // Create a new tile
 // Arguments handled by parent
@@ -24,7 +24,7 @@ class Tile {
 		// Capture the grid position
 		this.grid = new Uint8Array(2);
 
-		var index = Math.floor(Math.random() * palate.length);
+		let index = Math.floor(Math.random() * palate.length);
 		if (index === palate.length) {
 			index--;
 		}
@@ -41,7 +41,7 @@ class Tile {
 	}
 }
 
-var palate = ['red', 'green', 'orange', 'blue', 'white', 'black'];
+const palate = ['red', 'green', 'orange', 'blue', 'white', 'black'];
 
 class Stage {
 
@@ -99,73 +99,73 @@ Background.add(Stage);
 function init() {
 
 // Show text
-this.options = {
-	controls: true
-};
+	this.options = {
+		controls: true
+	};
 
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
-let title = new Text();
-title.text = 'Flood It';
-title.fontSize = 150;
-title.align = 'center center';
-title.calc(this.canvas);
-this.title = title;
+	const title = new Text();
+	title.text = 'Flood It';
+	title.fontSize = 150;
+	title.align = 'center center';
+	title.calc(this.canvas);
+	this.title = title;
 
-let credits = new Text();
-credits.text = 'Ended';
-credits.zIndex = 1;
-credits.fontSize = 150;
-credits.align = 'center center';
-credits.visible = false;
-credits.addEventListener('mousedown', setup.bind(this));
-credits.addEventListener('touchstart', setup.bind(this));
-this.credits = credits;
+	const credits = new Text();
+	credits.text = 'Ended';
+	credits.zIndex = 1;
+	credits.fontSize = 150;
+	credits.align = 'center center';
+	credits.visible = false;
+	credits.addEventListener('mousedown', setup.bind(this));
+	credits.addEventListener('touchstart', setup.bind(this));
+	this.credits = credits;
 
 // Help
-let info = new Text();
-info.text = 'Start in the top left corner\nFlood tiles by color\nIn as few moves as possible';
-info.zIndex = 1;
-info.align = 'center center';
-info.fontSize = 40;
-info.calc(this.canvas);
-this.info = info;
+	const info = new Text();
+	info.text = 'Start in the top left corner\nFlood tiles by color\nIn as few moves as possible';
+	info.zIndex = 1;
+	info.align = 'center center';
+	info.fontSize = 40;
+	info.calc(this.canvas);
+	this.info = info;
 
 
-let score = new Text();
-score.zIndex = 1;
-score.align = 'right bottom';
-score.pointerEvents = false;
-score.fontSize = 40;
-this.score = score;
+	const score = new Text();
+	score.zIndex = 1;
+	score.align = 'right bottom';
+	score.pointerEvents = false;
+	score.fontSize = 40;
+	this.score = score;
 
 // Is this playing as a background image?
 // We want to display a button to enable playing in full screen.
-let playBtn = new Text();
-playBtn.text = '►';
-playBtn.zIndex = 1;
-playBtn.align = 'left top';
-playBtn.fontSize = 40;
-playBtn.calc(this.canvas);
-playBtn.addEventListener('click', setup.bind(this));
-playBtn.addEventListener('touchstart', setup.bind(this));
-this.playBtn = playBtn;
+	const playBtn = new Text();
+	playBtn.text = '►';
+	playBtn.zIndex = 1;
+	playBtn.align = 'left top';
+	playBtn.fontSize = 40;
+	playBtn.calc(this.canvas);
+	playBtn.addEventListener('click', setup.bind(this));
+	playBtn.addEventListener('touchstart', setup.bind(this));
+	this.playBtn = playBtn;
 
 
 // Rebuild the board on resize
-this.canvas.addEventListener('resize', setup.bind(this));
+	this.canvas.addEventListener('resize', setup.bind(this));
 
 // User has clicked an item on the canvas
 // We'll use event delegation to tell us what the user has clicked.
-this.canvas.addEventListener('mousedown', userClick.bind(this));
-this.canvas.addEventListener('touchstart', userClick.bind(this));
+	this.canvas.addEventListener('mousedown', userClick.bind(this));
+	this.canvas.addEventListener('touchstart', userClick.bind(this));
 
 }
 
 function userClick(e) {
 
 	// Get the item at the click location
-	var target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
+	const target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
 
 	// Tile Clicked
 	if (target && target instanceof Tile) {
@@ -225,10 +225,10 @@ function setup() {
 	h += Math.floor((this.canvas.height % (this.ny * h)) / this.ny);
 
 	// Create tiles
-	for (var y = 0; y < this.ny; y++) {
-		for (var x = 0; x < this.nx; x++) {
+	for (let y = 0; y < this.ny; y++) {
+		for (let x = 0; x < this.nx; x++) {
 
-			var tile = new Tile(x * w, y * h, w - 1, h - 1);
+			const tile = new Tile(x * w, y * h, w - 1, h - 1);
 			this.tiles.push(tile);
 			this.collection.push(tile);
 			tile.grid = [x, y];
@@ -270,7 +270,7 @@ function play(tileSelected) {
 	this.selectedColor = tileSelected.colorIndex;
 
 	// Trigger Flooding
-	this.tiles.forEach((tile) => {
+	this.tiles.forEach(tile => {
 		if (tile.flooded) {
 			flood.call(this, tile);
 		}
@@ -280,7 +280,7 @@ function play(tileSelected) {
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
 
-	var [x, y] = tile.grid;
+	const [x, y] = tile.grid;
 
 	tile.colorIndex = this.selectedColor;
 	tile.fillStyle = palate[this.selectedColor];
@@ -289,15 +289,15 @@ function flood(tile) {
 	tile.dirty = true;
 
 	// find all tiles next to this one.
-	var edgeTiles = [
+	const edgeTiles = [
 		(Math.max(y - 1, 0) * this.nx) + x,
 		(y * this.nx) + Math.min(x + 1, this.nx - 1),
 		((Math.min(y + 1, this.ny - 1)) * this.nx) + x,
 		(y * this.nx) + Math.max(x - 1, 0)
 	];
 
-	edgeTiles.forEach((edge) => {
-		var tile = this.tiles[edge];
+	edgeTiles.forEach(edge => {
+		const tile = this.tiles[edge];
 		if (edge > 0 && tile) {
 			if (tile.colorIndex === this.selectedColor && !tile.flooded) {
 				tile.flooded = true;
@@ -310,7 +310,7 @@ function flood(tile) {
 
 function showControls() {
 	// Show Controls and information?
-	let showControls = this.options.controls;
+	const showControls = this.options.controls;
 
 	this.title.visible = this.clicks === 0 && !this.ended && showControls;
 	this.info.visible = this.clicks === 0 && !this.ended && showControls;

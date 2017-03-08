@@ -2,9 +2,9 @@
 // This constructs the canvas object
 
 // Includes
-import '../utils/support/requestAnimationFrame';
-import createEvent from '../utils/events/createEvent';
-import createDummyEvent from '../utils/events/createDummyEvent';
+import 'tricks/support/requestAnimationFrame';
+import createEvent from 'tricks/events/createEvent';
+import createDummyEvent from 'tricks/events/createDummyEvent';
 
 // Constants
 const BACKGROUND_HASH = 'background';
@@ -19,7 +19,7 @@ export default class Canvas {
 	// @param canvas should be an root element container for this imagery.
 	constructor(canvas) {
 
-		var parent;
+		let parent;
 
 		// events
 		this.events = {};
@@ -78,26 +78,26 @@ export default class Canvas {
 		this.draw();
 
 		// Bind events
-		UserEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
+		UserEvents.forEach(eventname => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
 
 		// Format Touch events
-		TouchEvents.forEach((eventname) => this.target.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
+		TouchEvents.forEach(eventname => this.target.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
 		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
-			UserEvents.forEach((eventname) => document.addEventListener(eventname, this.dispatchEvent.bind(this)));
+			UserEvents.forEach(eventname => document.addEventListener(eventname, this.dispatchEvent.bind(this)));
 
 			// Format Touch events
-			TouchEvents.forEach((eventname) => document.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
+			TouchEvents.forEach(eventname => document.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
 		}
 
 		// Listen to hashChange events
 		{
 			// HASH CHANGE DEPTH
-			let style = this.target.style;
-			let initialZ = style.getPropertyValue('z-index');
+			const style = this.target.style;
+			const initialZ = style.getPropertyValue('z-index');
 			// Listen to changes to the background hash to bring the canvas element to the front
 			window.addEventListener('hashchange', hashchange.bind(style, initialZ));
 
@@ -128,7 +128,7 @@ export default class Canvas {
 
 		this._fps = value;
 
-		let now = (new Date()).getTime();
+		const now = (new Date()).getTime();
 
 		if ((now - this._time) > 1000) {
 			// console.log('fps: %d', this._fps);
@@ -139,10 +139,10 @@ export default class Canvas {
 
 
 	resize() {
-		var parent = (this.target.parentNode === document.body) ? document.documentElement : this.target.parentNode;
-		var height = parent.clientHeight;
-		var width = parent.clientWidth;
-		var changed = false;
+		const parent = (this.target.parentNode === document.body) ? document.documentElement : this.target.parentNode;
+		const height = parent.clientHeight;
+		const width = parent.clientWidth;
+		let changed = false;
 
 		if (this.width !== width) {
 			changed = true;
@@ -185,7 +185,7 @@ export default class Canvas {
 	// The user has clicked an item on the page
 	addEventListener(eventnames, handler) {
 
-		eventnames.split(EVENT_SEPARATOR).forEach((eventname) => {
+		eventnames.split(EVENT_SEPARATOR).forEach(eventname => {
 			// Add to the events list
 			if (!(eventname in this.events)) {
 				this.events[eventname] = [];
@@ -200,7 +200,7 @@ export default class Canvas {
 
 		if (e.type in this.events) {
 
-			let target = e.currentTarget;
+			const target = e.currentTarget;
 
 			// This was triggered using event delegation, aka in the background
 			if (target === document) {
@@ -213,7 +213,7 @@ export default class Canvas {
 				});
 			}
 
-			this.events[e.type].forEach((handler) => handler(e));
+			this.events[e.type].forEach(handler => handler(e));
 			e.preventDefault();
 			e.stopPropagation();
 		}
@@ -223,7 +223,7 @@ export default class Canvas {
 	dispatchTouchEvent(e) {
 		// If this was a touch event
 		// Determine the offset to the canvas element relative to the item being clicked
-		var touch = (e.touches || e.changedTouches)[0];
+		const touch = (e.touches || e.changedTouches)[0];
 		if (touch) {
 			e.offsetX = Math.abs(touch.pageX || touch.screenX);
 			e.offsetY = Math.abs(touch.pageY || touch.screenY);
@@ -236,9 +236,9 @@ export default class Canvas {
 
 function hashchange(z) {
 
-	let zIndex = 'z-index';
+	const zIndex = 'z-index';
 
-	if (window.location.hash === '#' + BACKGROUND_HASH) {
+	if (window.location.hash === `#${ BACKGROUND_HASH}`) {
 		z = 10000;
 	}
 

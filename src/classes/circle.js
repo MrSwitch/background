@@ -14,7 +14,9 @@ export default class Circle extends Shape {
 		this.cy = cy;
 		this.r = r;
 	}
-	get type() {return 'circle';}
+	get type() {
+		return 'circle';
+	}
 
 	draw(ctx) {
 

@@ -1,19 +1,21 @@
 /*eslint no-console: 0*/
-var gulp = require('gulp');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var util = require('gulp-util');
-var buffer = require('vinyl-buffer');
-var source = require('vinyl-source-stream');
-var sourcemaps = require('gulp-sourcemaps');
+const gulp = require('gulp');
+const browserify = require('browserify');
+const babelify = require('babelify');
+const util = require('gulp-util');
+const buffer = require('vinyl-buffer');
+const source = require('vinyl-source-stream');
+const sourcemaps = require('gulp-sourcemaps');
 
 function build(item) {
-	var name = item.match(/([^\/]+\.js)$/)[0];
-	browserify('./src/' + name, {debug: true})
-	.transform(babelify)
+	const name = item.match(/([^\/]+\.js)$/)[0];
+	browserify(`./src/${ name}`, {debug: true})
+	.transform(babelify, {
+		presets: ['es2015']
+	})
 	.bundle()
 	.on('error', util.log.bind(util, 'Browserify Error'))
-	.pipe(source('./dist/' + name))
+	.pipe(source(`./dist/${ name}`))
 	.pipe(buffer())
 	.pipe(sourcemaps.init({loadMaps: true}))
 	.pipe(sourcemaps.write('./'))
@@ -32,9 +34,9 @@ gulp.task('build', () => {
 gulp.task('watch', () => {
 
 	gulp.src('./src/*.js', (err, files) => {
-		files.forEach((item) => {
-			var name = item.match(/([^\/]+\.js)$/)[0];
-			gulp.watch('src/' + name, build.bind(null, item));
+		files.forEach(item => {
+			const name = item.match(/([^\/]+\.js)$/)[0];
+			gulp.watch(`src/${ name}`, build.bind(null, item));
 		});
 	});
 

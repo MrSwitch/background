@@ -32,18 +32,18 @@ export default class Text extends Shape {
 		// Define text
 		[this.textAlign, this.textBaseline] = this.align.split(' ');
 
-		var ctx = canvas.ctx;
-		var fontSize = this.fontSize;
+		const ctx = canvas.ctx;
+		let fontSize = this.fontSize;
 
 		// Split text by line breaks
 		this.lines = this.text.toString().split('\n');
 
 		// Which is the longest line?
-		var _width = 0;
-		var default_text = this.lines[0];
+		let _width = 0;
+		let default_text = this.lines[0];
 
-		this.lines.forEach((line) => {
-			var _w = ctx.measureText(line).width;
+		this.lines.forEach(line => {
+			const _w = ctx.measureText(line).width;
 			if (_w > _width) {
 				_width = _w;
 				default_text = line;
@@ -57,12 +57,12 @@ export default class Text extends Shape {
 		ctx.shadowColor = 'black';
 		ctx.fillStyle = 'black';
 		ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-		ctx.font = 'bold ' + fontSize + 'px Arial';
+		ctx.font = `bold ${ fontSize }px Arial`;
 
 		while (ctx.measureText(default_text).width > canvas.width) {
 			fontSize *= 0.9;
 			fontSize = Math.round(fontSize);
-			ctx.font = 'bold ' + fontSize + 'px Arial';
+			ctx.font = `bold ${ fontSize }px Arial`;
 		}
 
 		this.shadowBlur = ctx.shadowBlur = Math.round(fontSize / 10);
@@ -85,13 +85,13 @@ export default class Text extends Shape {
 			case 'middle':
 				this.textAlign = 'center';
 				this.x = (canvas.width / 2) - (this.w / 2);
-			break;
+				break;
 			case 'left':
 				this.x = 0;
-			break;
+				break;
 			case 'right':
 				this.x = canvas.width - this.w;
-			break;
+				break;
 		}
 
 		switch (this.textBaseline) {
@@ -99,13 +99,13 @@ export default class Text extends Shape {
 			case 'middle':
 				this.textBaseline = 'middle';
 				this.y = (canvas.height / 2) - (this.h / 2);
-			break;
+				break;
 			case 'top':
 				this.y = 0;
-			break;
+				break;
 			case 'bottom':
 				this.y = canvas.height - this.h;
-			break;
+				break;
 		}
 
 		this.textAlign = 'left';
@@ -139,10 +139,10 @@ export default class Text extends Shape {
 
 		this.lines = this.text.toString().split('\n');
 
-		var len = this.lines.length;
+		const len = this.lines.length;
 
 		this.lines.forEach((item, index) => {
-			let y = this.y + (this.h ? (index * (this.h / len)) : 0);
+			const y = this.y + (this.h ? (index * (this.h / len)) : 0);
 
 			ctx.fillText(item, this.x, y);
 			if (this.strokeStyle) {

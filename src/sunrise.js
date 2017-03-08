@@ -1,19 +1,24 @@
 
 import Canvas from './classes/canvas';
 
-let canvas = new Canvas();
+const canvas = new Canvas();
 canvas.addEventListener('mouseover', () => hover = true);
 canvas.addEventListener('mouseout', () => hover = false);
 
-var spin = 0, radius, hover, opacity = 0;
-var slices = 32;
-var pi = (Math.PI / 180), deg = (360 / slices);
-var pallate = ['rgb(255, 140, 0)', 'rgb(255,0,0)', 'rgb(255,255,0)'];
+const slices = 32;
+const pi = (Math.PI / 180);
+const deg = (360 / slices);
+const pallate = ['rgb(255, 140, 0)', 'rgb(255,0,0)', 'rgb(255,255,0)'];
+
+let spin = 0;
+let radius;
+let hover;
+let opacity = 0;
 
 canvas.addEventListener('frame', () => {
 
-	var ctx = canvas.ctx;
-	var [cx, cy] = [canvas.width / 2, canvas.height / 2];
+	const ctx = canvas.ctx;
+	const [cx, cy] = [canvas.width / 2, canvas.height / 2];
 
 	// ensure its keeping up.
 	radius = Math.max(canvas.width, canvas.height) / 2;

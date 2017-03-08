@@ -48,7 +48,7 @@ class Tile {
 
 		this.dirty = true;
 
-		var opacity = this.i;
+		let opacity = this.i;
 
 		if (this.dx || this.dy) {
 			this.dy *= 0.9;
@@ -63,9 +63,9 @@ class Tile {
 
 		if (pointer) {
 
-			var [mx, my] = [pointer.offsetX, pointer.offsetY];
-			var dx = mx - this.x;
-			var dy = my - this.y;
+			const [mx, my] = [pointer.offsetX, pointer.offsetY];
+			let dx = mx - this.x;
+			let dy = my - this.y;
 
 			if (Math.abs(dx) < radius &&
 				Math.abs(dy) < radius &&
@@ -114,36 +114,36 @@ class Tile {
 class Stage {
 	constructor(target) {
 
-let canvas = new Canvas(target);
-let collection = new Collection(canvas.target);
+		const canvas = new Canvas(target);
+		const collection = new Collection(canvas.target);
 
-this.canvas = canvas;
-this.collection = collection;
+		this.canvas = canvas;
+		this.collection = collection;
 
-canvas.addEventListener('mousemove', action.bind(this));
-canvas.addEventListener('touchmove', action.bind(this));
-canvas.addEventListener('resize', setup.bind(this));
+		canvas.addEventListener('mousemove', action.bind(this));
+		canvas.addEventListener('touchmove', action.bind(this));
+		canvas.addEventListener('resize', setup.bind(this));
 
-canvas.addEventListener('frame', () => {
+		canvas.addEventListener('frame', () => {
 
 	// Clear canvas
-	canvas.clear();
+			canvas.clear();
 
 	// Draw items
-	collection.draw();
-});
+			collection.draw();
+		});
 
-this.tiles = [];
+		this.tiles = [];
 
-setup.call(this);
+		setup.call(this);
 
 	}
 }
 
 
 // Canvas
-var radius = 80;
-var pointer;
+const radius = 80;
+let pointer;
 
 // Add Stage to the background
 Background.add(Stage);
@@ -151,23 +151,24 @@ Background.add(Stage);
 
 function setup() {
 
-	let canvas = this.canvas;
-	let tiles = this.tiles;
-	let collection = this.collection;
+	const canvas = this.canvas;
+	const tiles = this.tiles;
+	const collection = this.collection;
 
-	var h, w;
+	let h;
+	let w;
 	w = h = 40;
 
-	var nx = Math.floor(canvas.width / w);
-	var ny = Math.floor(canvas.height / h);
+	const nx = Math.floor(canvas.width / w);
+	const ny = Math.floor(canvas.height / h);
 
 	w += Math.floor((canvas.width % (nx * w)) / nx);
 	h += Math.floor((canvas.height % (ny * h)) / ny);
 
-	for (var i = 0; i < nx; i++) {
-		for (var j = 0; j < ny; j++) {
+	for (let i = 0; i < nx; i++) {
+		for (let j = 0; j < ny; j++) {
 
-			var tile = tiles[((i * ny) + j)];
+			let tile = tiles[((i * ny) + j)];
 
 			// %100
 
@@ -184,7 +185,7 @@ function setup() {
 	}
 }
 
-var timer;
+let timer;
 function action(e) {
 	pointer = e;
 

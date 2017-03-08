@@ -24,7 +24,7 @@ class Balloon {
 	}
 
 	calc() {
-		let r = this.r;
+		const r = this.r;
 		this.x = this.cx - r;
 		this.y = this.cy - r;
 		this.w = r * 2;
@@ -39,12 +39,12 @@ class Balloon {
 		}
 
 		// Does this exist as a sprite?
-		var key = this.fillStyle + this.r;
+		const key = this.fillStyle + this.r;
 		if (!(key in sprites)) {
-			var _canvas = document.createElement('canvas');
+			const _canvas = document.createElement('canvas');
 			_canvas.width = Math.ceil(this.w) + 2;
 			_canvas.height = Math.ceil(this.h) + 2;
-			var _ctx = _canvas.getContext('2d');
+			const _ctx = _canvas.getContext('2d');
 			_ctx.fillStyle = this.fillStyle;
 			_ctx.beginPath();
 			_ctx.arc(this.r + 1, this.r + 1, this.r, 0, MATH_PI2, false);
@@ -74,10 +74,9 @@ class Balloon {
 }
 
 
-
 function toggle(value, ...args) {
-	var index = args.indexOf(value);
-	var next = args[index + 1];
+	const index = args.indexOf(value);
+	let next = args[index + 1];
 	if (next === undefined) {
 		next = args[0];
 	}
@@ -85,8 +84,8 @@ function toggle(value, ...args) {
 }
 
 
-let canvas = new Canvas();
-let collection = new Collection(canvas.target);
+const canvas = new Canvas();
+const collection = new Collection(canvas.target);
 canvas.addEventListener('resize', setup);
 canvas.addEventListener('frame', () => {
 
@@ -99,48 +98,48 @@ canvas.addEventListener('frame', () => {
 
 // draw variant background
 
-var balloons = [];
-var max_radius;
+const balloons = [];
+let max_radius;
 
 setup();
 
 function setup() {
 
 	// There are 100 balloons
-	var n = 1000;
+	const n = 1000;
 
 	// To fill the rectangular screen area
-	var W = canvas.width;
-	var H = canvas.height;
-	var A = H * W;
+	const W = canvas.width;
+	const H = canvas.height;
+	const A = H * W;
 
 	// Each would have to fill an area about.
-	var a = A / n;
+	const a = A / n;
 
 	// And since they must fill a square we can sqrt to find width and height of the balloons
-	var w = Math.sqrt(a);
-	var h = w;
+	let w = Math.sqrt(a);
+	let h = w;
 
 	// Find the number that would be needed to fill the axis
-	var nx = Math.floor(W / w) || 1;
-	var ny = Math.floor(H / h) || 1;
+	const nx = Math.floor(W / w) || 1;
+	const ny = Math.floor(H / h) || 1;
 
 	// Adjust the width and height to uniformly spread them out
 	w = W / nx;
 	h = H / ny;
 
 	// Capture max-radius
-	var r = Math.max(w, h) / 2;
+	let r = Math.max(w, h) / 2;
 	max_radius = r * 1.5;
 
-	for (var i = 0; i < nx; i++) {
+	for (let i = 0; i < nx; i++) {
 		r = (((i + 1) / nx) * w) / 2;
-		for (var j = 0; j < ny; j++) {
+		for (let j = 0; j < ny; j++) {
 
-			var cx = parseInt((i * w) + (w / 2), 10);
-			var cy = parseInt((j * h) + (h / 2), 10);
+			const cx = parseInt((i * w) + (w / 2), 10);
+			const cy = parseInt((j * h) + (h / 2), 10);
 
-			var balloon = balloons[((i * ny) + j)];
+			let balloon = balloons[((i * ny) + j)];
 
 			// %100
 

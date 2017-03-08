@@ -1,29 +1,74 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// Setup
-// This constructs the canvas object
+"use strict";
 
-// Includes
+module.exports = function (e) {
+	e.stopPropagation = function () {};
+	e.preventDefault = function () {};
+	return e;
+};
+
+},{}],2:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+// IE does not support `new Event()`
+// See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events for details
+var dict = { bubbles: true, cancelable: true };
+
+var createEvent = function createEvent(eventname) {
+	var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : dict;
+	return new Event(eventname, options);
+};
+
+try {
+	createEvent('test');
+} catch (e) {
+	createEvent = function createEvent(eventname) {
+		var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : dict;
+
+		var e = document.createEvent('Event');
+		e.initEvent(eventname, !!options.bubbles, !!options.cancelable);
+		return e;
+	};
+}
+
+module.exports = createEvent;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+
+// requestAnimationFrame polyfill
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+	return setTimeout(callback, 1000 / 60);
+};
+
+module.exports = window.requestAnimationFrame.bind(window);
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Setup
+// This constructs the canvas object
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+// Includes
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-require('../utils/support/requestAnimationFrame');
+require('tricks/support/requestAnimationFrame');
 
-var _utilsEventsCreateEvent = require('../utils/events/createEvent');
+var _createEvent = require('tricks/events/createEvent');
 
-var _utilsEventsCreateEvent2 = _interopRequireDefault(_utilsEventsCreateEvent);
+var _createEvent2 = _interopRequireDefault(_createEvent);
 
-var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
+var _createDummyEvent = require('tricks/events/createDummyEvent');
 
-var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
+var _createDummyEvent2 = _interopRequireDefault(_createDummyEvent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Constants
 var BACKGROUND_HASH = 'background';
@@ -32,17 +77,16 @@ var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;
 
-var Canvas = (function () {
+var Canvas = function () {
 
 	// Construct the Canvas Element
 	// @param canvas should be an root element container for this imagery.
-
 	function Canvas(canvas) {
 		var _this = this;
 
 		_classCallCheck(this, Canvas);
 
-		var parent;
+		var parent = void 0;
 
 		// events
 		this.events = {};
@@ -137,6 +181,7 @@ var Canvas = (function () {
 
 	// ensure its keeping up.
 
+
 	_createClass(Canvas, [{
 		key: 'resize',
 		value: function resize() {
@@ -155,7 +200,7 @@ var Canvas = (function () {
 			}
 
 			if (changed) {
-				this.target.dispatchEvent((0, _utilsEventsCreateEvent2['default'])('resize'));
+				this.target.dispatchEvent((0, _createEvent2.default)('resize'));
 			}
 		}
 	}, {
@@ -165,6 +210,7 @@ var Canvas = (function () {
 		}
 
 		// Bring the content of the canvas to the front
+
 	}, {
 		key: 'bringToFront',
 		value: function bringToFront() {
@@ -174,6 +220,7 @@ var Canvas = (function () {
 		}
 
 		// Trigger the draw function
+
 	}, {
 		key: 'draw',
 		value: function draw() {
@@ -182,13 +229,14 @@ var Canvas = (function () {
 			this.fps++;
 
 			// Call the frame function in the context of the frame to draw
-			this.target.dispatchEvent((0, _utilsEventsCreateEvent2['default'])('frame'));
+			this.target.dispatchEvent((0, _createEvent2.default)('frame'));
 
 			// Request another frame
 			requestAnimationFrame(this.draw.bind(this));
 		}
 
 		// The user has clicked an item on the page
+
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventnames, handler) {
@@ -205,6 +253,7 @@ var Canvas = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchEvent',
 		value: function dispatchEvent(e) {
@@ -216,7 +265,7 @@ var Canvas = (function () {
 				// This was triggered using event delegation, aka in the background
 				if (target === document) {
 
-					e = (0, _utilsEventsCreateDummyEvent2['default'])({
+					e = (0, _createDummyEvent2.default)({
 						type: e.type,
 						target: this.target,
 						offsetX: e.pageX || e.offsetX,
@@ -233,6 +282,7 @@ var Canvas = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchTouchEvent',
 		value: function dispatchTouchEvent(e) {
@@ -284,9 +334,10 @@ var Canvas = (function () {
 	}]);
 
 	return Canvas;
-})();
+}();
 
-exports['default'] = Canvas;
+exports.default = Canvas;
+
 
 function hashchange(z) {
 
@@ -304,24 +355,23 @@ function hashchange(z) {
 		this.removeProperty(zIndex);
 	}
 }
-module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":6,"../utils/events/createEvent":7,"../utils/support/requestAnimationFrame":8}],2:[function(require,module,exports){
-// Collection
-
+},{"tricks/events/createDummyEvent":1,"tricks/events/createEvent":2,"tricks/support/requestAnimationFrame":3}],5:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// Collection
 
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'touchmove', 'touchstart', 'touchend', 'frame'];
 
-var Collection = (function () {
+var Collection = function () {
 	function Collection(target) {
 		_classCallCheck(this, Collection);
 
@@ -335,12 +385,8 @@ var Collection = (function () {
 		this.init(target);
 	}
 
-	// Intersect
-	// Given two objects with, x,y,w,h properties
-	// Do their rectangular dimensions intersect?
-	// return Boolean true false.
-
 	// listen to canvas events
+
 
 	_createClass(Collection, [{
 		key: 'init',
@@ -376,6 +422,7 @@ var Collection = (function () {
 	}, {
 		key: 'prepare',
 
+
 		// Touch
 		// Mark items and objects in the same space to be redrawn
 		value: function prepare() {
@@ -387,6 +434,7 @@ var Collection = (function () {
 		}
 
 		// Clean Item
+
 	}, {
 		key: 'prepareChild',
 		value: function prepareChild(item) {
@@ -433,6 +481,7 @@ var Collection = (function () {
 		}
 
 		// Trigger the draw function
+
 	}, {
 		key: 'draw',
 		value: function draw() {
@@ -458,7 +507,7 @@ var Collection = (function () {
 		key: 'elementFromPoint',
 		value: function elementFromPoint(x, y) {
 
-			var target;
+			var target = void 0;
 
 			// Find the canvas item which this targets?
 			var obj = {
@@ -485,6 +534,7 @@ var Collection = (function () {
 		}
 
 		// The user has clicked an item on the page
+
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventname, handler) {
@@ -498,6 +548,7 @@ var Collection = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchEvent',
 		value: function dispatchEvent(e) {
@@ -507,6 +558,7 @@ var Collection = (function () {
 		}
 
 		// Find and _dispatch
+
 	}, {
 		key: '_findAndDispatch',
 		value: function _findAndDispatch(e) {
@@ -543,9 +595,15 @@ var Collection = (function () {
 	}]);
 
 	return Collection;
-})();
+}();
 
-exports['default'] = Collection;
+// Intersect
+// Given two objects with, x,y,w,h properties
+// Do their rectangular dimensions intersect?
+// return Boolean true false.
+
+
+exports.default = Collection;
 function intersect(a, b) {
 	return !(a.x > b.x + b.w || a.x + a.w < b.x || a.y > b.y + b.h || a.y + a.h < b.y);
 }
@@ -553,55 +611,52 @@ function intersect(a, b) {
 function displaced(a, b) {
 	return a.x !== b.x || a.y !== b.y || a.w !== b.w || a.h !== b.h;
 }
-module.exports = exports['default'];
 
-},{}],3:[function(require,module,exports){
-// Shape
-// CanvasShapes
-// The parent object defining a basic shape, x,y,w,h, for starters.
-// And basic operatings you might like to include on a shape
+},{}],6:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Shape
+// CanvasShapes
+// The parent object defining a basic shape, x,y,w,h, for starters.
+// And basic operatings you might like to include on a shape
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+var _createEvent = require('tricks/events/createEvent');
 
-var _utilsEventsCreateEvent = require('../utils/events/createEvent');
+var _createEvent2 = _interopRequireDefault(_createEvent);
 
-var _utilsEventsCreateEvent2 = _interopRequireDefault(_utilsEventsCreateEvent);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Shape = (function () {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Shape = function () {
 	function Shape() {
 		_classCallCheck(this, Shape);
 
 		// initieate  events
 		this.events = [];
 
-		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-			args[_key] = arguments[_key];
-		}
-
-		if (args.length) {
+		if (arguments.length) {
 			// Store the values
-			this.position.apply(this, args);
+			this.position.apply(this, arguments);
 		}
 	}
 
 	//	Set property listeners
 
+
 	_createClass(Shape, [{
 		key: 'position',
 		value: function position() {
-			var x = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-			var y = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-			var w = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-			var h = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
+			var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+			var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+			var w = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+			var h = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
 
 			if (!this.past) {
 				// Set past points
@@ -622,6 +677,7 @@ var Shape = (function () {
 		}
 
 		// Placeholder function for drawing to canvas
+
 	}, {
 		key: 'frame',
 		value: function frame() {}
@@ -635,6 +691,7 @@ var Shape = (function () {
 		// Events
 		// Assign Events to be fired when the user clicks this object
 		// Awesome
+
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventName, callback) {
@@ -655,6 +712,7 @@ var Shape = (function () {
 		}
 
 		// Assign getters and setters to default properties
+
 	}, {
 		key: '_watchProperty',
 		value: function _watchProperty(propName) {
@@ -765,7 +823,7 @@ var Shape = (function () {
 				this._dirty = v;
 
 				// Trigger a canvas clean
-				this.dispatchEvent((0, _utilsEventsCreateEvent2['default'])('dirty'));
+				this.dispatchEvent((0, _createEvent2.default)('dirty'));
 			} else if (!v) {
 				// reset
 				this._dirty = v;
@@ -776,6 +834,7 @@ var Shape = (function () {
 		}
 
 		// Let events bubble up
+
 	}, {
 		key: 'pointerEvents',
 		get: function get() {
@@ -787,65 +846,64 @@ var Shape = (function () {
 	}]);
 
 	return Shape;
-})();
+}();
 
-exports['default'] = Shape;
-module.exports = exports['default'];
+exports.default = Shape;
 
-},{"../utils/events/createEvent":7}],4:[function(require,module,exports){
-// text
-// TextObject, defines a shape object which contains text.
-
+},{"tricks/events/createEvent":2}],7:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _shape = require('./shape');
 
 var _shape2 = _interopRequireDefault(_shape);
 
-var Text = (function (_Shape) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // text
+// TextObject, defines a shape object which contains text.
+
+var Text = function (_Shape) {
 	_inherits(Text, _Shape);
 
 	// Initiate a new shape object.
-
 	function Text(text) {
 		_classCallCheck(this, Text);
 
-		// initiate inheritance
-		_get(Object.getPrototypeOf(Text.prototype), 'constructor', this).call(this);
-
 		// Watch the following properties for changes
-		['text', 'shadowBlur', 'shadowColor', 'fillStyle', 'strokeStyle', 'textAlign', 'textBaseline', 'lineWidth'].forEach(this._watchProperty.bind(this));
+		var _this = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this));
+		// initiate inheritance
+
+
+		['text', 'shadowBlur', 'shadowColor', 'fillStyle', 'strokeStyle', 'textAlign', 'textBaseline', 'lineWidth'].forEach(_this._watchProperty.bind(_this));
 
 		// Define text
-		this.text = text || '';
+		_this.text = text || '';
 
-		this.shadowColor = 'black';
-		this.fillStyle = 'black';
-		this.strokeStyle = 'white';
-		this.textAlign = 'left';
-		this.textBaseline = 'top';
-		this.lineWidth = 0;
-		this.align = 'left top';
-		this.fontSize = 30;
+		_this.shadowColor = 'black';
+		_this.fillStyle = 'black';
+		_this.strokeStyle = 'white';
+		_this.textAlign = 'left';
+		_this.textBaseline = 'top';
+		_this.lineWidth = 0;
+		_this.align = 'left top';
+		_this.fontSize = 30;
+		return _this;
 	}
 
 	// Define the text and the alignment of the object
+
 
 	_createClass(Text, [{
 		key: 'calc',
@@ -854,10 +912,12 @@ var Text = (function (_Shape) {
 
 			// Define text
 
+
 			var _align$split2 = _slicedToArray(_align$split, 2);
 
 			this.textAlign = _align$split2[0];
 			this.textBaseline = _align$split2[1];
+
 
 			var ctx = canvas.ctx;
 			var fontSize = this.fontSize;
@@ -941,10 +1001,11 @@ var Text = (function (_Shape) {
 		}
 
 		// Draw
+
 	}, {
 		key: 'draw',
 		value: function draw(ctx) {
-			var _this = this;
+			var _this2 = this;
 
 			ctx.save();
 
@@ -971,11 +1032,11 @@ var Text = (function (_Shape) {
 			var len = this.lines.length;
 
 			this.lines.forEach(function (item, index) {
-				var y = _this.y + (_this.h ? index * (_this.h / len) : 0);
+				var y = _this2.y + (_this2.h ? index * (_this2.h / len) : 0);
 
-				ctx.fillText(item, _this.x, y);
-				if (_this.strokeStyle) {
-					ctx.strokeText(item, _this.x, y);
+				ctx.fillText(item, _this2.x, y);
+				if (_this2.strokeStyle) {
+					ctx.strokeText(item, _this2.x, y);
 				}
 			});
 
@@ -984,67 +1045,69 @@ var Text = (function (_Shape) {
 	}]);
 
 	return Text;
-})(_shape2['default']);
+}(_shape2.default);
 
-exports['default'] = Text;
-module.exports = exports['default'];
+exports.default = Text;
 
-},{"./shape":3}],5:[function(require,module,exports){
-// mineField, Canvas annimation
+},{"./shape":6}],8:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _canvas = require('./classes/canvas');
+
+var _canvas2 = _interopRequireDefault(_canvas);
+
+var _collection = require('./classes/collection');
+
+var _collection2 = _interopRequireDefault(_collection);
+
+var _shape = require('./classes/shape');
+
+var _shape2 = _interopRequireDefault(_shape);
+
+var _text = require('./classes/text');
+
+var _text2 = _interopRequireDefault(_text);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // mineField, Canvas annimation
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _classesCanvas = require('./classes/canvas');
-
-var _classesCanvas2 = _interopRequireDefault(_classesCanvas);
-
-var _classesCollection = require('./classes/collection');
-
-var _classesCollection2 = _interopRequireDefault(_classesCollection);
-
-var _classesShape = require('./classes/shape');
-
-var _classesShape2 = _interopRequireDefault(_classesShape);
-
-var _classesText = require('./classes/text');
-
-var _classesText2 = _interopRequireDefault(_classesText);
 
 // Create a new scribble
 // Arguments handled by parent
-
-var Brush = (function (_Shape) {
+var Brush = function (_Shape) {
 	_inherits(Brush, _Shape);
 
 	function Brush() {
+		var _ref;
+
 		_classCallCheck(this, Brush);
 
 		for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 			args[_key] = arguments[_key];
 		}
 
-		_get(Object.getPrototypeOf(Brush.prototype), 'constructor', this).apply(this, args);
-
 		// A collection of x, y points
-		this.points = [];
+		var _this = _possibleConstructorReturn(this, (_ref = Brush.__proto__ || Object.getPrototypeOf(Brush)).call.apply(_ref, [this].concat(args)));
 
-		this.push.apply(this, args);
+		_this.points = [];
+
+		_this.push.apply(_this, args);
+		return _this;
 	}
 
 	// Add
 	// Add a new point to the brushes path
+
 
 	_createClass(Brush, [{
 		key: 'push',
@@ -1070,6 +1133,7 @@ var Brush = (function (_Shape) {
 		}
 
 		// Draw the line
+
 	}, {
 		key: 'draw',
 		value: function draw(ctx) {
@@ -1085,13 +1149,15 @@ var Brush = (function (_Shape) {
 	}]);
 
 	return Brush;
-})(_classesShape2['default']);
+}(_shape2.default);
 
-var canvas = new _classesCanvas2['default']();
+var brush = null;
 
-var collection = new _classesCollection2['default'](canvas.target);
+var canvas = new _canvas2.default();
 
-var text = new _classesText2['default']();
+var collection = new _collection2.default(canvas.target);
+
+var text = new _text2.default();
 text.text = 'Drawing Pad';
 text.align = 'center center';
 text.fontSize = 150;
@@ -1122,8 +1188,6 @@ function hideText() {
 }
 
 collection.push(text);
-
-var brush = null;
 
 function pointStart(e) {
 
@@ -1156,60 +1220,6 @@ function move(e) {
 	}
 }
 
-},{"./classes/canvas":1,"./classes/collection":2,"./classes/shape":3,"./classes/text":4}],6:[function(require,module,exports){
-"use strict";
+},{"./classes/canvas":4,"./classes/collection":5,"./classes/shape":6,"./classes/text":7}]},{},[8])
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports["default"] = function (e) {
-	e.stopPropagation = function () {};
-	e.preventDefault = function () {};
-	return e;
-};
-
-module.exports = exports["default"];
-
-},{}],7:[function(require,module,exports){
-// IE does not support `new Event()`
-// See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events for details
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-var createEvent = function createEvent(eventname) {
-	return new Event(eventname);
-};
-try {
-	createEvent('test');
-} catch (e) {
-	createEvent = function (eventname) {
-		var e = document.createEvent('Event');
-		e.initEvent(eventname, true, true);
-		return e;
-	};
-}
-
-exports['default'] = createEvent;
-module.exports = exports['default'];
-
-},{}],8:[function(require,module,exports){
-// requestAnimationFrame polyfill
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-	setTimeout(callback, 1000 / 60);
-};
-
-exports["default"] = window.requestAnimationFrame.bind(window);
-module.exports = exports["default"];
-
-},{}]},{},[5])
-
-
-//# sourceMappingURL=../dist/drawingPad.js.map
+//# sourceMappingURL=drawingPad.js.map

@@ -50,18 +50,20 @@ class Brush extends Shape {
 	draw(ctx) {
 		// Loop through all the points and draw the line
 		ctx.beginPath();
-		var point = this.points[0];
+		const point = this.points[0];
 		ctx.moveTo(point[0], point[1]);
-		this.points.forEach((point) => ctx.lineTo(point[0], point[1]));
+		this.points.forEach(point => ctx.lineTo(point[0], point[1]));
 		ctx.stroke();
 	}
 }
 
-var canvas = new Canvas();
+let brush = null;
 
-var collection = new Collection(canvas.target);
+const canvas = new Canvas();
 
-var	text = new Text();
+const collection = new Collection(canvas.target);
+
+const text = new Text();
 text.text = 'Drawing Pad';
 text.align = 'center center';
 text.fontSize = 150;
@@ -94,7 +96,6 @@ function hideText() {
 
 collection.push(text);
 
-var brush = null;
 
 function pointStart(e) {
 

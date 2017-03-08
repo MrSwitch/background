@@ -1,29 +1,81 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// Setup
-// This constructs the canvas object
+"use strict";
 
-// Includes
+module.exports = function (t) {
+  return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+};
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
+module.exports = function (e) {
+	e.stopPropagation = function () {};
+	e.preventDefault = function () {};
+	return e;
+};
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+// IE does not support `new Event()`
+// See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events for details
+var dict = { bubbles: true, cancelable: true };
+
+var createEvent = function createEvent(eventname) {
+	var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : dict;
+	return new Event(eventname, options);
+};
+
+try {
+	createEvent('test');
+} catch (e) {
+	createEvent = function createEvent(eventname) {
+		var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : dict;
+
+		var e = document.createEvent('Event');
+		e.initEvent(eventname, !!options.bubbles, !!options.cancelable);
+		return e;
+	};
+}
+
+module.exports = createEvent;
+
+},{}],4:[function(require,module,exports){
+"use strict";
+
+// requestAnimationFrame polyfill
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+	return setTimeout(callback, 1000 / 60);
+};
+
+module.exports = window.requestAnimationFrame.bind(window);
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Setup
+// This constructs the canvas object
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+// Includes
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-require('../utils/support/requestAnimationFrame');
+require('tricks/support/requestAnimationFrame');
 
-var _utilsEventsCreateEvent = require('../utils/events/createEvent');
+var _createEvent = require('tricks/events/createEvent');
 
-var _utilsEventsCreateEvent2 = _interopRequireDefault(_utilsEventsCreateEvent);
+var _createEvent2 = _interopRequireDefault(_createEvent);
 
-var _utilsEventsCreateDummyEvent = require('../utils/events/createDummyEvent');
+var _createDummyEvent = require('tricks/events/createDummyEvent');
 
-var _utilsEventsCreateDummyEvent2 = _interopRequireDefault(_utilsEventsCreateDummyEvent);
+var _createDummyEvent2 = _interopRequireDefault(_createDummyEvent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Constants
 var BACKGROUND_HASH = 'background';
@@ -32,17 +84,16 @@ var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;
 
-var Canvas = (function () {
+var Canvas = function () {
 
 	// Construct the Canvas Element
 	// @param canvas should be an root element container for this imagery.
-
 	function Canvas(canvas) {
 		var _this = this;
 
 		_classCallCheck(this, Canvas);
 
-		var parent;
+		var parent = void 0;
 
 		// events
 		this.events = {};
@@ -137,6 +188,7 @@ var Canvas = (function () {
 
 	// ensure its keeping up.
 
+
 	_createClass(Canvas, [{
 		key: 'resize',
 		value: function resize() {
@@ -155,7 +207,7 @@ var Canvas = (function () {
 			}
 
 			if (changed) {
-				this.target.dispatchEvent((0, _utilsEventsCreateEvent2['default'])('resize'));
+				this.target.dispatchEvent((0, _createEvent2.default)('resize'));
 			}
 		}
 	}, {
@@ -165,6 +217,7 @@ var Canvas = (function () {
 		}
 
 		// Bring the content of the canvas to the front
+
 	}, {
 		key: 'bringToFront',
 		value: function bringToFront() {
@@ -174,6 +227,7 @@ var Canvas = (function () {
 		}
 
 		// Trigger the draw function
+
 	}, {
 		key: 'draw',
 		value: function draw() {
@@ -182,13 +236,14 @@ var Canvas = (function () {
 			this.fps++;
 
 			// Call the frame function in the context of the frame to draw
-			this.target.dispatchEvent((0, _utilsEventsCreateEvent2['default'])('frame'));
+			this.target.dispatchEvent((0, _createEvent2.default)('frame'));
 
 			// Request another frame
 			requestAnimationFrame(this.draw.bind(this));
 		}
 
 		// The user has clicked an item on the page
+
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventnames, handler) {
@@ -205,6 +260,7 @@ var Canvas = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchEvent',
 		value: function dispatchEvent(e) {
@@ -216,7 +272,7 @@ var Canvas = (function () {
 				// This was triggered using event delegation, aka in the background
 				if (target === document) {
 
-					e = (0, _utilsEventsCreateDummyEvent2['default'])({
+					e = (0, _createDummyEvent2.default)({
 						type: e.type,
 						target: this.target,
 						offsetX: e.pageX || e.offsetX,
@@ -233,6 +289,7 @@ var Canvas = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchTouchEvent',
 		value: function dispatchTouchEvent(e) {
@@ -284,9 +341,10 @@ var Canvas = (function () {
 	}]);
 
 	return Canvas;
-})();
+}();
 
-exports['default'] = Canvas;
+exports.default = Canvas;
+
 
 function hashchange(z) {
 
@@ -304,24 +362,23 @@ function hashchange(z) {
 		this.removeProperty(zIndex);
 	}
 }
-module.exports = exports['default'];
 
-},{"../utils/events/createDummyEvent":4,"../utils/events/createEvent":5,"../utils/support/requestAnimationFrame":6}],2:[function(require,module,exports){
-// Collection
-
+},{"tricks/events/createDummyEvent":2,"tricks/events/createEvent":3,"tricks/support/requestAnimationFrame":4}],6:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// Collection
 
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'touchmove', 'touchstart', 'touchend', 'frame'];
 
-var Collection = (function () {
+var Collection = function () {
 	function Collection(target) {
 		_classCallCheck(this, Collection);
 
@@ -335,12 +392,8 @@ var Collection = (function () {
 		this.init(target);
 	}
 
-	// Intersect
-	// Given two objects with, x,y,w,h properties
-	// Do their rectangular dimensions intersect?
-	// return Boolean true false.
-
 	// listen to canvas events
+
 
 	_createClass(Collection, [{
 		key: 'init',
@@ -376,6 +429,7 @@ var Collection = (function () {
 	}, {
 		key: 'prepare',
 
+
 		// Touch
 		// Mark items and objects in the same space to be redrawn
 		value: function prepare() {
@@ -387,6 +441,7 @@ var Collection = (function () {
 		}
 
 		// Clean Item
+
 	}, {
 		key: 'prepareChild',
 		value: function prepareChild(item) {
@@ -433,6 +488,7 @@ var Collection = (function () {
 		}
 
 		// Trigger the draw function
+
 	}, {
 		key: 'draw',
 		value: function draw() {
@@ -458,7 +514,7 @@ var Collection = (function () {
 		key: 'elementFromPoint',
 		value: function elementFromPoint(x, y) {
 
-			var target;
+			var target = void 0;
 
 			// Find the canvas item which this targets?
 			var obj = {
@@ -485,6 +541,7 @@ var Collection = (function () {
 		}
 
 		// The user has clicked an item on the page
+
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventname, handler) {
@@ -498,6 +555,7 @@ var Collection = (function () {
 		}
 
 		// Dispatch
+
 	}, {
 		key: 'dispatchEvent',
 		value: function dispatchEvent(e) {
@@ -507,6 +565,7 @@ var Collection = (function () {
 		}
 
 		// Find and _dispatch
+
 	}, {
 		key: '_findAndDispatch',
 		value: function _findAndDispatch(e) {
@@ -543,9 +602,15 @@ var Collection = (function () {
 	}]);
 
 	return Collection;
-})();
+}();
 
-exports['default'] = Collection;
+// Intersect
+// Given two objects with, x,y,w,h properties
+// Do their rectangular dimensions intersect?
+// return Boolean true false.
+
+
+exports.default = Collection;
 function intersect(a, b) {
 	return !(a.x > b.x + b.w || a.x + a.w < b.x || a.y > b.y + b.h || a.y + a.h < b.y);
 }
@@ -553,38 +618,37 @@ function intersect(a, b) {
 function displaced(a, b) {
 	return a.x !== b.x || a.y !== b.y || a.w !== b.w || a.h !== b.h;
 }
-module.exports = exports['default'];
 
-},{}],3:[function(require,module,exports){
-// TiledOfLife, Canvas annimation
+},{}],7:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // TiledOfLife, Canvas annimation
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _canvas = require('./classes/canvas');
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+var _canvas2 = _interopRequireDefault(_canvas);
 
-var _classesCanvas = require('./classes/canvas');
+var _collection = require('./classes/collection');
 
-var _classesCanvas2 = _interopRequireDefault(_classesCanvas);
+var _collection2 = _interopRequireDefault(_collection);
 
-var _classesCollection = require('./classes/collection');
+var _timingEaseInOutCubic = require('tricks/animation/timing.easeInOutCubic.js');
 
-var _classesCollection2 = _interopRequireDefault(_classesCollection);
+var _timingEaseInOutCubic2 = _interopRequireDefault(_timingEaseInOutCubic);
 
-var _utilsTimeTimingEaseInOutCubicJs = require('./utils/time/timing.easeInOutCubic.js');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _utilsTimeTimingEaseInOutCubicJs2 = _interopRequireDefault(_utilsTimeTimingEaseInOutCubicJs);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MATH_PI2 = 2 * Math.PI;
 var MAX = 500;
 // Create a new tile
 
-var Ripple = (function () {
+var Ripple = function () {
 	function Ripple(cx, cy, r) {
 		_classCallCheck(this, Ripple);
 
@@ -629,7 +693,7 @@ var Ripple = (function () {
 				this.visible = false;
 			} else {
 				this.visible = true;
-				this.r = (0, _utilsTimeTimingEaseInOutCubicJs2['default'])(1 - this.t) * MAX;
+				this.r = (0, _timingEaseInOutCubic2.default)(1 - this.t) * MAX;
 				this.calc();
 				this.dirty = true;
 			}
@@ -637,10 +701,10 @@ var Ripple = (function () {
 	}]);
 
 	return Ripple;
-})();
+}();
 
-var canvas = new _classesCanvas2['default']();
-var collection = new _classesCollection2['default'](canvas.target);
+var canvas = new _canvas2.default();
+var collection = new _collection2.default(canvas.target);
 canvas.addEventListener('frame', function () {
 
 	// Clear canvas
@@ -655,73 +719,6 @@ canvas.addEventListener('click', function (e) {
 	collection.push(ripple);
 });
 
-},{"./classes/canvas":1,"./classes/collection":2,"./utils/time/timing.easeInOutCubic.js":7}],4:[function(require,module,exports){
-"use strict";
+},{"./classes/canvas":5,"./classes/collection":6,"tricks/animation/timing.easeInOutCubic.js":1}]},{},[7])
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports["default"] = function (e) {
-	e.stopPropagation = function () {};
-	e.preventDefault = function () {};
-	return e;
-};
-
-module.exports = exports["default"];
-
-},{}],5:[function(require,module,exports){
-// IE does not support `new Event()`
-// See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events for details
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-var createEvent = function createEvent(eventname) {
-	return new Event(eventname);
-};
-try {
-	createEvent('test');
-} catch (e) {
-	createEvent = function (eventname) {
-		var e = document.createEvent('Event');
-		e.initEvent(eventname, true, true);
-		return e;
-	};
-}
-
-exports['default'] = createEvent;
-module.exports = exports['default'];
-
-},{}],6:[function(require,module,exports){
-// requestAnimationFrame polyfill
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-	setTimeout(callback, 1000 / 60);
-};
-
-exports["default"] = window.requestAnimationFrame.bind(window);
-module.exports = exports["default"];
-
-},{}],7:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports["default"] = function (t) {
-	return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-};
-
-module.exports = exports["default"];
-
-},{}]},{},[3])
-
-
-//# sourceMappingURL=../dist/ripple.js.map
+//# sourceMappingURL=ripple.js.map

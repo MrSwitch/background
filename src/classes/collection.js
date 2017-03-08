@@ -25,7 +25,7 @@ export default class Collection {
 		this.ctx = target.getContext('2d');
 
 		// listen to user interactive events and trigger those on items
-		UserEvents.forEach((eventname) => target.addEventListener(eventname, this._findAndDispatch.bind(this)));
+		UserEvents.forEach(eventname => target.addEventListener(eventname, this._findAndDispatch.bind(this)));
 
 	}
 
@@ -54,7 +54,7 @@ export default class Collection {
 	// Touch
 	// Mark items and objects in the same space to be redrawn
 	prepare() {
-		this.children.forEach((item) => {
+		this.children.forEach(item => {
 			if (item.dirty === true)
 				this.prepareChild(item);
 		});
@@ -63,7 +63,7 @@ export default class Collection {
 	// Clean Item
 	prepareChild(item) {
 
-		let ctx = this.ctx;
+		const ctx = this.ctx;
 
 		if (item.dirty === 'pending') {
 			return;
@@ -105,11 +105,11 @@ export default class Collection {
 	// Trigger the draw function
 	draw() {
 
-		let ctx = this.ctx;
+		const ctx = this.ctx;
 
 		// Find items that have changed
 		// Remove background
-		this.children.forEach((item) => {
+		this.children.forEach(item => {
 
 			if (item.frame) {
 				item.frame(ctx);
@@ -125,17 +125,17 @@ export default class Collection {
 
 	elementFromPoint(x, y) {
 
-		var target;
+		let target;
 
 		// Find the canvas item which this targets?
-		var obj = {
-			x: x,
-			y: y,
+		const obj = {
+			x,
+			y,
 			w: 1,
 			h: 1
 		};
 
-		this.children.forEach((item) => {
+		this.children.forEach(item => {
 
 			if (item.visible === false || !item.w || !item.h || item.pointerEvents === false) {
 				return;
@@ -165,7 +165,7 @@ export default class Collection {
 	// Dispatch
 	dispatchEvent(e) {
 		if (e.type in this.events)
-			this.events[e.type].forEach((handler) => handler(e));
+			this.events[e.type].forEach(handler => handler(e));
 	}
 
 	// Find and _dispatch
@@ -175,14 +175,14 @@ export default class Collection {
 			(typeof TouchEvent !== 'undefined' && e instanceof TouchEvent)) {
 
 			// Find the canvas item which this targets?
-			var obj = {
+			const obj = {
 				x: e.offsetX,
 				y: e.offsetY,
 				w: 1,
 				h: 1
 			};
 
-			this.children.forEach((item) => {
+			this.children.forEach(item => {
 
 				if (!item.visible || !item.w || !item.h || !item.pointerEvents) {
 					return;

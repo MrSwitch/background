@@ -6,7 +6,7 @@ import Canvas from './classes/canvas';
 import Collection from './classes/collection';
 import Text from './classes/text';
 import Background from './classes/background';
-import extend from './utils/object/extend';
+import extend from 'tricks/object/extend';
 
 
 // Create a new tile
@@ -50,7 +50,9 @@ class Tile {
 		ctx.fillRect(this.x, this.y, this.w, this.h);
 	}
 
-	get type() {return 'tile';}
+	get type() {
+		return 'tile';
+	}
 }
 
 /******************************************
@@ -62,70 +64,70 @@ class Tile {
 class Stage {
 	constructor() {
 
-this.options = {
-	controls: true
-};
+		this.options = {
+			controls: true
+		};
 
-this.tiles = [],
-this.mines = [],
-this.flooded = 0,
-this.boom = false,
-this.ended = false;
+		this.tiles = [],
+		this.mines = [],
+		this.flooded = 0,
+		this.boom = false,
+		this.ended = false;
 
 // Iniitate canvas
-var canvas = new Canvas();
-this.canvas = canvas;
+		const canvas = new Canvas();
+		this.canvas = canvas;
 
 // Iniitate collection
-var collection = new Collection(canvas.target);
-this.collection = collection;
+		const collection = new Collection(canvas.target);
+		this.collection = collection;
 
 // Add a text Object
 // We only have one text Object on the screen at a time, lets reuse it.
 
-var	title = new Text();
-title.text = 'MineField';
-title.align = 'center center';
-title.fontSize = 150;
-title.zIndex = 1;
-title.calc(canvas);
-title.pointerEvents = false;
-this.title = title;
+		const title = new Text();
+		title.text = 'MineField';
+		title.align = 'center center';
+		title.fontSize = 150;
+		title.zIndex = 1;
+		title.calc(canvas);
+		title.pointerEvents = false;
+		this.title = title;
 
-var	info = new Text();
-info.text = 'Tap  to  start';
-info.align = 'center center';
-info.fontSize = 40;
-info.zIndex = 1;
-info.calc(canvas);
-info.pointerEvents = false;
-info.y = info.y + title.h;
-this.info = info;
+		const info = new Text();
+		info.text = 'Tap  to  start';
+		info.align = 'center center';
+		info.fontSize = 40;
+		info.zIndex = 1;
+		info.calc(canvas);
+		info.pointerEvents = false;
+		info.y = info.y + title.h;
+		this.info = info;
 
-var	credits = new Text();
-credits.align = 'center center';
-credits.zIndex = 1;
-credits.fontSize = 150;
-credits.calc(canvas);
-credits.pointerEvents = false;
-this.credits = credits;
+		const credits = new Text();
+		credits.align = 'center center';
+		credits.zIndex = 1;
+		credits.fontSize = 150;
+		credits.calc(canvas);
+		credits.pointerEvents = false;
+		this.credits = credits;
 
 /******************************************
  *  Add Events, to listen to in game play
  ******************************************/
 
-canvas.addEventListener('mousedown', (e) => userClick.call(this, e.offsetX, e.offsetY));
-canvas.addEventListener('touchstart', (e) => userClick.call(this, e.offsetX, e.offsetY));
-canvas.addEventListener('resize', setup.bind(this));
-canvas.addEventListener('frame', () => {
+		canvas.addEventListener('mousedown', e => userClick.call(this, e.offsetX, e.offsetY));
+		canvas.addEventListener('touchstart', e => userClick.call(this, e.offsetX, e.offsetY));
+		canvas.addEventListener('resize', setup.bind(this));
+		canvas.addEventListener('frame', () => {
 
-	// Draw items
-	collection.prepare();
+			// Draw items
+			collection.prepare();
 
-	// Draw items
-	collection.draw();
+			// Draw items
+			collection.draw();
 
-});
+		});
 
 
 	}
@@ -160,7 +162,7 @@ function userClick(x, y) {
 	}
 
 	// Tile Clicked
-	var target = this.collection.elementFromPoint(x, y);
+	const target = this.collection.elementFromPoint(x, y);
 
 	if (target && target.type === 'tile') {
 		play.call(this, target);
@@ -171,17 +173,13 @@ function userClick(x, y) {
 // Setup
 function setup() {
 
-	let canvas = this.canvas;
-	let collection = this.collection;
-	let tiles = this.tiles;
-	let mines = this.mines;
+	const canvas = this.canvas;
+	const collection = this.collection;
+	const tiles = this.tiles;
+	const mines = this.mines;
 
 	// Define type size
 	// set tile default Width and height
-	var h, w;
-	var nx;
-	var ny;
-
 
 	this.mines.length = 0;
 	this.flooded = 0;
@@ -191,12 +189,14 @@ function setup() {
 	tiles.length = 0;
 	collection.length = 0;
 
+	let h;
+	let w;
 
 	w = h = 50;
 
 	// set number of tiles horizontally and vertically
-	nx = Math.floor(canvas.width / w);
-	ny = Math.floor(canvas.height / h);
+	const nx = Math.floor(canvas.width / w);
+	const ny = Math.floor(canvas.height / h);
 
 	this.nx = nx;
 	this.ny = ny;
@@ -207,10 +207,10 @@ function setup() {
 	h += Math.floor((canvas.height % (ny * h)) / ny);
 
 	// Create tiles
-	for (var y = 0; y < ny; y++) {
-		for (var x = 0; x < nx; x++) {
+	for (let y = 0; y < ny; y++) {
+		for (let x = 0; x < nx; x++) {
 
-			var tile = new Tile(x * w, y * h, w - 1, h - 1);
+			const tile = new Tile(x * w, y * h, w - 1, h - 1);
 			tile.grid = [x, y];
 			tiles.push(tile);
 			collection.push(tile);
@@ -222,9 +222,9 @@ function setup() {
 		}
 	}
 
-	let credits = this.credits;
-	let info = this.info;
-	let title = this.title;
+	const credits = this.credits;
+	const info = this.info;
+	const title = this.title;
 
 	// Flood its neighbouring tiles on start
 	collection.push(title);
@@ -242,11 +242,11 @@ function setup() {
 
 function play(tile) {
 
-	let mines = this.mines;
-	let tiles = this.tiles;
-	let credits = this.credits;
-	let info = this.info;
-	let title = this.title;
+	const mines = this.mines;
+	const tiles = this.tiles;
+	const credits = this.credits;
+	const info = this.info;
+	const title = this.title;
 
 	if (!tile) {
 		return true;
@@ -272,7 +272,7 @@ function play(tile) {
 	if (((this.flooded + mines.length) === tiles.length) || this.boom) {
 
 		// Show all the mines
-		mines.forEach((mine) => markTile.call(this, mine));
+		mines.forEach(mine => markTile.call(this, mine));
 
 		// Mark as ended
 		this.ended = true;
@@ -296,11 +296,11 @@ function play(tile) {
 // Flood this tile with the new colour and its neighbours with the same colour
 function flood(tile) {
 
-	let nx = this.nx;
-	let ny = this.ny;
-	let tiles = this.tiles;
+	const nx = this.nx;
+	const ny = this.ny;
+	const tiles = this.tiles;
 
-	var [x, y] = tile.grid;
+	const [x, y] = tile.grid;
 
 	if (tile.played) {
 		return;
@@ -311,7 +311,7 @@ function flood(tile) {
 
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
-	var edgeTiles = [
+	const edgeTiles = [
 	((Math.max(y - 1, 0) * nx) + Math.max(x - 1, 0))
 	, ((Math.max(y - 1, 0) * nx) + x)
 	, ((Math.max(y - 1, 0) * nx) + Math.min(x + 1, nx - 1))
@@ -321,14 +321,16 @@ function flood(tile) {
 	, (((Math.min(y + 1, ny - 1)) * nx) + Math.max(x - 1, 0))
 	, ((y * nx) + Math.max(x - 1, 0))
 	]
-	.filter((key, index, arr) => {return arr.indexOf(key) === index && tiles[key];})
-	.map((key) => {return tiles[key];});
+	.filter((key, index, arr) => arr.indexOf(key) === index && tiles[key])
+	.map(key => tiles[key]);
 
 	// Any bombs nearby?
 	// Find the `heat` of the current node
 	// Loop through all the tiles surrouding this point
 	edgeTiles
-	.forEach((_tile) => {tile.heat += +_tile.mine;});
+	.forEach(_tile => {
+		tile.heat += +_tile.mine;
+	});
 
 	// Set the tile mode to played
 	tile.played = true;
@@ -355,7 +357,7 @@ function markTile(tile) {
 	if (tile.heat) {
 
 		// Create text
-		var text = new Text();
+		const text = new Text();
 		text.text = tile.heat;
 		text.textBaseline = 'middle';
 		text.textAlign = 'center';
@@ -373,8 +375,8 @@ function markTile(tile) {
 }
 
 function showControls() {
-	let showControls = this.options.controls;
-	let inProgress = !(this.flooded === 0 || this.boom || this.ended);
+	const showControls = this.options.controls;
+	const inProgress = !(this.flooded === 0 || this.boom || this.ended);
 
 	// Show some controls only between game plays?
 	this.title.visible = this.flooded === 0 && !this.ended && showControls;

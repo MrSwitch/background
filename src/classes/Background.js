@@ -1,10 +1,10 @@
 // Background
 // Exposes the basic properties/methods of a controllable background
 
-import Queue from '../utils/object/Queue';
+import Queue from 'tricks/object/Queue';
 
 // Extract the window.background items
-let queue = window.background = new Queue(window.background);
+const queue = window.background = new Queue(window.background);
 
 function queueHandler(callback) {
 	// Each item in the queue should be a function
@@ -27,7 +27,7 @@ export default class Background {
 	// Create a new instance of a stage
 	static init(target) {
 		// Get the default stage which has been registered with this class
-		let stage = Background.stages[0];
+		const stage = Background.stages[0];
 
 		// Return instance
 		if (stage) {
