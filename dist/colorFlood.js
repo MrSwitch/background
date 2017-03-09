@@ -1,13 +1,61 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
+module.exports = function (obj) {
+  return Array.prototype.slice.call(obj);
+};
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
+var isDom = require('./isDom.js');
+var instanceOf = require('../object/instanceOf.js');
+var toArray = require('../array/toArray.js');
+
+module.exports = function (matches) {
+	var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {};
+
+
+	if (isDom(matches)) {
+		matches = [matches];
+	} else if (typeof matches === 'string') {
+		matches = document.querySelectorAll(matches);
+	}
+
+	if (!instanceOf(matches, Array)) {
+		matches = toArray(matches);
+	}
+
+	if (callback) {
+		matches.forEach(callback);
+	}
+
+	return matches;
+};
+
+},{"../array/toArray.js":1,"../object/instanceOf.js":9,"./isDom.js":3}],3:[function(require,module,exports){
+'use strict';
+
+var instanceOf = require('../object/instanceOf.js');
+
+var _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : Element;
+var _HTMLDocument = typeof HTMLDocument !== 'undefined' ? HTMLDocument : Document;
+var _Window = window.constructor;
+
+module.exports = function (test) {
+	return instanceOf(test, _HTMLElement) || instanceOf(test, _HTMLDocument) || instanceOf(test, _Window);
+};
+
+},{"../object/instanceOf.js":9}],4:[function(require,module,exports){
+"use strict";
+
 module.exports = function (e) {
 	e.stopPropagation = function () {};
 	e.preventDefault = function () {};
 	return e;
 };
 
-},{}],2:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 // IE does not support `new Event()`
@@ -33,7 +81,48 @@ try {
 
 module.exports = createEvent;
 
-},{}],3:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+// on.js
+// Listen to events, this is a wrapper for addEventListener
+
+var each = require('../dom/each.js');
+var SEPERATOR = /[\s\,]+/;
+
+// See https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
+var supportsPassive = false;
+try {
+	var opts = Object.defineProperty({}, 'passive', {
+		get: function get() {
+			supportsPassive = true;
+		}
+	});
+	window.addEventListener('test', null, opts);
+} catch (e) {
+	// Continue
+}
+
+module.exports = function (elements, eventnames, callback) {
+	var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+
+	if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' && options.passive && !supportsPassive) {
+		// Override the passive mark
+		options = false;
+	}
+
+	eventnames = eventnames.split(SEPERATOR);
+	return each(elements, function (el) {
+		return eventnames.forEach(function (eventname) {
+			return el.addEventListener(eventname, callback, options);
+		});
+	});
+};
+
+},{"../dom/each.js":2}],7:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -112,7 +201,7 @@ module.exports = function () {
 	return Queue;
 }();
 
-},{}],4:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var instanceOf = require('./instanceOf.js');
@@ -139,14 +228,14 @@ module.exports = function extend(r) {
 	return r;
 };
 
-},{"./instanceOf.js":5}],5:[function(require,module,exports){
+},{"./instanceOf.js":9}],9:[function(require,module,exports){
 "use strict";
 
 module.exports = function (test, root) {
   return root && test instanceof root;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 // requestAnimationFrame polyfill
@@ -156,7 +245,7 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 
 module.exports = window.requestAnimationFrame.bind(window);
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -223,7 +312,7 @@ exports.default = Background;
 
 Background.stages = [];
 
-},{"tricks/object/Queue":3}],8:[function(require,module,exports){
+},{"tricks/object/Queue":7}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -246,6 +335,10 @@ var _createDummyEvent = require('tricks/events/createDummyEvent');
 
 var _createDummyEvent2 = _interopRequireDefault(_createDummyEvent);
 
+var _on = require('tricks/events/on');
+
+var _on2 = _interopRequireDefault(_on);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -262,8 +355,6 @@ var Canvas = function () {
 	// Construct the Canvas Element
 	// @param canvas should be an root element container for this imagery.
 	function Canvas(canvas) {
-		var _this = this;
-
 		_classCallCheck(this, Canvas);
 
 		var parent = void 0;
@@ -324,27 +415,19 @@ var Canvas = function () {
 		this.draw();
 
 		// Bind events
-		UserEvents.forEach(function (eventname) {
-			return _this.target.addEventListener(eventname, _this.dispatchEvent.bind(_this));
-		});
+		(0, _on2.default)(this.target, UserEvents.toString(), this.dispatchEvent.bind(this), { passive: true });
 
 		// Format Touch events
-		TouchEvents.forEach(function (eventname) {
-			return _this.target.addEventListener(eventname, _this.dispatchTouchEvent.bind(_this));
-		});
+		(0, _on2.default)(this.target, TouchEvents.toString(), this.dispatchTouchEvent.bind(this), { passive: true });
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
 		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
-			UserEvents.forEach(function (eventname) {
-				return document.addEventListener(eventname, _this.dispatchEvent.bind(_this));
-			});
+			(0, _on2.default)(document, UserEvents.toString(), this.dispatchEvent.bind(this), { passive: true });
 
 			// Format Touch events
-			TouchEvents.forEach(function (eventname) {
-				return document.addEventListener(eventname, _this.dispatchTouchEvent.bind(_this));
-			});
+			(0, _on2.default)(document, TouchEvents.toString(), this.dispatchTouchEvent.bind(this), { passive: true });
 		}
 
 		// Listen to hashChange events
@@ -420,15 +503,15 @@ var Canvas = function () {
 	}, {
 		key: 'addEventListener',
 		value: function addEventListener(eventnames, handler) {
-			var _this2 = this;
+			var _this = this;
 
 			eventnames.split(EVENT_SEPARATOR).forEach(function (eventname) {
 				// Add to the events list
-				if (!(eventname in _this2.events)) {
-					_this2.events[eventname] = [];
+				if (!(eventname in _this.events)) {
+					_this.events[eventname] = [];
 				}
 
-				_this2.events[eventname].push(handler);
+				_this.events[eventname].push(handler);
 			});
 		}
 
@@ -456,7 +539,6 @@ var Canvas = function () {
 				this.events[e.type].forEach(function (handler) {
 					return handler(e);
 				});
-				e.preventDefault();
 				e.stopPropagation();
 			}
 		}
@@ -536,18 +618,22 @@ function hashchange(z) {
 	}
 }
 
-},{"tricks/events/createDummyEvent":1,"tricks/events/createEvent":2,"tricks/support/requestAnimationFrame":6}],9:[function(require,module,exports){
+},{"tricks/events/createDummyEvent":4,"tricks/events/createEvent":5,"tricks/events/on":6,"tricks/support/requestAnimationFrame":10}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Collection
+
+var _on = require('tricks/events/on');
+
+var _on2 = _interopRequireDefault(_on);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// Collection
 
 var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'touchmove', 'touchstart', 'touchend', 'frame'];
 
@@ -571,7 +657,6 @@ var Collection = function () {
 	_createClass(Collection, [{
 		key: 'init',
 		value: function init(target) {
-			var _this = this;
 
 			// Define the canvas object as the target for the collection
 			this.target = target;
@@ -580,9 +665,7 @@ var Collection = function () {
 			this.ctx = target.getContext('2d');
 
 			// listen to user interactive events and trigger those on items
-			UserEvents.forEach(function (eventname) {
-				return target.addEventListener(eventname, _this._findAndDispatch.bind(_this));
-			});
+			(0, _on2.default)(target, UserEvents.toString(), this._findAndDispatch.bind(this));
 		}
 	}, {
 		key: 'push',
@@ -606,10 +689,10 @@ var Collection = function () {
 		// Touch
 		// Mark items and objects in the same space to be redrawn
 		value: function prepare() {
-			var _this2 = this;
+			var _this = this;
 
 			this.children.forEach(function (item) {
-				if (item.dirty === true) _this2.prepareChild(item);
+				if (item.dirty === true) _this.prepareChild(item);
 			});
 		}
 
@@ -792,7 +875,7 @@ function displaced(a, b) {
 	return a.x !== b.x || a.y !== b.y || a.w !== b.w || a.h !== b.h;
 }
 
-},{}],10:[function(require,module,exports){
+},{"tricks/events/on":6}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1030,7 +1113,7 @@ var Shape = function () {
 
 exports.default = Shape;
 
-},{"tricks/events/createEvent":2}],11:[function(require,module,exports){
+},{"tricks/events/createEvent":5}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1229,7 +1312,7 @@ var Text = function (_Shape) {
 
 exports.default = Text;
 
-},{"./shape":10}],12:[function(require,module,exports){
+},{"./shape":14}],16:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -1582,6 +1665,6 @@ function showControls() {
 	this.playBtn.visible = showControls;
 }
 
-},{"./classes/background":7,"./classes/canvas":8,"./classes/collection":9,"./classes/text":11,"tricks/object/extend":4}]},{},[12])
+},{"./classes/background":11,"./classes/canvas":12,"./classes/collection":13,"./classes/text":15,"tricks/object/extend":8}]},{},[16])
 
 //# sourceMappingURL=colorFlood.js.map

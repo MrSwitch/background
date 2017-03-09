@@ -5,6 +5,8 @@
 import 'tricks/support/requestAnimationFrame';
 import createEvent from 'tricks/events/createEvent';
 import createDummyEvent from 'tricks/events/createDummyEvent';
+import on from 'tricks/events/on';
+
 
 // Constants
 const BACKGROUND_HASH = 'background';
@@ -78,19 +80,19 @@ export default class Canvas {
 		this.draw();
 
 		// Bind events
-		UserEvents.forEach(eventname => this.target.addEventListener(eventname, this.dispatchEvent.bind(this)));
+		on(this.target, UserEvents.toString(), this.dispatchEvent.bind(this), {passive: true});
 
 		// Format Touch events
-		TouchEvents.forEach(eventname => this.target.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
+		on(this.target, TouchEvents.toString(), this.dispatchTouchEvent.bind(this), {passive: true});
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
 		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
-			UserEvents.forEach(eventname => document.addEventListener(eventname, this.dispatchEvent.bind(this)));
+			on(document, UserEvents.toString(), this.dispatchEvent.bind(this), {passive: true});
 
 			// Format Touch events
-			TouchEvents.forEach(eventname => document.addEventListener(eventname, this.dispatchTouchEvent.bind(this)));
+			on(document, TouchEvents.toString(), this.dispatchTouchEvent.bind(this), {passive: true});
 		}
 
 		// Listen to hashChange events
@@ -214,7 +216,6 @@ export default class Canvas {
 			}
 
 			this.events[e.type].forEach(handler => handler(e));
-			e.preventDefault();
 			e.stopPropagation();
 		}
 	}

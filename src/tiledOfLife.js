@@ -126,10 +126,10 @@ class Stage {
 
 		canvas.addEventListener('frame', () => {
 
-	// Clear canvas
+			// Clear canvas
 			canvas.clear();
 
-	// Draw items
+			// Draw items
 			collection.draw();
 		});
 

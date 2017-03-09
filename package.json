@@ -35,6 +35,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "tricks": "^1.6.2"
+    "tricks": "^1.6.4"
   }
 }

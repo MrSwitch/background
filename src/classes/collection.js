@@ -1,5 +1,6 @@
 // Collection
 
+import on from 'tricks/events/on';
 const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'touchmove', 'touchstart', 'touchend', 'frame'];
 
 export default class Collection {
@@ -25,7 +26,7 @@ export default class Collection {
 		this.ctx = target.getContext('2d');
 
 		// listen to user interactive events and trigger those on items
-		UserEvents.forEach(eventname => target.addEventListener(eventname, this._findAndDispatch.bind(this)));
+		on(target, UserEvents.toString(), this._findAndDispatch.bind(this));
 
 	}
 
