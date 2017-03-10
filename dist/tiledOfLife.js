@@ -638,7 +638,7 @@ var Collection = function () {
 			this.ctx = target.getContext('2d');
 
 			// listen to user interactive events and trigger those on items
-			(0, _on2.default)(target, UserEvents.toString(), this._findAndDispatch.bind(this));
+			(0, _on2.default)(target, UserEvents.toString(), this._findAndDispatch.bind(this), { passive: true });
 		}
 	}, {
 		key: 'push',
