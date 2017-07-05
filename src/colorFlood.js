@@ -148,7 +148,6 @@ function init() {
 	playBtn.fontSize = 40;
 	playBtn.calc(this.canvas);
 	playBtn.addEventListener('click', setup.bind(this));
-	playBtn.addEventListener('touchstart', setup.bind(this));
 	this.playBtn = playBtn;
 
 
@@ -157,8 +156,7 @@ function init() {
 
 // User has clicked an item on the canvas
 // We'll use event delegation to tell us what the user has clicked.
-	this.canvas.addEventListener('mousedown', userClick.bind(this));
-	this.canvas.addEventListener('touchstart', userClick.bind(this));
+	this.canvas.addEventListener('click', userClick.bind(this));
 
 }
 

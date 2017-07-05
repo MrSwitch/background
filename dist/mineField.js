@@ -1466,10 +1466,7 @@ var Stage = function () {
    *  Add Events, to listen to in game play
    ******************************************/
 
-		canvas.addEventListener('mousedown', function (e) {
-			return userClick.call(_this, e.offsetX, e.offsetY);
-		});
-		canvas.addEventListener('touchstart', function (e) {
+		canvas.addEventListener('click', function (e) {
 			return userClick.call(_this, e.offsetX, e.offsetY);
 		});
 		canvas.addEventListener('resize', _setup.bind(this));

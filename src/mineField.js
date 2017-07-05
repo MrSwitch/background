@@ -116,8 +116,7 @@ class Stage {
  *  Add Events, to listen to in game play
  ******************************************/
 
-		canvas.addEventListener('mousedown', e => userClick.call(this, e.offsetX, e.offsetY));
-		canvas.addEventListener('touchstart', e => userClick.call(this, e.offsetX, e.offsetY));
+		canvas.addEventListener('click', e => userClick.call(this, e.offsetX, e.offsetY));
 		canvas.addEventListener('resize', setup.bind(this));
 		canvas.addEventListener('frame', () => {
 
