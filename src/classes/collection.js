@@ -44,6 +44,14 @@ export default class Collection {
 		}
 	}
 
+	findIndex(fn) {
+		return this.children.findIndex(fn);
+	}
+
+	find(fn) {
+		return this.children.find(fn);
+	}
+
 	get length () {
 		return this.children.length;
 	}
@@ -77,8 +85,8 @@ export default class Collection {
 		ctx.clearRect(item.x, item.y, item.w, item.h);
 
 		// If the items old position is different
-		if (item.past && displaced(item.past, item)) {
-			ctx.clearRect(item.past.x, item.past.y, item.past.w, item.past.h);
+		if (item.previous && displaced(item.previous, item)) {
+			ctx.clearRect(item.previous.x, item.previous.y, item.previous.w, item.previous.h);
 		}
 
 		// Loop though objects and redraw those that exist within the position

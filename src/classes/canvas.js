@@ -10,7 +10,7 @@ import on from 'tricks/events/on';
 
 // Constants
 const BACKGROUND_HASH = 'background';
-const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
+const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
 const TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 const EVENT_SEPARATOR = /[\s\,]+/;

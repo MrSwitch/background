@@ -11,6 +11,9 @@ export default class Shape {
 		// initieate  events
 		this.events = [];
 
+		// Set previous
+		this.previous = {};
+
 		if (args.length) {
 			// Store the values
 			this.position(...args);
@@ -21,37 +24,29 @@ export default class Shape {
 	get x() {
 		return this._x;
 	}
-	set x(v) {
-		if (this._x !== v) {
-			this.dirty = true; this._x = v;
-		}
+	set x(x) {
+		this.positionObj({x});
 	}
 
 	get y() {
 		return this._y;
 	}
-	set y(v) {
-		if (this._y !== v) {
-			this.dirty = true; this._y = v;
-		}
+	set y(y) {
+		this.positionObj({y});
 	}
 
 	get w() {
 		return this._w;
 	}
-	set w(v) {
-		if (this._w !== v) {
-			this.dirty = true; this._w = v;
-		}
+	set w(w) {
+		this.positionObj({w});
 	}
 
 	get h() {
 		return this._h;
 	}
-	set h(v) {
-		if (this._h !== v) {
-			this.dirty = true; this._h = v;
-		}
+	set h(h) {
+		this.positionObj({h});
 	}
 
 	get dx() {
@@ -102,6 +97,14 @@ export default class Shape {
 		else if (!v) {
 			// reset
 			this._dirty = v;
+
+			// Store the previous values
+			this.previous = {
+				x: this._x,
+				y: this._y,
+				w: this._w,
+				h: this._h,
+			};
 		}
 	}
 	get dirty () {
@@ -116,24 +119,28 @@ export default class Shape {
 		this._pointerEvents = v;
 	}
 
+	// Mark the shape as to be removed from the collection
+	remove() {
+		this.dirty = true;
+		this.visible = false;
+	}
+
 	position(x = 0, y = 0, w = 0, h = 0) {
-
-		if (!this.past) {
-			// Set past points
-			this.past = {};
-		}
-
-		this.past.x = this.x;
-		this.past.y = this.y;
-		this.past.w = this.w;
-		this.past.h = this.h;
 
 		// Assign, rectangle shape
 		// Have a backup footprint
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
+		this.positionObj({x, y, w, h});
+	}
+
+	positionObj(coords) {
+		for (const coord in coords) {
+			const value = coords[coord];
+			const current = this[`_${coord}`];
+			if (current !== value) {
+				this.dirty = true;
+				this[`_${coord}`] = value;
+			}
+		}
 	}
 
 	// Placeholder function for drawing to canvas
