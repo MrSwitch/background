@@ -33,7 +33,7 @@ module.exports = function (matches) {
 	return matches;
 };
 
-},{"../array/toArray.js":1,"../object/instanceOf.js":7,"./isDom.js":3}],3:[function(require,module,exports){
+},{"../array/toArray.js":1,"../object/instanceOf.js":9,"./isDom.js":3}],3:[function(require,module,exports){
 'use strict';
 
 var instanceOf = require('../object/instanceOf.js');
@@ -46,7 +46,7 @@ module.exports = function (test) {
 	return instanceOf(test, _HTMLElement) || instanceOf(test, _HTMLDocument) || instanceOf(test, _Window);
 };
 
-},{"../object/instanceOf.js":7}],4:[function(require,module,exports){
+},{"../object/instanceOf.js":9}],4:[function(require,module,exports){
 "use strict";
 
 module.exports = function (e) {
@@ -90,7 +90,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 // Listen to events, this is a wrapper for addEventListener
 
 var each = require('../dom/each.js');
-var SEPERATOR = /[\s\,]+/;
+var SEPERATOR = /[\s,]+/;
 
 // See https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
 var supportsPassive = false;
@@ -123,13 +123,229 @@ module.exports = function (elements, eventnames, callback) {
 };
 
 },{"../dom/each.js":2}],7:[function(require,module,exports){
+'use strict';
+
+// swipe
+// Checks for a swipe to the left or to the right
+
+var touch = require('./touch.js');
+var gesture = touch.gesture;
+
+
+module.exports = function (elements, callback) {
+	return touch(elements, function (e, o, s) {
+
+		gesture(e, s);
+
+		e.gesture.type = 'drag' + e.gesture.direction;
+
+		callback.call(this, e);
+	}, function (e) {
+		gesture(e);
+		e.gesture.type = 'start';
+		callback.call(this, e);
+	}, function (e) {
+
+		var g = e.gesture;
+
+		// How long did this operation take?
+		if (g.deltaTime < 200 && g.distance > 20 && g.velocity > 0.3) {
+			g.type = 'swipe' + g.direction;
+		} else if (g.distance < 20) {
+			g.type = 'click';
+		} else {
+			g.type = 'release';
+		}
+
+		callback.call(this, e);
+	});
+};
+
+},{"./touch.js":8}],8:[function(require,module,exports){
+'use strict';
+
+// Standardizes touch events
+// Calculate the difference from the starting position and the end position.
+// Returns a gesture object given
+
+var on = require('./on.js');
+var each = require('../dom/each.js');
+
+// Does this support pointer events?
+var pointerEnabled = window.navigator.pointerEnabled;
+var eventMoveTypes = pointerEnabled ? 'MSPointerMove pointerMove' : 'mousemove touchmove';
+var eventStartTypes = pointerEnabled ? 'MSPointerDown pointerDown' : 'mousedown touchstart';
+var eventEndTypes = pointerEnabled ? 'MSPointerUp pointerUp' : 'mouseup touchend touchcancel';
+
+// Touch
+// @param callback function - Every touch event fired
+// @param complete function- Once all touch event ends
+module.exports = function (elements, onmove, onstart, onend) {
+
+	// Store callbacks, and previous pointer position
+	var cb = {};
+	var mv = {};
+	var fin = {};
+
+	on(document, eventMoveTypes, function (moveEvent) {
+
+		// Fix Android not firing multiple moves
+		// if (e.type.match(/touch/i)) {
+		// 	e.preventDefault();
+		// }
+
+		// Pointer/Mouse down?
+		if (voidEvent(moveEvent)) {
+			// The mouse buttons isn't pressed, kill this
+			return;
+		}
+
+		// trigger the call
+		var i = moveEvent.pointerId || 0;
+		var handler = cb[i];
+
+		if (handler && typeof handler === 'function') {
+
+			var prevEvent = mv[i];
+
+			// Extend the Event Object with 'gestures'
+			gesture(moveEvent, prevEvent);
+
+			// Trigger callback
+			handler(moveEvent, prevEvent);
+		}
+
+		mv[i] = moveEvent;
+	});
+
+	on(document, eventEndTypes, function (e) {
+
+		var i = e.pointerId || 0;
+		cb[i] = null;
+
+		if (e.type === 'touchend' || e.type === 'touchcancel') {
+			e = mv[i];
+		}
+
+		var handler = fin[i];
+		if (handler) {
+			handler(e);
+		}
+
+		fin[i] = null;
+	});
+
+	// loop through and add events
+	each(elements, function (element) {
+
+		// bind events
+		// on(element, 'touchend', e => {
+		// 	console.log('el:touchend');
+		// 	console.log(e);
+		// });
+
+		on(element, 'selectstart', function () {
+			return false;
+		});
+
+		on(element, eventStartTypes, function (startEvent) {
+
+			// Set prevent default to stop any mouse events from also being called
+			if (typeof TouchEvent !== 'undefined' && startEvent instanceof TouchEvent) {
+				// Prevent the triggering of the mouse events
+				startEvent.preventDefault();
+			}
+
+			// default pointer ID
+			var i = startEvent.pointerId || 0;
+
+			// Add Gestures to event Object
+			gesture(startEvent);
+
+			mv[i] = startEvent;
+			cb[i] = function (moveEvent, prevMoveEvent) {
+				onmove.call(element, moveEvent, prevMoveEvent, startEvent);
+			};
+
+			if (onend) {
+				fin[i] = function (endEvent) {
+
+					// Add Gestures to event Object
+					gesture(endEvent, startEvent);
+
+					// fire complete callback
+					onend.call(element, endEvent, startEvent);
+				};
+			}
+
+			// trigger start
+			if (onstart) {
+				onstart.call(element, startEvent);
+			}
+		});
+	});
+};
+
+function gesture(currEvent, prevEvent) {
+
+	// Response Object
+	currEvent.gesture = {};
+
+	if (currEvent && currEvent.touches && currEvent.touches.length > 0) {
+		currEvent.gesture.touches = currEvent.touches;
+	} else {
+		currEvent.gesture.touches = [currEvent];
+	}
+
+	currEvent.gesture.screenX = currEvent.gesture.touches[0].screenX;
+	currEvent.gesture.screenY = currEvent.gesture.touches[0].screenY;
+
+	if (!('screenX' in currEvent)) {
+		currEvent.screenX = currEvent.gesture.screenX;
+	}
+	if (!('screenY' in currEvent)) {
+		currEvent.screenY = currEvent.gesture.screenY;
+	}
+
+	// If the second parameter isn't defined then we're unable to define getures
+	// But if it is then whoop, lets go.
+	if (prevEvent) {
+
+		currEvent.gesture.deltaTime = currEvent.timeStamp - prevEvent.timeStamp;
+
+		var dx = currEvent.gesture.deltaX = currEvent.gesture.screenX - prevEvent.gesture.screenX;
+		var dy = currEvent.gesture.deltaY = currEvent.gesture.screenY - prevEvent.gesture.screenY;
+
+		// Which is the best direction for the gesture?
+		if (Math.abs(dy) > Math.abs(dx)) {
+			currEvent.gesture.direction = dy > 0 ? 'up' : 'down';
+		} else {
+			currEvent.gesture.direction = dx > 0 ? 'right' : 'left';
+		}
+
+		// Distance
+		currEvent.gesture.distance = Math.sqrt(dx * dx + dy * dy);
+
+		// Velocity
+		currEvent.gesture.velocity = currEvent.gesture.distance / currEvent.gesture.deltaTime;
+	}
+}
+
+module.exports.gesture = gesture;
+
+function voidEvent(event) {
+	var type = event.pointerType || event.type;
+	return type.match(/mouse/i) && (event.which || event.buttons) !== 1;
+}
+
+},{"../dom/each.js":2,"./on.js":6}],9:[function(require,module,exports){
 "use strict";
 
 module.exports = function (test, root) {
   return root && test instanceof root;
 };
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 // requestAnimationFrame polyfill
@@ -139,7 +355,7 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 
 module.exports = window.requestAnimationFrame.bind(window);
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // TiledOfLife, Canvas annimation
@@ -315,7 +531,7 @@ function setup() {
 	collection.length = nx * ny;
 }
 
-},{"./classes/canvas":10,"./classes/collection":11}],10:[function(require,module,exports){
+},{"./classes/canvas":12,"./classes/collection":13}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -342,13 +558,17 @@ var _on = require('tricks/events/on');
 
 var _on2 = _interopRequireDefault(_on);
 
+var _swipe = require('tricks/events/swipe');
+
+var _swipe2 = _interopRequireDefault(_swipe);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Constants
 var BACKGROUND_HASH = 'background';
-var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize'];
+var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'mousewheel', 'frame', 'resize', 'keydown'];
 var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;
@@ -442,6 +662,12 @@ var Canvas = function () {
 			window.addEventListener('hashchange', hashchange.bind(style, initialZ));
 
 			hashchange.call(style, initialZ);
+		}
+
+		// Is there a swipe method handler
+		if (this.swipe) {
+			// Bind the swipe event handler to the event
+			(0, _swipe2.default)(this.target, this.swipe.bind(this));
 		}
 	}
 
@@ -621,7 +847,7 @@ function hashchange(z) {
 	}
 }
 
-},{"tricks/events/createDummyEvent":4,"tricks/events/createEvent":5,"tricks/events/on":6,"tricks/support/requestAnimationFrame":8}],11:[function(require,module,exports){
+},{"tricks/events/createDummyEvent":4,"tricks/events/createEvent":5,"tricks/events/on":6,"tricks/events/swipe":7,"tricks/support/requestAnimationFrame":10}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -686,6 +912,16 @@ var Collection = function () {
 			}
 		}
 	}, {
+		key: 'findIndex',
+		value: function findIndex(fn) {
+			return this.children.findIndex(fn);
+		}
+	}, {
+		key: 'find',
+		value: function find(fn) {
+			return this.children.find(fn);
+		}
+	}, {
 		key: 'prepare',
 
 
@@ -718,8 +954,8 @@ var Collection = function () {
 			ctx.clearRect(item.x, item.y, item.w, item.h);
 
 			// If the items old position is different
-			if (item.past && displaced(item.past, item)) {
-				ctx.clearRect(item.past.x, item.past.y, item.past.w, item.past.h);
+			if (item.previous && displaced(item.previous, item)) {
+				ctx.clearRect(item.previous.x, item.previous.y, item.previous.w, item.previous.h);
 			}
 
 			// Loop though objects and redraw those that exist within the position
@@ -878,6 +1114,6 @@ function displaced(a, b) {
 	return a.x !== b.x || a.y !== b.y || a.w !== b.w || a.h !== b.h;
 }
 
-},{"tricks/events/on":6}]},{},[9])
+},{"tricks/events/on":6}]},{},[11])
 
 //# sourceMappingURL=balloon.js.map
