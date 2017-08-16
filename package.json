@@ -4,7 +4,7 @@
   "description": "Animated website backgrounds",
   "main": "dist/colorFlood.js",
   "scripts": {
-  	"lint": "eslint ./",
+    "lint": "eslint ./",
     "test": "npm run lint && npm run build",
     "build": "gulp",
     "watch": "gulp watch"
@@ -35,6 +35,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "tricks": "^1.6.4"
+    "tricks": "^1.7.1"
   }
 }

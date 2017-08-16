@@ -171,9 +171,6 @@ class Stage extends Canvas {
 			controls: true
 		};
 
-		// Pieces
-		this.pieces = [];
-
 		// Board
 		this.board = [];
 
@@ -182,8 +179,8 @@ class Stage extends Canvas {
 		credits.zIndex = 1;
 		credits.fontSize = 150;
 		credits.align = 'center center';
-		credits.visible = false;
 		credits.addEventListener('click', this.reset.bind(this));
+		credits.visible = false;
 		this.credits = credits;
 
 		const score = new Text();
@@ -205,9 +202,9 @@ class Stage extends Canvas {
 		playBtn.addEventListener('click', this.reset.bind(this));
 		this.playBtn = playBtn;
 
-		// User has clicked an item on the canvas
-		// We'll use event delegation to tell us what the user has clicked.
-		this.addEventListener('click', this.click.bind(this));
+		// // User has clicked an item on the canvas
+		// // We'll use event delegation to tell us what the user has clicked.
+		// this.addEventListener('click', this.click.bind(this));
 
 		// User has clicked an item on the canvas
 		// We'll use event delegation to tell us what the user has clicked.
@@ -226,8 +223,14 @@ class Stage extends Canvas {
 
 	reset() {
 
+		// Disable the ended state
+		this.ended = false;
+
+		// Reset the currently playing piece
+		this.gamepiece = null;
+
 		// Set the tilesize
-		this.size = 50;
+		const size = 50;
 
 		// Remove everything
 		this.collection.length = 0;
@@ -239,12 +242,12 @@ class Stage extends Canvas {
 
 		{
 			// Set number of tiles horizontally and vertically
-			this.nx = Math.floor(this.width / this.size);
-			this.ny = Math.floor(this.height / this.size);
+			this.nx = Math.floor(this.width / size);
+			this.ny = Math.floor(this.height / size);
 
 			// Adjust the tile dimensions
-			this.tw = this.size + Math.floor((this.width % (this.nx * this.size)) / this.nx);
-			this.th = this.size + Math.floor((this.height % (this.ny * this.size)) / this.ny);
+			this.tw = size + Math.floor((this.width % (this.nx * size)) / this.nx);
+			this.th = size + Math.floor((this.height % (this.ny * size)) / this.ny);
 
 			// Create board matrix
 			for (let y = 0; y < this.ny; y++) {
@@ -254,9 +257,6 @@ class Stage extends Canvas {
 				}
 			}
 		}
-
-		// Pieces
-		this.pieces.length = 0;
 
 		// Score
 		this.score.text = 0;
@@ -270,6 +270,9 @@ class Stage extends Canvas {
 		// Sort the collection by z-index this ensures everything is drawn in the right order
 		this.collection.sort();
 
+		// Clear the canvas
+		this.clear();
+
 		// Show Controls
 		this.controls();
 	}
@@ -277,37 +280,36 @@ class Stage extends Canvas {
 	controls() {
 		// Show Controls and information?
 		this.score.visible = true;
-
-
-		const showControls = false; //this.options.controls;
-
-		this.credits.visible = this.ended && showControls;
-		this.playBtn.visible = showControls;
+		this.credits.visible = this.ended;
 	}
 
 	frame() {
-		const now = performance.now();
 
-		// Mark that this has a difference in Y
-		// This is used later to say whether a move to the left or right is possible.
-		this.diff = Math.min((now - this.lastTick) / this.cadence, 1) % 1;
+		if (!this.ended) {
 
-		// Grab the current game piece and change it's vertical position
-		if (this.gamepiece) {
+			const now = performance.now();
 
-			// Can this piece move down?
-			// Find the matrix
-			this.gamepiece.y = parseInt((this.diff + this.gamepiece.gy) * this.th, 10);
-		}
+			// Mark that this has a difference in Y
+			// This is used later to say whether a move to the left or right is possible.
+			this.diff = Math.min((now - this.lastTick) / this.cadence, 1) % 1;
 
-		// Is this a big move
-		if (this.diff === 0) {
+			// Grab the current game piece and change it's vertical position
+			if (this.gamepiece) {
 
-			// Update the lastTick
-			this.lastTick = now;
+				// Can this piece move down?
+				// Find the matrix
+				this.gamepiece.y = parseInt((this.diff + this.gamepiece.gy) * this.th, 10);
+			}
 
-			// Trigger the tick
-			this.tick();
+			// Is this a big move
+			if (this.diff === 0) {
+
+				// Update the lastTick
+				this.lastTick = now;
+
+				// Trigger the tick
+				this.tick();
+			}
 		}
 
 		// On every frame
@@ -341,14 +343,17 @@ class Stage extends Canvas {
 
 			const {tw, th, nx} = this;
 			const piece = random(pieces);
-			const tlen = piece.structure[0].length;
+			const xlen = piece.structure[0].length;
+			const ylen = piece.structure.length;
 
-			// Find the grid x position of the piece
-			const gx = Math.ceil((nx - tlen) / 2);
+			// Find the starting grid position of the piece
+			const gx = Math.ceil((nx - xlen) / 2);
+			const gy = -ylen;
 
+			// Create the piece
 			const options = Object.assign({
 				gx,
-				gy: 0,
+				gy,
 				tw,
 				th
 			}, piece);
@@ -396,8 +401,13 @@ class Stage extends Canvas {
 
 	point(x, y) {
 
+		// Allow items to fall from beyond the top
+		if (y < 0) {
+			return null;
+		}
+
 		// Out of bounds
-		if ((y < 0 || y >= this.ny) || (x < 0 || x >= this.nx)) {
+		if ((y >= this.ny) || (x < 0 || x >= this.nx)) {
 			// out of bounds
 			return 1;
 		}
@@ -412,6 +422,12 @@ class Stage extends Canvas {
 		// Set the gamepiece on the board
 		const points = this.gamepiece.points();
 		const {gx, gy} = this.gamepiece;
+
+		// Is the item resting on/above the top?
+		if (gy <= 0) {
+			this.end();
+			return;
+		}
 
 		// Mark the board as having filled in
 		points.forEach(([px, py]) => {
@@ -430,6 +446,8 @@ class Stage extends Canvas {
 		// Remove the gamepiece
 		this.gamepiece.remove();
 
+		// Reset the swipe position
+		this.swipeStart = null;
 
 		// Create a list of marked row indexes to remove from the board
 		const marked = [];
@@ -524,8 +542,75 @@ class Stage extends Canvas {
 		}
 	}
 
-	swipe() {
+	swipe(e) {
 
+		// Set prevent default to stop any mouse events from also being called
+		if ((typeof TouchEvent !== 'undefined') && e instanceof TouchEvent) {
+			// Prevent the triggering of the mouse events
+			e.preventDefault();
+		}
+
+		const type = e.gesture.type;
+
+		if (type === 'start' && this.ended) {
+			this.reset();
+			return;
+		}
+
+		// Is this a release?
+		if (type === 'release' || type === 'click' || !this.gamepiece) {
+
+			// This has ended
+			this.swipeStart = null;
+
+			if (e.gesture.deltaTime < 200) {
+				this.rotate();
+				return;
+			}
+
+			return;
+		}
+
+		// Start a new one
+		if (type === 'start') {
+			// Record the new start piece
+			this.swipeStartGamePiece = this.gamepiece;
+			return;
+		}
+
+		if (this.swipeStartGamePiece !== this.gamepiece) {
+			// This will force a new touch
+			return;
+		}
+
+
+		// Set the initial position of the block
+		if (!this.swipeStart) {
+			this.swipeStart = {
+				x: this.gamepiece.gx,
+				y: this.gamepiece.gy
+			};
+		}
+
+		// Using the delta positioning and the tile difference work out how far we can move this
+		const deltaX = parseInt(e.gesture.deltaX / this.tw, 10);
+		const deltaY = parseInt(e.gesture.deltaY / this.th, 10);
+
+		// How far has the current grid changed
+		const x = this.swipeStart.x - this.gamepiece.gx + deltaX;
+
+		// The y value can only be positive
+		const y = Math.max(this.swipeStart.y - this.gamepiece.gy + deltaY, 0);
+
+		// 
+		this.move({x, y});
+
+	}
+
+	end() {
+		this.credits.visible = true;
+		this.credits.calc(this);
+		this.ended = true;
 	}
 }
 

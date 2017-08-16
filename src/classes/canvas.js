@@ -6,7 +6,7 @@ import 'tricks/support/requestAnimationFrame';
 import createEvent from 'tricks/events/createEvent';
 import createDummyEvent from 'tricks/events/createDummyEvent';
 import on from 'tricks/events/on';
-
+import swipe from 'tricks/events/swipe';
 
 // Constants
 const BACKGROUND_HASH = 'background';
@@ -104,6 +104,12 @@ export default class Canvas {
 			window.addEventListener('hashchange', hashchange.bind(style, initialZ));
 
 			hashchange.call(style, initialZ);
+		}
+
+		// Is there a swipe method handler
+		if (this.swipe) {
+			// Bind the swipe event handler to the event
+			swipe(this.target, this.swipe.bind(this));
 		}
 	}
 

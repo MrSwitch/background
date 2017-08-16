@@ -33,7 +33,7 @@ module.exports = function (matches) {
 	return matches;
 };
 
-},{"../array/toArray.js":1,"../object/instanceOf.js":8,"./isDom.js":3}],3:[function(require,module,exports){
+},{"../array/toArray.js":1,"../object/instanceOf.js":10,"./isDom.js":3}],3:[function(require,module,exports){
 'use strict';
 
 var instanceOf = require('../object/instanceOf.js');
@@ -46,7 +46,7 @@ module.exports = function (test) {
 	return instanceOf(test, _HTMLElement) || instanceOf(test, _HTMLDocument) || instanceOf(test, _Window);
 };
 
-},{"../object/instanceOf.js":8}],4:[function(require,module,exports){
+},{"../object/instanceOf.js":10}],4:[function(require,module,exports){
 "use strict";
 
 module.exports = function (e) {
@@ -90,7 +90,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 // Listen to events, this is a wrapper for addEventListener
 
 var each = require('../dom/each.js');
-var SEPERATOR = /[\s\,]+/;
+var SEPERATOR = /[\s,]+/;
 
 // See https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
 var supportsPassive = false;
@@ -123,6 +123,216 @@ module.exports = function (elements, eventnames, callback) {
 };
 
 },{"../dom/each.js":2}],7:[function(require,module,exports){
+'use strict';
+
+// swipe
+// Checks for a swipe to the left or to the right
+
+var touch = require('./touch.js');
+var gesture = touch.gesture;
+
+
+module.exports = function (elements, callback) {
+	return touch(elements, function (e, o, s) {
+
+		gesture(e, s);
+
+		e.gesture.type = 'drag' + e.gesture.direction;
+
+		callback.call(this, e);
+	}, function (e) {
+		gesture(e);
+		e.gesture.type = 'start';
+		callback.call(this, e);
+	}, function (e) {
+
+		var g = e.gesture;
+
+		// How long did this operation take?
+		if (g.deltaTime < 200 && g.distance > 20 && g.velocity > 0.3) {
+			g.type = 'swipe' + g.direction;
+		} else if (g.distance < 20) {
+			g.type = 'click';
+		} else {
+			g.type = 'release';
+		}
+
+		callback.call(this, e);
+	});
+};
+
+},{"./touch.js":8}],8:[function(require,module,exports){
+'use strict';
+
+// Standardizes touch events
+// Calculate the difference from the starting position and the end position.
+// Returns a gesture object given
+
+var on = require('./on.js');
+var each = require('../dom/each.js');
+
+// Does this support pointer events?
+var pointerEnabled = window.navigator.pointerEnabled;
+var eventMoveTypes = pointerEnabled ? 'MSPointerMove pointerMove' : 'mousemove touchmove';
+var eventStartTypes = pointerEnabled ? 'MSPointerDown pointerDown' : 'mousedown touchstart';
+var eventEndTypes = pointerEnabled ? 'MSPointerUp pointerUp' : 'mouseup touchend touchcancel';
+
+// Touch
+// @param callback function - Every touch event fired
+// @param complete function- Once all touch event ends
+module.exports = function (elements, onmove, onstart, onend) {
+
+	// Store callbacks, and previous pointer position
+	var cb = {};
+	var mv = {};
+	var fin = {};
+
+	on(document, eventMoveTypes, function (moveEvent) {
+
+		// Fix Android not firing multiple moves
+		// if (e.type.match(/touch/i)) {
+		// 	e.preventDefault();
+		// }
+
+		// Pointer/Mouse down?
+		if (voidEvent(moveEvent)) {
+			// The mouse buttons isn't pressed, kill this
+			return;
+		}
+
+		// trigger the call
+		var i = moveEvent.pointerId || 0;
+		var handler = cb[i];
+
+		if (handler && typeof handler === 'function') {
+
+			var prevEvent = mv[i];
+
+			// Extend the Event Object with 'gestures'
+			gesture(moveEvent, prevEvent);
+
+			// Trigger callback
+			handler(moveEvent, prevEvent);
+		}
+
+		mv[i] = moveEvent;
+	});
+
+	on(document, eventEndTypes, function (e) {
+
+		var i = e.pointerId || 0;
+		cb[i] = null;
+
+		if (e.type === 'touchend' || e.type === 'touchcancel') {
+			e = mv[i];
+		}
+
+		var handler = fin[i];
+		if (handler) {
+			handler(e);
+		}
+
+		fin[i] = null;
+	});
+
+	// loop through and add events
+	each(elements, function (element) {
+
+		// bind events
+		// on(element, 'touchend', e => {
+		// 	console.log('el:touchend');
+		// 	console.log(e);
+		// });
+
+		on(element, 'selectstart', function () {
+			return false;
+		});
+
+		on(element, eventStartTypes, function (startEvent) {
+
+			// default pointer ID
+			var i = startEvent.pointerId || 0;
+
+			// Add Gestures to event Object
+			gesture(startEvent);
+
+			mv[i] = startEvent;
+			cb[i] = function (moveEvent, prevMoveEvent) {
+				onmove.call(element, moveEvent, prevMoveEvent, startEvent);
+			};
+
+			if (onend) {
+				fin[i] = function (endEvent) {
+
+					// Add Gestures to event Object
+					gesture(endEvent, startEvent);
+
+					// fire complete callback
+					onend.call(element, endEvent, startEvent);
+				};
+			}
+
+			// trigger start
+			if (onstart) {
+				onstart.call(element, startEvent);
+			}
+		});
+	});
+};
+
+function gesture(currEvent, prevEvent) {
+
+	// Response Object
+	currEvent.gesture = {};
+
+	if (currEvent && currEvent.touches && currEvent.touches.length > 0) {
+		currEvent.gesture.touches = currEvent.touches;
+	} else {
+		currEvent.gesture.touches = [currEvent];
+	}
+
+	currEvent.gesture.screenX = currEvent.gesture.touches[0].screenX;
+	currEvent.gesture.screenY = currEvent.gesture.touches[0].screenY;
+
+	if (!('screenX' in currEvent)) {
+		currEvent.screenX = currEvent.gesture.screenX;
+	}
+	if (!('screenY' in currEvent)) {
+		currEvent.screenY = currEvent.gesture.screenY;
+	}
+
+	// If the second parameter isn't defined then we're unable to define getures
+	// But if it is then whoop, lets go.
+	if (prevEvent) {
+
+		currEvent.gesture.deltaTime = currEvent.timeStamp - prevEvent.timeStamp;
+
+		var dx = currEvent.gesture.deltaX = currEvent.gesture.screenX - prevEvent.gesture.screenX;
+		var dy = currEvent.gesture.deltaY = currEvent.gesture.screenY - prevEvent.gesture.screenY;
+
+		// Which is the best direction for the gesture?
+		if (Math.abs(dy) > Math.abs(dx)) {
+			currEvent.gesture.direction = dy > 0 ? 'up' : 'down';
+		} else {
+			currEvent.gesture.direction = dx > 0 ? 'right' : 'left';
+		}
+
+		// Distance
+		currEvent.gesture.distance = Math.sqrt(dx * dx + dy * dy);
+
+		// Velocity
+		currEvent.gesture.velocity = currEvent.gesture.distance / currEvent.gesture.deltaTime;
+	}
+}
+
+module.exports.gesture = gesture;
+
+function voidEvent(event) {
+	var type = event.pointerType || event.type;
+	return type.match(/mouse/i) && (event.which || event.buttons) !== 1;
+}
+
+},{"../dom/each.js":2,"./on.js":6}],9:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -201,14 +411,14 @@ module.exports = function () {
 	return Queue;
 }();
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 module.exports = function (test, root) {
   return root && test instanceof root;
 };
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 // requestAnimationFrame polyfill
@@ -218,7 +428,7 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 
 module.exports = window.requestAnimationFrame.bind(window);
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -285,7 +495,7 @@ exports.default = Background;
 
 Background.stages = [];
 
-},{"tricks/object/Queue":7}],11:[function(require,module,exports){
+},{"tricks/object/Queue":9}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -312,13 +522,17 @@ var _on = require('tricks/events/on');
 
 var _on2 = _interopRequireDefault(_on);
 
+var _swipe = require('tricks/events/swipe');
+
+var _swipe2 = _interopRequireDefault(_swipe);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Constants
 var BACKGROUND_HASH = 'background';
-var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
+var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'mousewheel', 'frame', 'resize', 'keydown'];
 var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;
@@ -412,6 +626,12 @@ var Canvas = function () {
 			window.addEventListener('hashchange', hashchange.bind(style, initialZ));
 
 			hashchange.call(style, initialZ);
+		}
+
+		// Is there a swipe method handler
+		if (this.swipe) {
+			// Bind the swipe event handler to the event
+			(0, _swipe2.default)(this.target, this.swipe.bind(this));
 		}
 	}
 
@@ -591,7 +811,7 @@ function hashchange(z) {
 	}
 }
 
-},{"tricks/events/createDummyEvent":4,"tricks/events/createEvent":5,"tricks/events/on":6,"tricks/support/requestAnimationFrame":9}],12:[function(require,module,exports){
+},{"tricks/events/createDummyEvent":4,"tricks/events/createEvent":5,"tricks/events/on":6,"tricks/events/swipe":7,"tricks/support/requestAnimationFrame":11}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -858,7 +1078,7 @@ function displaced(a, b) {
 	return a.x !== b.x || a.y !== b.y || a.w !== b.w || a.h !== b.h;
 }
 
-},{"tricks/events/on":6}],13:[function(require,module,exports){
+},{"tricks/events/on":6}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -932,7 +1152,7 @@ var Rect = function (_Shape) {
 
 exports.default = Rect;
 
-},{"./shape":14}],14:[function(require,module,exports){
+},{"./shape":16}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1181,7 +1401,7 @@ var Shape = function () {
 
 exports.default = Shape;
 
-},{"tricks/events/createEvent":5}],15:[function(require,module,exports){
+},{"tricks/events/createEvent":5}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1380,7 +1600,7 @@ var Text = function (_Shape) {
 
 exports.default = Text;
 
-},{"./shape":14}],16:[function(require,module,exports){
+},{"./shape":16}],18:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -1579,9 +1799,6 @@ var Stage = function (_Canvas) {
 			controls: true
 		};
 
-		// Pieces
-		_this3.pieces = [];
-
 		// Board
 		_this3.board = [];
 
@@ -1590,8 +1807,8 @@ var Stage = function (_Canvas) {
 		credits.zIndex = 1;
 		credits.fontSize = 150;
 		credits.align = 'center center';
-		credits.visible = false;
 		credits.addEventListener('click', _this3.reset.bind(_this3));
+		credits.visible = false;
 		_this3.credits = credits;
 
 		var score = new _text2.default();
@@ -1613,9 +1830,9 @@ var Stage = function (_Canvas) {
 		playBtn.addEventListener('click', _this3.reset.bind(_this3));
 		_this3.playBtn = playBtn;
 
-		// User has clicked an item on the canvas
-		// We'll use event delegation to tell us what the user has clicked.
-		_this3.addEventListener('click', _this3.click.bind(_this3));
+		// // User has clicked an item on the canvas
+		// // We'll use event delegation to tell us what the user has clicked.
+		// this.addEventListener('click', this.click.bind(this));
 
 		// User has clicked an item on the canvas
 		// We'll use event delegation to tell us what the user has clicked.
@@ -1638,8 +1855,14 @@ var Stage = function (_Canvas) {
 		key: 'reset',
 		value: function reset() {
 
+			// Disable the ended state
+			this.ended = false;
+
+			// Reset the currently playing piece
+			this.gamepiece = null;
+
 			// Set the tilesize
-			this.size = 50;
+			var size = 50;
 
 			// Remove everything
 			this.collection.length = 0;
@@ -1651,12 +1874,12 @@ var Stage = function (_Canvas) {
 
 			{
 				// Set number of tiles horizontally and vertically
-				this.nx = Math.floor(this.width / this.size);
-				this.ny = Math.floor(this.height / this.size);
+				this.nx = Math.floor(this.width / size);
+				this.ny = Math.floor(this.height / size);
 
 				// Adjust the tile dimensions
-				this.tw = this.size + Math.floor(this.width % (this.nx * this.size) / this.nx);
-				this.th = this.size + Math.floor(this.height % (this.ny * this.size) / this.ny);
+				this.tw = size + Math.floor(this.width % (this.nx * size) / this.nx);
+				this.th = size + Math.floor(this.height % (this.ny * size) / this.ny);
 
 				// Create board matrix
 				for (var y = 0; y < this.ny; y++) {
@@ -1666,9 +1889,6 @@ var Stage = function (_Canvas) {
 					}
 				}
 			}
-
-			// Pieces
-			this.pieces.length = 0;
 
 			// Score
 			this.score.text = 0;
@@ -1682,6 +1902,9 @@ var Stage = function (_Canvas) {
 			// Sort the collection by z-index this ensures everything is drawn in the right order
 			this.collection.sort();
 
+			// Clear the canvas
+			this.clear();
+
 			// Show Controls
 			this.controls();
 		}
@@ -1690,37 +1913,37 @@ var Stage = function (_Canvas) {
 		value: function controls() {
 			// Show Controls and information?
 			this.score.visible = true;
-
-			var showControls = false; //this.options.controls;
-
-			this.credits.visible = this.ended && showControls;
-			this.playBtn.visible = showControls;
+			this.credits.visible = this.ended;
 		}
 	}, {
 		key: 'frame',
 		value: function frame() {
-			var now = performance.now();
 
-			// Mark that this has a difference in Y
-			// This is used later to say whether a move to the left or right is possible.
-			this.diff = Math.min((now - this.lastTick) / this.cadence, 1) % 1;
+			if (!this.ended) {
 
-			// Grab the current game piece and change it's vertical position
-			if (this.gamepiece) {
+				var now = performance.now();
 
-				// Can this piece move down?
-				// Find the matrix
-				this.gamepiece.y = parseInt((this.diff + this.gamepiece.gy) * this.th, 10);
-			}
+				// Mark that this has a difference in Y
+				// This is used later to say whether a move to the left or right is possible.
+				this.diff = Math.min((now - this.lastTick) / this.cadence, 1) % 1;
 
-			// Is this a big move
-			if (this.diff === 0) {
+				// Grab the current game piece and change it's vertical position
+				if (this.gamepiece) {
 
-				// Update the lastTick
-				this.lastTick = now;
+					// Can this piece move down?
+					// Find the matrix
+					this.gamepiece.y = parseInt((this.diff + this.gamepiece.gy) * this.th, 10);
+				}
 
-				// Trigger the tick
-				this.tick();
+				// Is this a big move
+				if (this.diff === 0) {
+
+					// Update the lastTick
+					this.lastTick = now;
+
+					// Trigger the tick
+					this.tick();
+				}
 			}
 
 			// On every frame
@@ -1758,14 +1981,17 @@ var Stage = function (_Canvas) {
 					    nx = this.nx;
 
 					var piece = random(pieces);
-					var tlen = piece.structure[0].length;
+					var xlen = piece.structure[0].length;
+					var ylen = piece.structure.length;
 
-					// Find the grid x position of the piece
-					var gx = Math.ceil((nx - tlen) / 2);
+					// Find the starting grid position of the piece
+					var gx = Math.ceil((nx - xlen) / 2);
+					var gy = -ylen;
 
+					// Create the piece
 					var options = Object.assign({
 						gx: gx,
-						gy: 0,
+						gy: gy,
 						tw: tw,
 						th: th
 					}, piece);
@@ -1828,8 +2054,13 @@ var Stage = function (_Canvas) {
 		key: 'point',
 		value: function point(x, y) {
 
+			// Allow items to fall from beyond the top
+			if (y < 0) {
+				return null;
+			}
+
 			// Out of bounds
-			if (y < 0 || y >= this.ny || x < 0 || x >= this.nx) {
+			if (y >= this.ny || x < 0 || x >= this.nx) {
 				// out of bounds
 				return 1;
 			}
@@ -1851,8 +2082,14 @@ var Stage = function (_Canvas) {
 			    gx = _gamepiece2.gx,
 			    gy = _gamepiece2.gy;
 
-			// Mark the board as having filled in
+			// Is the item resting on/above the top?
 
+			if (gy <= 0) {
+				this.end();
+				return;
+			}
+
+			// Mark the board as having filled in
 			points.forEach(function (_ref4) {
 				var _ref5 = _slicedToArray(_ref4, 2),
 				    px = _ref5[0],
@@ -1872,6 +2109,9 @@ var Stage = function (_Canvas) {
 
 			// Remove the gamepiece
 			this.gamepiece.remove();
+
+			// Reset the swipe position
+			this.swipeStart = null;
 
 			// Create a list of marked row indexes to remove from the board
 			var marked = [];
@@ -1987,7 +2227,75 @@ var Stage = function (_Canvas) {
 		}
 	}, {
 		key: 'swipe',
-		value: function swipe() {}
+		value: function swipe(e) {
+
+			// Set prevent default to stop any mouse events from also being called
+			if (typeof TouchEvent !== 'undefined' && e instanceof TouchEvent) {
+				// Prevent the triggering of the mouse events
+				e.preventDefault();
+			}
+
+			var type = e.gesture.type;
+
+			if (type === 'start' && this.ended) {
+				this.reset();
+				return;
+			}
+
+			// Is this a release?
+			if (type === 'release' || type === 'click' || !this.gamepiece) {
+
+				// This has ended
+				this.swipeStart = null;
+
+				if (e.gesture.deltaTime < 200) {
+					this.rotate();
+					return;
+				}
+
+				return;
+			}
+
+			// Start a new one
+			if (type === 'start') {
+				// Record the new start piece
+				this.swipeStartGamePiece = this.gamepiece;
+				return;
+			}
+
+			if (this.swipeStartGamePiece !== this.gamepiece) {
+				// This will force a new touch
+				return;
+			}
+
+			// Set the initial position of the block
+			if (!this.swipeStart) {
+				this.swipeStart = {
+					x: this.gamepiece.gx,
+					y: this.gamepiece.gy
+				};
+			}
+
+			// Using the delta positioning and the tile difference work out how far we can move this
+			var deltaX = parseInt(e.gesture.deltaX / this.tw, 10);
+			var deltaY = parseInt(e.gesture.deltaY / this.th, 10);
+
+			// How far has the current grid changed
+			var x = this.swipeStart.x - this.gamepiece.gx + deltaX;
+
+			// The y value can only be positive
+			var y = Math.max(this.swipeStart.y - this.gamepiece.gy + deltaY, 0);
+
+			// 
+			this.move({ x: x, y: y });
+		}
+	}, {
+		key: 'end',
+		value: function end() {
+			this.credits.visible = true;
+			this.credits.calc(this);
+			this.ended = true;
+		}
 	}]);
 
 	return Stage;
@@ -2003,6 +2311,6 @@ function random(arr) {
 	return arr[Math.floor(arr.length * Math.random())];
 }
 
-},{"./classes/background":10,"./classes/canvas":11,"./classes/collection":12,"./classes/rect":13,"./classes/shape":14,"./classes/text":15}]},{},[16])
+},{"./classes/background":12,"./classes/canvas":13,"./classes/collection":14,"./classes/rect":15,"./classes/shape":16,"./classes/text":17}]},{},[18])
 
 //# sourceMappingURL=tetris.js.map
