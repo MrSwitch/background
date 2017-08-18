@@ -532,7 +532,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 // Constants
 var BACKGROUND_HASH = 'background';
-var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'mousewheel', 'frame', 'resize', 'keydown'];
+var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
 var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;
@@ -1803,7 +1803,7 @@ var Stage = function (_Canvas) {
 		_this3.board = [];
 
 		var credits = new _text2.default();
-		credits.text = 'Ended';
+		credits.text = 'Game Over';
 		credits.zIndex = 1;
 		credits.fontSize = 150;
 		credits.align = 'center center';
@@ -1821,14 +1821,13 @@ var Stage = function (_Canvas) {
 
 		// Is this playing as a background image?
 		// We want to display a button to enable playing in full screen.
-		var playBtn = new _text2.default();
-		playBtn.text = '►';
-		playBtn.zIndex = 1;
-		playBtn.align = 'left top';
-		playBtn.fontSize = 40;
-		playBtn.calc(_this3);
-		playBtn.addEventListener('click', _this3.reset.bind(_this3));
-		_this3.playBtn = playBtn;
+		var info = new _text2.default();
+		info.text = 'Click to start';
+		info.zIndex = 1;
+		info.align = 'center center';
+		info.fontSize = 40;
+		info.calc(_this3);
+		_this3.info = info;
 
 		// // User has clicked an item on the canvas
 		// // We'll use event delegation to tell us what the user has clicked.
@@ -1896,7 +1895,7 @@ var Stage = function (_Canvas) {
 
 			// Add text items
 			this.collection.push(this.credits);
-			this.collection.push(this.playBtn);
+			this.collection.push(this.info);
 			this.collection.push(this.score);
 
 			// Sort the collection by z-index this ensures everything is drawn in the right order
@@ -1914,6 +1913,7 @@ var Stage = function (_Canvas) {
 			// Show Controls and information?
 			this.score.visible = true;
 			this.credits.visible = this.ended;
+			this.info.visible = this.ended;
 		}
 	}, {
 		key: 'frame',
@@ -2294,6 +2294,13 @@ var Stage = function (_Canvas) {
 		value: function end() {
 			this.credits.visible = true;
 			this.credits.calc(this);
+
+			// Update info
+			this.info.visible = true;
+			this.info.calc(this);
+			this.info.y = this.info.y + this.credits.h;
+			this.info.text = 'You scored ' + this.score.text;
+
 			this.ended = true;
 		}
 	}]);

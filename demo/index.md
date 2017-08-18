@@ -5,6 +5,7 @@ title: Play
 <script src="/adorn/adorn.js" async></script>
 
  * [Sun Rise](./sunrise.html)
+ * [Tetris](./tetris.html)
  * [Tiled of Life](./tiledoflife.html)
  * [Color Flood](./colorflood.html)
  * [Mine Field](./minefield.html)

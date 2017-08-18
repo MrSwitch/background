@@ -175,7 +175,7 @@ class Stage extends Canvas {
 		this.board = [];
 
 		const credits = new Text();
-		credits.text = 'Ended';
+		credits.text = 'Game Over';
 		credits.zIndex = 1;
 		credits.fontSize = 150;
 		credits.align = 'center center';
@@ -193,14 +193,14 @@ class Stage extends Canvas {
 
 		// Is this playing as a background image?
 		// We want to display a button to enable playing in full screen.
-		const playBtn = new Text();
-		playBtn.text = '►';
-		playBtn.zIndex = 1;
-		playBtn.align = 'left top';
-		playBtn.fontSize = 40;
-		playBtn.calc(this);
-		playBtn.addEventListener('click', this.reset.bind(this));
-		this.playBtn = playBtn;
+		const info = new Text();
+		info.text = 'Click to start';
+		info.zIndex = 1;
+		info.align = 'center center';
+		info.fontSize = 40;
+		info.calc(this);
+		this.info = info;
+
 
 		// // User has clicked an item on the canvas
 		// // We'll use event delegation to tell us what the user has clicked.
@@ -264,7 +264,7 @@ class Stage extends Canvas {
 
 		// Add text items
 		this.collection.push(this.credits);
-		this.collection.push(this.playBtn);
+		this.collection.push(this.info);
 		this.collection.push(this.score);
 
 		// Sort the collection by z-index this ensures everything is drawn in the right order
@@ -281,6 +281,7 @@ class Stage extends Canvas {
 		// Show Controls and information?
 		this.score.visible = true;
 		this.credits.visible = this.ended;
+		this.info.visible = this.ended;
 	}
 
 	frame() {
@@ -610,6 +611,15 @@ class Stage extends Canvas {
 	end() {
 		this.credits.visible = true;
 		this.credits.calc(this);
+
+
+		// Update info
+		this.info.visible = true;
+		this.info.calc(this);
+		this.info.y = this.info.y + this.credits.h;
+		this.info.text = `You scored ${this.score.text}`;
+
+
 		this.ended = true;
 	}
 }
