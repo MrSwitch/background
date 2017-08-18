@@ -1847,8 +1847,18 @@ var Stage = function (_Canvas) {
 
 	_createClass(Stage, [{
 		key: 'setup',
-		value: function setup() {
+		value: function setup(options) {
+			this.config(options);
+
+			// Setup the board
 			this.reset();
+		}
+	}, {
+		key: 'config',
+		value: function config() {
+			var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+			Object.assign(this.options, options);
 		}
 	}, {
 		key: 'reset',
@@ -1910,10 +1920,11 @@ var Stage = function (_Canvas) {
 	}, {
 		key: 'controls',
 		value: function controls() {
+			var controls = this.options.controls;
 			// Show Controls and information?
-			this.score.visible = true;
-			this.credits.visible = this.ended;
-			this.info.visible = this.ended;
+			this.score.visible = controls;
+			this.credits.visible = controls && this.ended;
+			this.info.visible = controls && this.ended;
 		}
 	}, {
 		key: 'frame',
@@ -2292,16 +2303,19 @@ var Stage = function (_Canvas) {
 	}, {
 		key: 'end',
 		value: function end() {
-			this.credits.visible = true;
+			// Set ended state...
+			this.ended = true;
+
+			// Visible Controls
+			this.controls();
+
+			// "Game Over"
 			this.credits.calc(this);
 
-			// Update info
-			this.info.visible = true;
+			// "You scored 42"
 			this.info.calc(this);
 			this.info.y = this.info.y + this.credits.h;
 			this.info.text = 'You scored ' + this.score.text;
-
-			this.ended = true;
 		}
 	}]);
 
