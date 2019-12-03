@@ -1,9 +1,16 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-module.exports = function (obj) {
+/**
+ * Converts an iterable value to an Array
+ * @param {object} obj - Object to convert into an array
+ * @returns {Array} The object as an array
+ */
+function toArray(obj) {
   return Array.prototype.slice.call(obj);
-};
+}
+
+module.exports = toArray;
 
 },{}],2:[function(require,module,exports){
 'use strict';
@@ -38,8 +45,8 @@ module.exports = function (matches) {
 
 var instanceOf = require('../object/instanceOf.js');
 
-var _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : Element;
-var _HTMLDocument = typeof HTMLDocument !== 'undefined' ? HTMLDocument : Document;
+var _HTMLElement = typeof HTMLElement !== 'undefined' && HTMLElement || typeof Element !== 'undefined' && Element;
+var _HTMLDocument = typeof HTMLDocument !== 'undefined' && HTMLDocument || typeof Document !== 'undefined' && Document;
 var _Window = window.constructor;
 
 module.exports = function (test) {
@@ -97,6 +104,7 @@ var supportsPassive = false;
 try {
 	var opts = Object.defineProperty({}, 'passive', {
 		get: function get() {
+			// eslint-disable-line getter-return
 			supportsPassive = true;
 		}
 	});
@@ -141,7 +149,6 @@ module.exports = function (elements, callback) {
 
 		callback.call(this, e);
 	}, function (e) {
-		gesture(e);
 		e.gesture.type = 'start';
 		callback.call(this, e);
 	}, function (e) {
@@ -249,12 +256,6 @@ module.exports = function (elements, onmove, onstart, onend) {
 		});
 
 		on(element, eventStartTypes, function (startEvent) {
-
-			// Set prevent default to stop any mouse events from also being called
-			if (typeof TouchEvent !== 'undefined' && startEvent instanceof TouchEvent) {
-				// Prevent the triggering of the mouse events
-				startEvent.preventDefault();
-			}
 
 			// default pointer ID
 			var i = startEvent.pointerId || 0;
@@ -568,7 +569,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 // Constants
 var BACKGROUND_HASH = 'background';
-var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'mousewheel', 'frame', 'resize', 'keydown'];
+var UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
 var TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
 var EVENT_SEPARATOR = /[\s\,]+/;

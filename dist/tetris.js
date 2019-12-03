@@ -1,9 +1,16 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-module.exports = function (obj) {
+/**
+ * Converts an iterable value to an Array
+ * @param {object} obj - Object to convert into an array
+ * @returns {Array} The object as an array
+ */
+function toArray(obj) {
   return Array.prototype.slice.call(obj);
-};
+}
+
+module.exports = toArray;
 
 },{}],2:[function(require,module,exports){
 'use strict';
@@ -38,8 +45,8 @@ module.exports = function (matches) {
 
 var instanceOf = require('../object/instanceOf.js');
 
-var _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : Element;
-var _HTMLDocument = typeof HTMLDocument !== 'undefined' ? HTMLDocument : Document;
+var _HTMLElement = typeof HTMLElement !== 'undefined' && HTMLElement || typeof Element !== 'undefined' && Element;
+var _HTMLDocument = typeof HTMLDocument !== 'undefined' && HTMLDocument || typeof Document !== 'undefined' && Document;
 var _Window = window.constructor;
 
 module.exports = function (test) {
@@ -97,6 +104,7 @@ var supportsPassive = false;
 try {
 	var opts = Object.defineProperty({}, 'passive', {
 		get: function get() {
+			// eslint-disable-line getter-return
 			supportsPassive = true;
 		}
 	});
@@ -141,7 +149,6 @@ module.exports = function (elements, callback) {
 
 		callback.call(this, e);
 	}, function (e) {
-		gesture(e);
 		e.gesture.type = 'start';
 		callback.call(this, e);
 	}, function (e) {
@@ -1922,7 +1929,7 @@ var Stage = function (_Canvas) {
 		value: function controls() {
 			var controls = this.options.controls;
 			// Show Controls and information?
-			this.score.visible = controls;
+			this.score.visible = controls && !this.ended;
 			this.credits.visible = controls && this.ended;
 			this.info.visible = controls && this.ended;
 		}
@@ -2172,6 +2179,9 @@ var Stage = function (_Canvas) {
 				this.score.text += marked.length;
 				this.score.calc(this);
 			}
+
+			// Sort the collection by z-index this ensures everything is drawn in the right order
+			this.collection.sort();
 		}
 	}, {
 		key: 'move',
@@ -2297,7 +2307,7 @@ var Stage = function (_Canvas) {
 			// The y value can only be positive
 			var y = Math.max(this.swipeStart.y - this.gamepiece.gy + deltaY, 0);
 
-			// 
+			// Move
 			this.move({ x: x, y: y });
 		}
 	}, {

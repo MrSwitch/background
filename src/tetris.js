@@ -287,7 +287,7 @@ class Stage extends Canvas {
 	controls() {
 		const controls = this.options.controls;
 		// Show Controls and information?
-		this.score.visible = controls;
+		this.score.visible = controls && !this.ended;
 		this.credits.visible = controls && this.ended;
 		this.info.visible = controls && this.ended;
 	}
@@ -489,7 +489,7 @@ class Stage extends Canvas {
 
 			// Loop through and reposition every tile
 			this.board.forEach((row, rowIndex) => {
-				row.forEach((tile) => {
+				row.forEach(tile => {
 					if (tile) {
 						tile.y = rowIndex * this.th;
 					}
@@ -500,6 +500,9 @@ class Stage extends Canvas {
 			this.score.text += marked.length;
 			this.score.calc(this);
 		}
+
+		// Sort the collection by z-index this ensures everything is drawn in the right order
+		this.collection.sort();
 	}
 
 	move({x = 0, y = 0}) {
@@ -611,7 +614,7 @@ class Stage extends Canvas {
 		// The y value can only be positive
 		const y = Math.max(this.swipeStart.y - this.gamepiece.gy + deltaY, 0);
 
-		// 
+		// Move
 		this.move({x, y});
 
 	}
