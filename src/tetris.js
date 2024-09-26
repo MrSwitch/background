@@ -2,12 +2,12 @@
 // Copyright Andrew Dodson, July 2017
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
-import Text from './classes/text';
-import Shape from './classes/shape';
-import Rect from './classes/rect';
-import Background from './classes/background';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
+import Text from './classes/text.js';
+import Shape from './classes/shape.js';
+import Rect from './classes/rect.js';
+import Background from './classes/Background.js';
 
 // Create a new tile
 // Arguments handled by parent
@@ -85,7 +85,7 @@ class Piece extends Shape {
 // Define the shapes which go into making the game...
 const pieces = [
 	{
-		color: 'red',
+		color: '#ff595e',
 		name: 'square',
 		structure: [
 			[1, 1],
@@ -93,7 +93,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'green',
+		color: '#8ac926',
 		name: 'left-l',
 		structure: [
 			[0, 1, 0],
@@ -102,7 +102,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'green',
+		color: '#8ac926',
 		name: 'right-l',
 		structure: [
 			[0, 1, 0],
@@ -111,7 +111,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'orange',
+		color: '#f9a620',
 		name: 'zig',
 		structure: [
 			[1, 0, 0],
@@ -120,7 +120,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'blue',
+		color: '#1982c4',
 		name: 'zag',
 		structure: [
 			[0, 1, 0],
@@ -129,7 +129,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'yellow',
+		color: '#ffca3a',
 		name: 'line',
 		structure: [
 			[0, 1, 0, 0],
@@ -139,7 +139,7 @@ const pieces = [
 		]
 	},
 	{
-		color: 'purple',
+		color: '#6a4c93',
 		name: 'middle',
 		structure: [
 			[0, 1, 0],
@@ -489,7 +489,7 @@ class Stage extends Canvas {
 
 			// Loop through and reposition every tile
 			this.board.forEach((row, rowIndex) => {
-				row.forEach((tile) => {
+				row.forEach(tile => {
 					if (tile) {
 						tile.y = rowIndex * this.th;
 					}
@@ -611,7 +611,7 @@ class Stage extends Canvas {
 		// The y value can only be positive
 		const y = Math.max(this.swipeStart.y - this.gamepiece.gy + deltaY, 0);
 
-		// 
+		//
 		this.move({x, y});
 
 	}

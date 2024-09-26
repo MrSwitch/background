@@ -20,7 +20,7 @@ export default class Shape {
 		}
 	}
 
-//	Set property listeners
+	//	Set property listeners
 	get x() {
 		return this._x;
 	}

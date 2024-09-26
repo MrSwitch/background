@@ -13,7 +13,7 @@ const BACKGROUND_HASH = 'background';
 const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
 const TouchEvents = ['touchmove', 'touchstart', 'touchend'];
 
-const EVENT_SEPARATOR = /[\s\,]+/;
+const EVENT_SEPARATOR = /[\s,]+/;
 
 export default class Canvas {
 
@@ -119,7 +119,6 @@ export default class Canvas {
 	}
 	set width(value) {
 		this.target.width = value;
-		return value;
 	}
 
 	get height() {
@@ -127,7 +126,6 @@ export default class Canvas {
 	}
 	set height(value) {
 		this.target.height = value;
-		return value;
 	}
 	get fps() {
 		return this._fps;

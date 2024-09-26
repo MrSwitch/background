@@ -2,11 +2,11 @@
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
-import Text from './classes/text';
-import Background from './classes/background';
-import extend from 'tricks/object/extend';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
+import Text from './classes/text.js';
+import Background from './classes/Background.js';
+import extend from 'tricks/object/extend.js';
 
 
 // Create a new tile
@@ -74,16 +74,16 @@ class Stage {
 		this.boom = false,
 		this.ended = false;
 
-// Iniitate canvas
+		// Iniitate canvas
 		const canvas = new Canvas();
 		this.canvas = canvas;
 
-// Iniitate collection
+		// Iniitate collection
 		const collection = new Collection(canvas.target);
 		this.collection = collection;
 
-// Add a text Object
-// We only have one text Object on the screen at a time, lets reuse it.
+		// Add a text Object
+		// We only have one text Object on the screen at a time, lets reuse it.
 
 		const title = new Text();
 		title.text = 'MineField';
@@ -112,7 +112,7 @@ class Stage {
 		credits.pointerEvents = false;
 		this.credits = credits;
 
-/******************************************
+		/******************************************
  *  Add Events, to listen to in game play
  ******************************************/
 
@@ -311,25 +311,25 @@ function flood(tile) {
 	// find all tiles around this one.
 	// Filter the array so we only have unique values
 	const edgeTiles = [
-	((Math.max(y - 1, 0) * nx) + Math.max(x - 1, 0))
-	, ((Math.max(y - 1, 0) * nx) + x)
-	, ((Math.max(y - 1, 0) * nx) + Math.min(x + 1, nx - 1))
-	, ((y * nx) + Math.min(x + 1, nx - 1))
-	, (((Math.min(y + 1, ny - 1)) * nx) + Math.min(x + 1, nx - 1))
-	, (((Math.min(y + 1, ny - 1)) * nx) + x)
-	, (((Math.min(y + 1, ny - 1)) * nx) + Math.max(x - 1, 0))
-	, ((y * nx) + Math.max(x - 1, 0))
+		((Math.max(y - 1, 0) * nx) + Math.max(x - 1, 0))
+		, ((Math.max(y - 1, 0) * nx) + x)
+		, ((Math.max(y - 1, 0) * nx) + Math.min(x + 1, nx - 1))
+		, ((y * nx) + Math.min(x + 1, nx - 1))
+		, (((Math.min(y + 1, ny - 1)) * nx) + Math.min(x + 1, nx - 1))
+		, (((Math.min(y + 1, ny - 1)) * nx) + x)
+		, (((Math.min(y + 1, ny - 1)) * nx) + Math.max(x - 1, 0))
+		, ((y * nx) + Math.max(x - 1, 0))
 	]
-	.filter((key, index, arr) => arr.indexOf(key) === index && tiles[key])
-	.map(key => tiles[key]);
+		.filter((key, index, arr) => arr.indexOf(key) === index && tiles[key])
+		.map(key => tiles[key]);
 
 	// Any bombs nearby?
 	// Find the `heat` of the current node
 	// Loop through all the tiles surrouding this point
 	edgeTiles
-	.forEach(_tile => {
-		tile.heat += +_tile.mine;
-	});
+		.forEach(_tile => {
+			tile.heat += +_tile.mine;
+		});
 
 	// Set the tile mode to played
 	tile.played = true;

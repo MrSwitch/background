@@ -2,8 +2,8 @@
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
 import easeInOut from 'tricks/animation/timing.easeInOutCubic.js';
 
 const MATH_PI2 = 2 * Math.PI;

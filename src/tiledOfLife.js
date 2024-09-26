@@ -2,9 +2,9 @@
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
-import Background from './classes/background';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
+import Background from './classes/Background.js';
 
 // Create a new tile
 class Tile {

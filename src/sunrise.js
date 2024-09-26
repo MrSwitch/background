@@ -1,5 +1,5 @@
 
-import Canvas from './classes/canvas';
+import Canvas from './classes/canvas.js';
 
 const canvas = new Canvas();
 canvas.addEventListener('mouseover', () => hover = true);
