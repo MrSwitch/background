@@ -8,6 +8,7 @@ import Text from './classes/text.js';
 import Shape from './classes/shape.js';
 import Rect from './classes/rect.js';
 import Background from './classes/Background.js';
+import { colours } from './classes/colours.js';
 
 // Create a new tile
 // Arguments handled by parent
@@ -85,7 +86,7 @@ class Piece extends Shape {
 // Define the shapes which go into making the game...
 const pieces = [
 	{
-		color: '#ff595e',
+		color: colours.red,
 		name: 'square',
 		structure: [
 			[1, 1],
@@ -93,7 +94,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#8ac926',
+		color: colours.green,
 		name: 'left-l',
 		structure: [
 			[0, 1, 0],
@@ -102,7 +103,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#8ac926',
+		color: colours.green,
 		name: 'right-l',
 		structure: [
 			[0, 1, 0],
@@ -111,7 +112,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#f9a620',
+		color: colours.blue,
 		name: 'zig',
 		structure: [
 			[1, 0, 0],
@@ -120,7 +121,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#1982c4',
+		color: colours.yellow,
 		name: 'zag',
 		structure: [
 			[0, 1, 0],
@@ -129,7 +130,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#ffca3a',
+		color: colours.purple,
 		name: 'line',
 		structure: [
 			[0, 1, 0, 0],
@@ -139,7 +140,7 @@ const pieces = [
 		]
 	},
 	{
-		color: '#6a4c93',
+		color: colours.grey,
 		name: 'middle',
 		structure: [
 			[0, 1, 0],

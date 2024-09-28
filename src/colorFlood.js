@@ -8,6 +8,7 @@ import Collection from './classes/collection.js';
 import Text from './classes/text.js';
 import Background from './classes/Background.js';
 import extend from 'tricks/object/extend.js';
+import {palette} from './classes/colours.js';
 
 // Create a new tile
 // Arguments handled by parent
@@ -24,13 +25,13 @@ class Tile {
 		// Capture the grid position
 		this.grid = new Uint8Array(2);
 
-		let index = Math.floor(Math.random() * palate.length);
-		if (index === palate.length) {
+		let index = Math.floor(Math.random() * palette.length);
+		if (index === palette.length) {
 			index--;
 		}
 
 		this.colorIndex = index;
-		this.fillStyle = palate[this.colorIndex];
+		this.fillStyle = palette[this.colorIndex];
 		this.flooded = false; // is this tile caught
 	}
 
@@ -41,7 +42,7 @@ class Tile {
 	}
 }
 
-const palate = ['#ff595e','#8ac926','#f9a620','#1982c4','#ffca3a','#6a4c93']; //['red', 'green', 'orange', 'blue', 'white', 'black'];
+
 
 class Stage {
 
@@ -281,7 +282,7 @@ function flood(tile) {
 	const [x, y] = tile.grid;
 
 	tile.colorIndex = this.selectedColor;
-	tile.fillStyle = palate[this.selectedColor];
+	tile.fillStyle = palette[this.selectedColor];
 
 	// Mark this as needing to be redrawn
 	tile.dirty = true;

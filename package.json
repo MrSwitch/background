@@ -7,7 +7,8 @@
   "scripts": {
     "lint": "eslint ./",
     "test": "npm run lint && npm run build",
-    "build": "cd src; find *.js -type f -exec esbuild --bundle --sourcemap --minify --target=es2020 \"{}\" --outfile=\"../dist/{}\" \\;"
+    "build": "cd src; find *.js -type f -exec esbuild --bundle --sourcemap --minify --target=es2020 \"{}\" --outfile=\"../dist/{}\" \\;",
+    "debug": "cd src; find *.js -type f -exec esbuild --bundle --sourcemap --target=es2020 \"{}\" --outfile=\"../dist/{}\" \\;"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,6 @@
     "eslint": "^8.57.1"
   },
   "dependencies": {
-    "tricks": "^1.7.1"
+    "tricks": "^2.0.1-rc.1"
   }
 }
