@@ -3,11 +3,12 @@
 // Refactored in 2015
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
-import Text from './classes/text';
-import Background from './classes/background';
-import extend from 'tricks/object/extend';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
+import Text from './classes/text.js';
+import Background from './classes/Background.js';
+import extend from 'tricks/object/extend.js';
+import {palette} from './classes/colours.js';
 
 // Create a new tile
 // Arguments handled by parent
@@ -24,13 +25,13 @@ class Tile {
 		// Capture the grid position
 		this.grid = new Uint8Array(2);
 
-		let index = Math.floor(Math.random() * palate.length);
-		if (index === palate.length) {
+		let index = Math.floor(Math.random() * palette.length);
+		if (index === palette.length) {
 			index--;
 		}
 
 		this.colorIndex = index;
-		this.fillStyle = palate[this.colorIndex];
+		this.fillStyle = palette[this.colorIndex];
 		this.flooded = false; // is this tile caught
 	}
 
@@ -41,7 +42,7 @@ class Tile {
 	}
 }
 
-const palate = ['red', 'green', 'orange', 'blue', 'white', 'black'];
+
 
 class Stage {
 
@@ -98,13 +99,13 @@ Background.add(Stage);
 
 function init() {
 
-// Show text
+	// Show text
 	this.options = {
 		controls: true
 	};
 
-// Add a text Object
-// We only have one text Object on the screen at a time, lets reuse it.
+	// Add a text Object
+	// We only have one text Object on the screen at a time, lets reuse it.
 	const title = new Text();
 	title.text = 'Flood It';
 	title.fontSize = 150;
@@ -122,7 +123,7 @@ function init() {
 	credits.addEventListener('touchstart', setup.bind(this));
 	this.credits = credits;
 
-// Help
+	// Help
 	const info = new Text();
 	info.text = 'Start in the top left corner\nFlood tiles by color\nIn as few moves as possible';
 	info.zIndex = 1;
@@ -139,8 +140,8 @@ function init() {
 	score.fontSize = 40;
 	this.score = score;
 
-// Is this playing as a background image?
-// We want to display a button to enable playing in full screen.
+	// Is this playing as a background image?
+	// We want to display a button to enable playing in full screen.
 	const playBtn = new Text();
 	playBtn.text = '►';
 	playBtn.zIndex = 1;
@@ -151,11 +152,11 @@ function init() {
 	this.playBtn = playBtn;
 
 
-// Rebuild the board on resize
+	// Rebuild the board on resize
 	this.canvas.addEventListener('resize', setup.bind(this));
 
-// User has clicked an item on the canvas
-// We'll use event delegation to tell us what the user has clicked.
+	// User has clicked an item on the canvas
+	// We'll use event delegation to tell us what the user has clicked.
 	this.canvas.addEventListener('click', userClick.bind(this));
 
 }
@@ -281,7 +282,7 @@ function flood(tile) {
 	const [x, y] = tile.grid;
 
 	tile.colorIndex = this.selectedColor;
-	tile.fillStyle = palate[this.selectedColor];
+	tile.fillStyle = palette[this.selectedColor];
 
 	// Mark this as needing to be redrawn
 	tile.dirty = true;

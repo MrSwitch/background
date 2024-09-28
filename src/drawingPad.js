@@ -2,10 +2,10 @@
 // Copyright Andrew Dodson, March 2013
 
 // Get Canvas
-import Canvas from './classes/canvas';
-import Collection from './classes/collection';
-import Shape from './classes/shape';
-import Text from './classes/text';
+import Canvas from './classes/canvas.js';
+import Collection from './classes/collection.js';
+import Shape from './classes/shape.js';
+import Text from './classes/text.js';
 
 // Create a new scribble
 // Arguments handled by parent

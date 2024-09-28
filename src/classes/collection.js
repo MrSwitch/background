@@ -56,7 +56,7 @@ export default class Collection {
 		return this.children.length;
 	}
 	set length (v) {
-		return this.children.length = v;
+		this.children.length = v;
 	}
 
 

@@ -1,6 +1,9 @@
 {
-	"parser": "babel-eslint",
 	"extends": "eslint:recommended",
+	"parserOptions": {
+        "sourceType": "module",
+		"ecmaVersion": 2020 
+    },
 	"rules": {
 		"arrow-spacing": [2, { "before": true, "after": true }],
 		"arrow-body-style": [2, "as-needed"],
