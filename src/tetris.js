@@ -219,14 +219,14 @@ class Stage extends Canvas {
 	}
 
 	setup(options) {
-		this.config(options);
+		this.config(structuredClone(options));
 
 		// Setup the board
 		this.reset();
 	}
 
 	config(options = {}) {
-		Object.assign(this.options, options);
+		Object.assign(this.options, structuredClone(options));
 	}
 
 	reset() {
