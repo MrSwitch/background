@@ -76,7 +76,7 @@ class Stage {
 	setup(options) {
 
 		// Set the options
-		this.config(options);
+		this.config(structuredClone(options));
 
 		// Setup
 		setup.call(this);
@@ -85,7 +85,7 @@ class Stage {
 	config(options) {
 
 		// Merge the current options
-		extend(this.options, options);
+		extend(this.options, structuredClone(options));
 
 		// Show Controls
 		showControls.call(this);
