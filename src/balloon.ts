@@ -7,17 +7,29 @@ import Collection from './classes/collection.js';
 
 const MATH_PI2 = 2 * Math.PI;
 
-const sprites = [];
+const sprites: Record<string, HTMLCanvasElement> = {};
 
 // Create a new tile
 class Balloon {
 
-	constructor(cx, cy, r) {
+	cx: number;
+	cy: number;
+	r: number;
+	ascending: boolean;
+	fillStyle: string;
+	x = 0;
+	y = 0;
+	w = 0;
+	h = 0;
+	dirty: boolean | 'pending' = false;
+
+	constructor(cx: number, cy: number, r: number) {
 
 		this.cx = cx;
 		this.cy = cy;
 		this.r = r;
 
+		this.ascending = true;
 		this.fillStyle = 'black';
 
 		this.calc();
@@ -31,7 +43,7 @@ class Balloon {
 		this.h = r * 2;
 	}
 
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 
 		if (this.r <= 0) {
 			this.r = 0;
@@ -44,7 +56,7 @@ class Balloon {
 			const _canvas = document.createElement('canvas');
 			_canvas.width = Math.ceil(this.w) + 2;
 			_canvas.height = Math.ceil(this.h) + 2;
-			const _ctx = _canvas.getContext('2d');
+			const _ctx = _canvas.getContext('2d')!;
 			_ctx.fillStyle = this.fillStyle;
 			_ctx.beginPath();
 			_ctx.arc(this.r + 1, this.r + 1, this.r, 0, MATH_PI2, false);
@@ -59,38 +71,26 @@ class Balloon {
 	frame() {
 
 		// Is this expanding or shrinking?
-		if (this.r >= max_radius) {
-			// reset the radius
-			this.r = 0;
-
-			// Swap the color
-			this.fillStyle = toggle(this.fillStyle, 'white', 'black');
+		if (this.r <= 0) {
+			this.ascending = true;
+		}
+		else if (this.r >= max_radius) {
+			this.ascending = false;
 		}
 
-		this.r += (max_radius / 200);
+		this.r += (this.ascending ? 1 : -1) * (max_radius / 200);
 		this.calc();
 		this.dirty = true;
 	}
 }
-
-
-function toggle(value, ...args) {
-	const index = args.indexOf(value);
-	let next = args[index + 1];
-	if (next === undefined) {
-		next = args[0];
-	}
-	return next;
-}
-
 
 const canvas = new Canvas();
 const collection = new Collection(canvas.target);
 canvas.addEventListener('resize', setup);
 canvas.addEventListener('frame', () => {
 
-	// // Clear canvas
-	// canvas.ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Clear canvas
+	canvas.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	// Draw items
 	collection.draw();
@@ -98,15 +98,15 @@ canvas.addEventListener('frame', () => {
 
 // draw variant background
 
-const balloons = [];
-let max_radius;
+const balloons: Balloon[] = [];
+let max_radius = 0;
 
 setup();
 
 function setup() {
 
 	// There are 100 balloons
-	const n = 1000;
+	const n = 100;
 
 	// To fill the rectangular screen area
 	const W = canvas.width;
@@ -136,8 +136,8 @@ function setup() {
 		r = (((i + 1) / nx) * w) / 2;
 		for (let j = 0; j < ny; j++) {
 
-			const cx = parseInt((i * w) + (w / 2), 10);
-			const cy = parseInt((j * h) + (h / 2), 10);
+			const cx = Math.floor((i * w) + (w / 2));
+			const cy = Math.floor((j * h) + (h / 2));
 
 			let balloon = balloons[((i * ny) + j)];
 
@@ -156,7 +156,7 @@ function setup() {
 				balloon.cx = cx;
 				balloon.cy = cy;
 				balloon.r = r;
-				balloon.fillStyle = null;
+				balloon.ascending = true;
 			}
 		}
 	}

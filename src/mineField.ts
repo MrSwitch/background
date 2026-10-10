@@ -6,17 +6,31 @@ import Canvas from './classes/canvas.js';
 import Collection from './classes/collection.js';
 import Text from './classes/text.js';
 import Background from './classes/Background.js';
-import extend from 'tricks/object/extend.js';
+import extend from 'tricks/object/extend';
 
+interface StageOptions {
+	controls?: boolean;
+}
 
 // Create a new tile
 // Arguments handled by parent
 class Tile {
 
-	constructor (...args) {
+	x!: number;
+	y!: number;
+	w!: number;
+	h!: number;
+	dirty: boolean | 'pending' = false;
+	mine: boolean;
+	played: boolean;
+	grid: [number, number];
+	fillStyle: string;
+	heat: number;
+
+	constructor (x: number, y: number, w: number, h: number) {
 
 		// Define the position of this square
-		this.position(...args);
+		this.position(x, y, w, h);
 
 		// Mine?
 		// Assign with a 1 in 5 chance
@@ -35,7 +49,7 @@ class Tile {
 		this.heat = 0; // How many bombs are next to this?
 	}
 
-	position(x, y, w, h) {
+	position(x: number, y: number, w: number, h: number) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -45,7 +59,7 @@ class Tile {
 
 	setup() {}
 	frame() {}
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = this.fillStyle;
 		ctx.fillRect(this.x, this.y, this.w, this.h);
 	}
@@ -62,16 +76,31 @@ class Tile {
  * * Data
  ******************************************/
 class Stage {
+
+	options: {controls: boolean};
+	tiles: Tile[];
+	mines: Tile[];
+	flooded: number;
+	boom: boolean;
+	ended: boolean;
+	canvas: Canvas;
+	collection: Collection;
+	title: Text;
+	info: Text;
+	credits: Text;
+	nx = 0;
+	ny = 0;
+
 	constructor() {
 
 		this.options = {
 			controls: true
 		};
 
-		this.tiles = [],
-		this.mines = [],
-		this.flooded = 0,
-		this.boom = false,
+		this.tiles = [];
+		this.mines = [];
+		this.flooded = 0;
+		this.boom = false;
 		this.ended = false;
 
 		// Iniitate canvas
@@ -130,7 +159,7 @@ class Stage {
 
 
 	}
-	setup(options) {
+	setup(options?: StageOptions) {
 
 		// Update config
 		this.config(structuredClone(options));
@@ -138,10 +167,10 @@ class Stage {
 		// Setup all the tiles
 		setup.call(this);
 	}
-	config(options) {
+	config(options?: StageOptions) {
 
 		// Merge the current options
-		extend(this.options, structuredClone(options));
+		extend(this.options, structuredClone(options) ?? {});
 
 		// Show Controls
 		showControls.call(this);
@@ -152,7 +181,7 @@ class Stage {
 // Add Stage to the background
 Background.add(Stage);
 
-function userClick(x, y) {
+function userClick(this: Stage, x: number, y: number) {
 
 	// If we need to reset?
 	if (this.ended) {
@@ -164,13 +193,13 @@ function userClick(x, y) {
 	const target = this.collection.elementFromPoint(x, y);
 
 	if (target && target.type === 'tile') {
-		play.call(this, target);
+		play.call(this, target as Tile);
 	}
 }
 
 
 // Setup
-function setup() {
+function setup(this: Stage) {
 
 	const canvas = this.canvas;
 	const collection = this.collection;
@@ -188,10 +217,8 @@ function setup() {
 	tiles.length = 0;
 	collection.length = 0;
 
-	let h;
-	let w;
-
-	w = h = 50;
+	let h = 50;
+	let w = 50;
 
 	// set number of tiles horizontally and vertically
 	const nx = Math.floor(canvas.width / w);
@@ -239,7 +266,7 @@ function setup() {
 	collection.sort();
 }
 
-function play(tile) {
+function play(this: Stage, tile?: Tile) {
 
 	const mines = this.mines;
 	const tiles = this.tiles;
@@ -293,7 +320,7 @@ function play(tile) {
 }
 
 // Flood this tile with the new colour and its neighbours with the same colour
-function flood(tile) {
+function flood(this: Stage, tile: Tile) {
 
 	const nx = this.nx;
 	const ny = this.ny;
@@ -345,7 +372,7 @@ function flood(tile) {
 }
 
 
-function markTile(tile) {
+function markTile(this: Stage, tile: Tile) {
 	// Style
 	tile.fillStyle = tile.mine ? 'red' : 'rgba(0,0,0,0.1)';
 
@@ -373,7 +400,7 @@ function markTile(tile) {
 	}
 }
 
-function showControls() {
+function showControls(this: Stage) {
 	const showControls = this.options.controls;
 	const inProgress = !(this.flooded === 0 || this.boom || this.ended);
 

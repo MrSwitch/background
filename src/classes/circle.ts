@@ -6,7 +6,12 @@ import Shape from './shape';
 
 export default class Circle extends Shape {
 
-	constructor(cx, cy, r) {
+	cx: number;
+	cy: number;
+	r: number;
+	fillStyle: string | CanvasGradient | CanvasPattern = '#000';
+
+	constructor(cx: number, cy: number, r: number) {
 		// Find the uppermost
 		super(cx - r, cy - r, r, r);
 
@@ -18,7 +23,7 @@ export default class Circle extends Shape {
 		return 'circle';
 	}
 
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 
 		if (this.r <= 0) {
 			this.r = 0;

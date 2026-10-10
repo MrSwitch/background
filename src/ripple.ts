@@ -4,14 +4,26 @@
 // Get Canvas
 import Canvas from './classes/canvas.js';
 import Collection from './classes/collection.js';
-import easeInOut from 'tricks/animation/timing.easeInOutCubic.js';
+import easeInOut from 'tricks/animation/timing.easeInOutCubic';
 
 const MATH_PI2 = 2 * Math.PI;
 const MAX = 500;
 // Create a new tile
 class Ripple {
 
-	constructor(cx, cy, r) {
+	cx: number;
+	cy: number;
+	r: number;
+	fillStyle: string;
+	t: number;
+	x = 0;
+	y = 0;
+	w = 0;
+	h = 0;
+	visible = true;
+	dirty: boolean | 'pending' = false;
+
+	constructor(cx: number, cy: number, r: number) {
 
 		this.cx = cx;
 		this.cy = cy;
@@ -33,7 +45,7 @@ class Ripple {
 		this.h = r * 2;
 	}
 
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 		const opacity = this.t;
 		ctx.fillStyle = `rgba(0,0,0,${opacity / 10})`;
 		ctx.beginPath();

@@ -3,17 +3,29 @@
 
 import Queue from 'tricks/object/Queue';
 
-// Extract the window.background items
-const queue = window.background = new Queue(window.background);
+type BackgroundCallback = (background: typeof Background) => void;
 
-function queueHandler(callback) {
+type StageConstructor = new (target?: HTMLElement) => unknown;
+
+declare global {
+	interface Window {
+		background?: Queue | BackgroundCallback[];
+	}
+}
+
+// Extract the window.background items
+const queue = window.background = new Queue(window.background, undefined);
+
+function queueHandler(callback: BackgroundCallback) {
 	// Each item in the queue should be a function
 	callback(Background);
 }
 
 export default class Background {
 
-	static add(stage) {
+	static stages: StageConstructor[] = [];
+
+	static add(stage: StageConstructor) {
 		// Store the
 		Background.stages.push(stage);
 
@@ -25,7 +37,7 @@ export default class Background {
 	}
 
 	// Create a new instance of a stage
-	static init(target) {
+	static init(target?: HTMLElement) {
 		// Get the default stage which has been registered with this class
 		const stage = Background.stages[0];
 
@@ -35,5 +47,3 @@ export default class Background {
 		}
 	}
 }
-
-Background.stages = [];

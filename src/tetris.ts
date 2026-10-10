@@ -3,18 +3,43 @@
 
 // Get Canvas
 import Canvas from './classes/canvas.js';
+import type {GestureEvent} from './classes/canvas.js';
 import Collection from './classes/collection.js';
 import Text from './classes/text.js';
 import Shape from './classes/shape.js';
 import Rect from './classes/rect.js';
 import Background from './classes/Background.js';
-import { colours } from './classes/colours.js';
+import {colours} from './classes/colours.js';
+
+interface PieceDefinition {
+	color: string;
+	name: string;
+	structure: number[][];
+}
+
+interface PieceOptions extends PieceDefinition {
+	gx: number;
+	gy: number;
+	tw: number;
+	th: number;
+}
+
+interface StageOptions {
+	controls?: boolean;
+}
 
 // Create a new tile
 // Arguments handled by parent
 class Piece extends Shape {
 
-	constructor({gx, gy, tw, th, structure, color}) {
+	tw: number;
+	th: number;
+	gx: number;
+	gy: number;
+	color: string;
+	structure: number[][];
+
+	constructor({gx, gy, tw, th, structure, color}: PieceOptions) {
 
 		const x = tw * gx;
 		const y = th * gy;
@@ -34,7 +59,7 @@ class Piece extends Shape {
 	// Rotate this item
 	rotate() {
 		// Rotate piece
-		const a = [];
+		const a: number[][] = [];
 		const rowCount = this.structure.length;
 		this.structure.forEach((row, rowIndex) => {
 			row.forEach((value, colIndex) => {
@@ -54,7 +79,7 @@ class Piece extends Shape {
 	}
 
 	points() {
-		const a = [];
+		const a: Array<[number, number]> = [];
 		this.structure.forEach((row, y) => {
 			// Find the blocks in the row
 			row.forEach((block, x) => {
@@ -67,7 +92,7 @@ class Piece extends Shape {
 	}
 
 	// Each function passed into the collection must have a draw function
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = this.color;
 
 		// Draw
@@ -84,7 +109,7 @@ class Piece extends Shape {
 }
 
 // Define the shapes which go into making the game...
-const pieces = [
+const pieces: PieceDefinition[] = [
 	{
 		color: colours.red,
 		name: 'square',
@@ -152,7 +177,25 @@ const pieces = [
 
 class Stage extends Canvas {
 
-	constructor(target) {
+	collection: Collection;
+	options: {controls: boolean};
+	board: Array<Array<Rect | null>>;
+	credits: Text;
+	score: Text;
+	info: Text;
+	cadence: number;
+	lastTick: number;
+	ended = false;
+	gamepiece: Piece | null = null;
+	nx = 0;
+	ny = 0;
+	tw = 0;
+	th = 0;
+	diff = 0;
+	swipeStart: {x: number; y: number} | null = null;
+	swipeStartGamePiece: Piece | null = null;
+
+	constructor(target?: HTMLElement) {
 
 		// Initiate the canvas in the base
 		super(target);
@@ -218,14 +261,14 @@ class Stage extends Canvas {
 		this.lastTick = 0;
 	}
 
-	setup(options) {
+	setup(options?: StageOptions) {
 		this.config(structuredClone(options));
 
 		// Setup the board
 		this.reset();
 	}
 
-	config(options = {}) {
+	config(options: StageOptions = {}) {
 		Object.assign(this.options, structuredClone(options));
 	}
 
@@ -308,7 +351,7 @@ class Stage extends Canvas {
 
 				// Can this piece move down?
 				// Find the matrix
-				this.gamepiece.y = parseInt((this.diff + this.gamepiece.gy) * this.th, 10);
+				this.gamepiece.y = Math.trunc((this.diff + this.gamepiece.gy) * this.th);
 			}
 
 			// Is this a big move
@@ -388,13 +431,14 @@ class Stage extends Canvas {
 		}
 	}
 
-	canMove(cords) {
+	canMove(cords: {x?: number; y?: number}) {
 		// Props of the gamepiece
-		const {gx, gy} = this.gamepiece;
+		const gamepiece = this.gamepiece!;
+		const {gx, gy} = gamepiece;
 		const {x = 0, y = 0} = cords;
 
 		// Can move?
-		const points = this.gamepiece.points();
+		const points = gamepiece.points();
 
 		// Is there something at this point on the board?
 		return !points.find(([px, py]) => {
@@ -409,7 +453,7 @@ class Stage extends Canvas {
 		});
 	}
 
-	point(x, y) {
+	point(x: number, y: number) {
 
 		// Allow items to fall from beyond the top
 		if (y < 0) {
@@ -430,8 +474,9 @@ class Stage extends Canvas {
 	restGamepiece() {
 
 		// Set the gamepiece on the board
-		const points = this.gamepiece.points();
-		const {gx, gy} = this.gamepiece;
+		const gamepiece = this.gamepiece!;
+		const points = gamepiece.points();
+		const {gx, gy} = gamepiece;
 
 		// Is the item resting on/above the top?
 		if (gy <= 0) {
@@ -447,20 +492,20 @@ class Stage extends Canvas {
 			// Recreate the square
 			const tile = new Rect(this.tw * x, this.th * y, this.tw, this.th);
 			tile.zIndex = 0;
-			tile.fillStyle = this.gamepiece.color;
+			tile.fillStyle = gamepiece.color;
 			this.collection.push(tile);
 
 			this.board[y][x] = tile;
 		});
 
 		// Remove the gamepiece
-		this.gamepiece.remove();
+		gamepiece.remove();
 
 		// Reset the swipe position
 		this.swipeStart = null;
 
 		// Create a list of marked row indexes to remove from the board
-		const marked = [];
+		const marked: number[] = [];
 
 		// Completed rows?
 		this.board.forEach((row, index) => {
@@ -471,7 +516,7 @@ class Stage extends Canvas {
 			}
 
 			// Detach all tile objects
-			row.forEach(tile => tile.remove());
+			row.forEach(tile => tile?.remove());
 
 			// Add this row index to the marked list
 			marked.push(index);
@@ -498,21 +543,23 @@ class Stage extends Canvas {
 			});
 
 			// Add a score
-			this.score.text += marked.length;
+			this.score.text = Number(this.score.text) + marked.length;
 			this.score.calc(this);
 		}
 	}
 
-	move({x = 0, y = 0}) {
+	move({x = 0, y = 0}: {x?: number; y?: number}) {
+
+		const gamepiece = this.gamepiece;
 
 		// Move the game piece
-		if (this.gamepiece && this.canMove({x, y})) {
+		if (gamepiece && this.canMove({x, y})) {
 
-			this.gamepiece.gx += x;
-			this.gamepiece.x = (this.gamepiece.gx * this.tw);
+			gamepiece.gx += x;
+			gamepiece.x = (gamepiece.gx * this.tw);
 
-			this.gamepiece.gy += y;
-			this.gamepiece.y = (this.gamepiece.gy * this.th);
+			gamepiece.gy += y;
+			gamepiece.y = (gamepiece.gy * this.th);
 
 			// Free to continue falling?
 			if (!this.canMove({y: 1})) {
@@ -528,7 +575,7 @@ class Stage extends Canvas {
 		}
 	}
 
-	keypress({key}) {
+	keypress({key}: {key?: string}) {
 		switch (key) {
 			case 'ArrowRight': {
 				this.move({x: 1});
@@ -552,7 +599,7 @@ class Stage extends Canvas {
 		}
 	}
 
-	swipe(e) {
+	swipe(e: GestureEvent) {
 
 		// Set prevent default to stop any mouse events from also being called
 		if ((typeof TouchEvent !== 'undefined') && e instanceof TouchEvent) {
@@ -603,8 +650,8 @@ class Stage extends Canvas {
 		}
 
 		// Using the delta positioning and the tile difference work out how far we can move this
-		const deltaX = parseInt(e.gesture.deltaX / this.tw, 10);
-		const deltaY = parseInt(e.gesture.deltaY / this.th, 10);
+		const deltaX = Math.trunc(e.gesture.deltaX / this.tw);
+		const deltaY = Math.trunc(e.gesture.deltaY / this.th);
 
 		// How far has the current grid changed
 		const x = this.swipeStart.x - this.gamepiece.gx + deltaX;
@@ -641,6 +688,6 @@ Background.add(Stage);
 
 
 // Select a random item in an array
-function random(arr) {
+function random<T>(arr: T[]): T {
 	return arr[Math.floor(arr.length * Math.random())];
 }
