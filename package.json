@@ -6,9 +6,10 @@
   "type": "module",
   "scripts": {
     "lint": "eslint ./",
-    "test": "npm run lint && npm run build",
-    "build": "cd src; find *.js -type f -exec esbuild --bundle --sourcemap --minify --target=es2020 \"{}\" --outfile=\"../dist/{}\" \\;",
-    "debug": "cd src; find *.js -type f -exec esbuild --bundle --sourcemap --target=es2020 \"{}\" --outfile=\"../dist/{}\" \\;"
+    "type": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run lint && npm run type && npm run build",
+    "build": "esbuild --bundle --sourcemap --minify --target=es2020 --outdir=dist src/*.ts",
+    "debug": "esbuild --bundle --sourcemap --target=es2020 --outdir=dist src/*.ts"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,6 @@
     "typescript-eslint": "^8.71.1"
   },
   "dependencies": {
-    "tricks": "^2.4.0"
+    "tricks": "^2.5.0-rc.2"
   }
 }

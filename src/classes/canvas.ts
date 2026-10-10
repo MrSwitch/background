@@ -8,6 +8,30 @@ import createDummyEvent from 'tricks/events/createDummyEvent';
 import on from 'tricks/events/on';
 import swipe from 'tricks/events/swipe';
 
+// The gesture object attached to events by tricks/events/swipe
+export interface Gesture {
+	type: string;
+	direction: string;
+	distance: number;
+	deltaX: number;
+	deltaY: number;
+	deltaTime: number;
+	velocity: number;
+}
+
+export type GestureEvent = (MouseEvent | TouchEvent) & {gesture: Gesture};
+
+// A loose event type covering the native and synthetic events dispatched through the canvas
+export interface CanvasEvent extends Event {
+	offsetX: number;
+	offsetY: number;
+	pageX?: number;
+	pageY?: number;
+	key?: string;
+}
+
+export type CanvasEventHandler = (e: CanvasEvent) => void;
+
 // Constants
 const BACKGROUND_HASH = 'background';
 const UserEvents = ['click', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'frame', 'resize', 'keydown'];
@@ -17,14 +41,23 @@ const EVENT_SEPARATOR = /[\s,]+/;
 
 export default class Canvas {
 
+	// events
+	events: Record<string, CanvasEventHandler[]> = {};
+
+	target!: HTMLCanvasElement;
+	ctx!: CanvasRenderingContext2D;
+
+	// Optionally defined by subclasses, bound to the swipe gesture handler
+	swipe?(e: GestureEvent): void;
+
+	_time = 0;
+	_fps = 0;
+
 	// Construct the Canvas Element
 	// @param canvas should be an root element container for this imagery.
-	constructor(canvas) {
+	constructor(canvas?: HTMLElement | HTMLCanvasElement | null) {
 
-		let parent;
-
-		// events
-		this.events = {};
+		let parent: HTMLElement | ParentNode | null | undefined;
 
 		// browser check
 		if (!('getContext' in document.createElement('canvas'))) {
@@ -38,15 +71,15 @@ export default class Canvas {
 			parent = canvas;
 
 			// Create the canvas layer
-			canvas = document.createElement('canvas');
-			canvas.style.backgroundColor = 'white';
+			const target = document.createElement('canvas');
+			target.style.backgroundColor = 'white';
 
 			// Not a parent
 			if (!parent) {
 				// Append to the body
 				parent = document.body;
-				canvas.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
-				canvas.setAttribute('tabindex', 0);
+				target.style.cssText = 'position:fixed;z-index:-1;top:0;left:0;';
+				target.setAttribute('tabindex', '0');
 
 				document.documentElement.style.cssText = 'min-height:100%;';
 				document.body.style.cssText = 'min-height:100%;';
@@ -56,9 +89,9 @@ export default class Canvas {
 			}
 
 			// Append this element
-			parent.insertBefore(canvas, parent.firstElementChild);
+			parent.insertBefore(target, parent.firstElementChild);
 
-			this.target = canvas;
+			this.target = target;
 
 			this.resize();
 		}
@@ -67,7 +100,7 @@ export default class Canvas {
 			parent = canvas.parentNode;
 		}
 
-		this.ctx = canvas.getContext('2d');
+		this.ctx = this.target.getContext('2d')!;
 
 		// Set initial save point
 		this.ctx.save();
@@ -87,7 +120,7 @@ export default class Canvas {
 
 		// In IE user-events aren't propagated to elements which have negative z-Index's
 		// Listen to events on the document element and propagate those accordingly
-		if (parent === document.body && canvas.style.getPropertyValue('z-index') === '-1') {
+		if (parent === document.body && this.target.style.getPropertyValue('z-index') === '-1') {
 			// Bind events
 			on(document, UserEvents.toString(), this.dispatchEvent.bind(this), {passive: true});
 
@@ -117,20 +150,20 @@ export default class Canvas {
 	get width() {
 		return this.target.width;
 	}
-	set width(value) {
+	set width(value: number) {
 		this.target.width = value;
 	}
 
 	get height() {
 		return this.target.height;
 	}
-	set height(value) {
+	set height(value: number) {
 		this.target.height = value;
 	}
 	get fps() {
 		return this._fps;
 	}
-	set fps(value) {
+	set fps(value: number) {
 
 		this._fps = value;
 
@@ -145,7 +178,8 @@ export default class Canvas {
 
 
 	resize() {
-		const parent = (this.target.parentNode === document.body) ? document.documentElement : this.target.parentNode;
+		const node = this.target.parentNode;
+		const parent = (node === document.body ? document.documentElement : node) as HTMLElement;
 		const height = parent.clientHeight;
 		const width = parent.clientWidth;
 		let changed = false;
@@ -189,7 +223,7 @@ export default class Canvas {
 	}
 
 	// The user has clicked an item on the page
-	addEventListener(eventnames, handler) {
+	addEventListener(eventnames: string, handler: CanvasEventHandler) {
 
 		eventnames.split(EVENT_SEPARATOR).forEach(eventname => {
 			// Add to the events list
@@ -202,7 +236,7 @@ export default class Canvas {
 	}
 
 	// Dispatch
-	dispatchEvent(e) {
+	dispatchEvent(e: Event) {
 
 		if (e.type in this.events) {
 
@@ -211,27 +245,30 @@ export default class Canvas {
 			// This was triggered using event delegation, aka in the background
 			if (target === document) {
 
+				const me = e as MouseEvent;
+
 				e = createDummyEvent({
 					type: e.type,
 					target: this.target,
-					offsetX: e.pageX || e.offsetX,
-					offsetY: e.pageY || e.offsetY
-				});
+					offsetX: me.pageX || me.offsetX,
+					offsetY: me.pageY || me.offsetY
+				}) as unknown as Event;
 			}
 
-			this.events[e.type].forEach(handler => handler(e));
+			this.events[e.type].forEach(handler => handler(e as CanvasEvent));
 			e.stopPropagation();
 		}
 	}
 
 	// Dispatch
-	dispatchTouchEvent(e) {
+	dispatchTouchEvent(e: Event) {
 		// If this was a touch event
 		// Determine the offset to the canvas element relative to the item being clicked
-		const touch = (e.touches || e.changedTouches)[0];
+		const te = e as TouchEvent & {offsetX?: number; offsetY?: number};
+		const touch = (te.touches || te.changedTouches)[0];
 		if (touch) {
-			e.offsetX = Math.abs(touch.pageX || touch.screenX);
-			e.offsetY = Math.abs(touch.pageY || touch.screenY);
+			te.offsetX = Math.abs(touch.pageX || touch.screenX);
+			te.offsetY = Math.abs(touch.pageY || touch.screenY);
 		}
 
 		this.dispatchEvent(e);
@@ -239,7 +276,7 @@ export default class Canvas {
 }
 
 
-function hashchange(z) {
+function hashchange(this: CSSStyleDeclaration, z?: string | number) {
 
 	const zIndex = 'z-index';
 
@@ -249,7 +286,7 @@ function hashchange(z) {
 
 	if (z !== undefined) {
 		// Set the z-Index
-		this.setProperty(zIndex, z);
+		this.setProperty(zIndex, String(z));
 	}
 	else {
 		// Remove the z-Index

@@ -3,33 +3,46 @@
 
 // Get Canvas
 import Canvas from './classes/canvas.js';
+import type {CanvasEvent} from './classes/canvas.js';
 import Collection from './classes/collection.js';
 import Background from './classes/Background.js';
 
 // Create a new tile
 class Tile {
 
-	constructor(...args) {
+	i: number;
+	ascending: boolean;
+	dx: number;
+	dy: number;
+	grid: number[];
+	x!: number;
+	y!: number;
+	w!: number;
+	h!: number;
+	fillStyle = '';
+	dirty: boolean | 'pending' = false;
+
+	constructor(x: number, y: number, w: number, h: number) {
 
 		this.i = Math.round(Math.random() * this.n);
 		this.ascending = !Math.round(Math.random());
 		this.dx = 0;
 		this.dy = 0;
 		this.grid = [];
-		this.position(...args);
+		this.position(x, y, w, h);
 	}
 
 	get n() {
 		return 100;
 	}
 
-	position(x, y, w, h) {
+	position(x: number, y: number, w: number, h: number) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
 		this.h = h;
 	}
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 
 		if (this.dx || this.dy) {
 			ctx.translate(this.dx, this.dy);
@@ -112,7 +125,12 @@ class Tile {
 }
 
 class Stage {
-	constructor(target) {
+
+	canvas: Canvas;
+	collection: Collection;
+	tiles: Tile[];
+
+	constructor(target?: HTMLElement) {
 
 		const canvas = new Canvas(target);
 		const collection = new Collection(canvas.target);
@@ -143,21 +161,20 @@ class Stage {
 
 // Canvas
 const radius = 80;
-let pointer;
+let pointer: CanvasEvent | null | undefined;
 
 // Add Stage to the background
 Background.add(Stage);
 
 
-function setup() {
+function setup(this: Stage) {
 
 	const canvas = this.canvas;
 	const tiles = this.tiles;
 	const collection = this.collection;
 
-	let h;
-	let w;
-	w = h = 40;
+	let h = 40;
+	let w = 40;
 
 	const nx = Math.floor(canvas.width / w);
 	const ny = Math.floor(canvas.height / h);
@@ -185,8 +202,8 @@ function setup() {
 	}
 }
 
-let timer;
-function action(e) {
+let timer: ReturnType<typeof setTimeout> | undefined;
+function action(e: CanvasEvent) {
 	pointer = e;
 
 	if (timer) {

@@ -4,17 +4,32 @@
 
 // Get Canvas
 import Canvas from './classes/canvas.js';
+import type {CanvasEvent} from './classes/canvas.js';
 import Collection from './classes/collection.js';
 import Text from './classes/text.js';
 import Background from './classes/Background.js';
-import extend from 'tricks/object/extend.js';
+import extend from 'tricks/object/extend';
 import {palette} from './classes/colours.js';
+
+interface StageOptions {
+	controls?: boolean;
+}
 
 // Create a new tile
 // Arguments handled by parent
 class Tile {
 
-	constructor(x, y, w, h) {
+	x: number;
+	y: number;
+	w: number;
+	h: number;
+	grid: [number, number];
+	colorIndex: number;
+	fillStyle: string;
+	flooded: boolean;
+	dirty: boolean | 'pending' = false;
+
+	constructor(x: number, y: number, w: number, h: number) {
 
 		// Parent Object
 		this.x = x;
@@ -23,7 +38,7 @@ class Tile {
 		this.h = h;
 
 		// Capture the grid position
-		this.grid = new Uint8Array(2);
+		this.grid = [0, 0];
 
 		let index = Math.floor(Math.random() * palette.length);
 		if (index === palette.length) {
@@ -36,7 +51,7 @@ class Tile {
 	}
 
 	// Each function passed into the collection must have a draw function
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = this.fillStyle;
 		ctx.fillRect(this.x, this.y, this.w, this.h);
 	}
@@ -45,7 +60,24 @@ class Tile {
 
 class Stage {
 
-	constructor(target) {
+	canvas: Canvas;
+	collection: Collection;
+	tiles: Tile[];
+	options!: {controls: boolean};
+	title!: Text;
+	credits!: Text;
+	info!: Text;
+	score!: Text;
+	playBtn!: Text;
+	clicks = 0;
+	selectedColor: number | null = null;
+	flooded = 1;
+	ended = false;
+	nx = 0;
+	ny = 0;
+	max_tries = 0;
+
+	constructor(target?: HTMLElement) {
 
 		// Initiate the canvas in the base
 		this.canvas = new Canvas(target);
@@ -72,7 +104,7 @@ class Stage {
 		init.call(this);
 	}
 
-	setup(options) {
+	setup(options?: StageOptions) {
 
 		// Set the options
 		this.config(structuredClone(options));
@@ -81,10 +113,10 @@ class Stage {
 		setup.call(this);
 	}
 
-	config(options) {
+	config(options?: StageOptions) {
 
 		// Merge the current options
-		extend(this.options, structuredClone(options));
+		extend(this.options, structuredClone(options) ?? {});
 
 		// Show Controls
 		showControls.call(this);
@@ -96,7 +128,7 @@ class Stage {
 Background.add(Stage);
 
 
-function init() {
+function init(this: Stage) {
 
 	// Show text
 	this.options = {
@@ -160,7 +192,7 @@ function init() {
 
 }
 
-function userClick(e) {
+function userClick(this: Stage, e: CanvasEvent) {
 
 	// Get the item at the click location
 	const target = this.collection.elementFromPoint(e.offsetX, e.offsetY);
@@ -196,7 +228,7 @@ function userClick(e) {
 	showControls.call(this);
 }
 
-function setup() {
+function setup(this: Stage) {
 	// Remove everything
 	this.collection.length = 0;
 	this.tiles.length = 0;
@@ -259,7 +291,7 @@ function setup() {
 }
 
 
-function play(tileSelected) {
+function play(this: Stage, tileSelected?: Tile) {
 
 	if (!tileSelected) {
 		return;
@@ -276,12 +308,12 @@ function play(tileSelected) {
 }
 
 // Flood this tile with the new colour and its neighbours with the same colour
-function flood(tile) {
+function flood(this: Stage, tile: Tile) {
 
 	const [x, y] = tile.grid;
 
-	tile.colorIndex = this.selectedColor;
-	tile.fillStyle = palette[this.selectedColor];
+	tile.colorIndex = this.selectedColor!;
+	tile.fillStyle = palette[tile.colorIndex];
 
 	// Mark this as needing to be redrawn
 	tile.dirty = true;
@@ -306,7 +338,7 @@ function flood(tile) {
 	});
 }
 
-function showControls() {
+function showControls(this: Stage) {
 	// Show Controls and information?
 	const showControls = this.options.controls;
 

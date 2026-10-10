@@ -3,6 +3,7 @@
 
 // Get Canvas
 import Canvas from './classes/canvas.js';
+import type {CanvasEvent} from './classes/canvas.js';
 import Collection from './classes/collection.js';
 import Shape from './classes/shape.js';
 import Text from './classes/text.js';
@@ -11,19 +12,19 @@ import Text from './classes/text.js';
 // Arguments handled by parent
 class Brush extends Shape {
 
-	constructor(...args) {
+	// A collection of x, y points
+	points: Array<[number, number]> = [];
 
-		super(...args);
+	constructor(x: number, y: number) {
 
-		// A collection of x, y points
-		this.points = [];
+		super(x, y);
 
-		this.push(...args);
+		this.push(x, y);
 	}
 
 	// Add
 	// Add a new point to the brushes path
-	push(x, y) {
+	push(x: number, y: number) {
 
 		this.dirty = true;
 		this.points.push([x, y]);
@@ -47,7 +48,7 @@ class Brush extends Shape {
 	}
 
 	// Draw the line
-	draw(ctx) {
+	draw(ctx: CanvasRenderingContext2D) {
 		// Loop through all the points and draw the line
 		ctx.beginPath();
 		const point = this.points[0];
@@ -57,7 +58,7 @@ class Brush extends Shape {
 	}
 }
 
-let brush = null;
+let brush: Brush | null = null;
 
 const canvas = new Canvas();
 
@@ -97,7 +98,7 @@ function hideText() {
 collection.push(text);
 
 
-function pointStart(e) {
+function pointStart(e: CanvasEvent) {
 
 	brush = new Brush(e.offsetX, e.offsetY);
 	collection.push(brush);
@@ -116,11 +117,11 @@ canvas.addEventListener('mousedown', pointStart);
 canvas.addEventListener('mouseup', pointEnd);
 canvas.addEventListener('mousemove', move);
 
-canvas.addEventListener('resize', () => canvas.clean(true));
+canvas.addEventListener('resize', () => canvas.clear());
 
 // Move
 // Depending on the event
-function move(e) {
+function move(e: CanvasEvent) {
 	// is mousedown?
 	if (brush) {
 		brush.push(e.offsetX, e.offsetY);

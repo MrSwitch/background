@@ -3,10 +3,32 @@
 
 import Shape from './shape';
 
+// The minimal canvas interface needed to calculate text dimensions
+interface CanvasLike {
+	ctx: CanvasRenderingContext2D;
+	width: number;
+	height: number;
+}
+
 export default class Text extends Shape {
 
+	// Watched properties, defined via Object.defineProperty in the constructor
+	declare text: string | number;
+	declare shadowBlur: number;
+	declare shadowColor: string;
+	declare fillStyle: string;
+	declare strokeStyle: string | null;
+	declare textAlign: CanvasTextAlign;
+	declare textBaseline: CanvasTextBaseline;
+	declare lineWidth: number;
+
+	align = 'left top';
+	fontSize = 30;
+	font = '';
+	lines: string[] = [];
+
 	// Initiate a new shape object.
-	constructor (text) {
+	constructor (text?: string | number) {
 		// initiate inheritance
 		super();
 
@@ -27,10 +49,10 @@ export default class Text extends Shape {
 	}
 
 	// Define the text and the alignment of the object
-	calc (canvas) {
+	calc (canvas: CanvasLike) {
 
 		// Define text
-		[this.textAlign, this.textBaseline] = this.align.split(' ');
+		const [alignH, alignV] = this.align.split(' ');
 
 		const ctx = canvas.ctx;
 		let fontSize = this.fontSize;
@@ -80,7 +102,7 @@ export default class Text extends Shape {
 
 
 		// HEIGHT and WIDTH
-		switch (this.textAlign) {
+		switch (alignH) {
 			case 'center':
 			case 'middle':
 				this.textAlign = 'center';
@@ -94,7 +116,7 @@ export default class Text extends Shape {
 				break;
 		}
 
-		switch (this.textBaseline) {
+		switch (alignV) {
 			case 'center':
 			case 'middle':
 				this.textBaseline = 'middle';
@@ -115,7 +137,7 @@ export default class Text extends Shape {
 	}
 
 	// Draw
-	draw (ctx) {
+	draw (ctx: CanvasRenderingContext2D) {
 
 		ctx.save();
 
@@ -126,7 +148,9 @@ export default class Text extends Shape {
 			ctx.shadowBlur = this.shadowBlur;
 		}
 		ctx.fillStyle = this.fillStyle;
-		ctx.strokeStyle = this.strokeStyle;
+		if (this.strokeStyle) {
+			ctx.strokeStyle = this.strokeStyle;
+		}
 		ctx.font = this.font;
 
 		ctx.textAlign = this.textAlign;
