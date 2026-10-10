@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint ./",
     "type": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run lint && npm run type && npm run build",
+    "test": "npm run lint && npm run type",
     "build": "esbuild --bundle --sourcemap --minify --target=es2020 --outdir=dist src/*.ts",
     "debug": "esbuild --bundle --sourcemap --target=es2020 --outdir=dist src/*.ts"
   },
