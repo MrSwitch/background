@@ -8,7 +8,7 @@ import Text from './classes/text.js';
 import Shape from './classes/shape.js';
 import Rect from './classes/rect.js';
 import Background from './classes/Background.js';
-import { colours } from './classes/colours.js';
+import {colours} from './classes/colours.js';
 
 // Create a new tile
 // Arguments handled by parent

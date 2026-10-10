@@ -43,7 +43,6 @@ class Tile {
 }
 
 
-
 class Stage {
 
 	constructor(target) {
